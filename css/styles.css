@@ -198,3 +198,240 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .progress-page-grid .achievement-grid{margin-top:18px}.billing-grid .portal-panel:not(.hero-panel){background:linear-gradient(135deg,#fff,#f6f8fd)}
 @media(max-width:1180px){.student-hero-grid,.parent-grid,.instructor-grid,.progress-page-grid,.billing-grid{grid-template-columns:1fr}.resource-grid,.drive-toolbar{grid-template-columns:1fr}.roster-table div{grid-template-columns:1fr 1fr}.portal-topbar:after{position:static;display:block;margin-top:12px}}
 @media(max-width:760px){.role-picker{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr}.resource-grid,.settings-grid{grid-template-columns:1fr}.message-grid{grid-template-columns:1fr}.roster-table div{grid-template-columns:1fr}.portal-topbar:after{letter-spacing:.12em;line-height:1.6}.value-badges span,.achievement-grid span,.schema-grid span,.drive-category-row span{font-size:11px}}
+
+/* ORDS Operations Portal final MVP preview */
+.ops-portal{background:
+  radial-gradient(circle at 88% 0%,rgba(204,163,76,.16),transparent 32%),
+  linear-gradient(135deg,#e9edf5 0%,#f8fafc 42%,#eef2f7 100%);
+}
+.ops-portal .portal-shell{grid-template-columns:292px minmax(0,1fr)}
+.ops-portal .portal-sidebar{
+  background:linear-gradient(180deg,#03050d 0%,#061028 48%,#02040a 100%);
+  border-right:1px solid rgba(214,178,92,.16);
+  box-shadow:16px 0 60px rgba(4,8,20,.18);
+}
+.ops-portal .portal-brand span{letter-spacing:.02em}
+.ops-portal .portal-nav{overflow:auto;padding-right:4px}
+.ops-portal .portal-nav-item{
+  min-height:46px;
+  border-radius:14px;
+  font-size:13px;
+  letter-spacing:.01em;
+}
+.ops-portal .portal-nav-item.active{
+  background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(204,163,76,.16));
+  border-color:rgba(214,178,92,.25);
+  box-shadow:inset 3px 0 0 #cca34c;
+}
+.ops-portal .portal-main{padding:30px;max-width:1520px;width:100%;margin:0 auto}
+.ops-topbar{
+  padding:24px;
+  border:1px solid rgba(17,25,54,.08);
+  border-radius:26px;
+  background:rgba(255,255,255,.72);
+  box-shadow:0 22px 70px rgba(7,9,20,.08);
+  backdrop-filter:blur(18px);
+}
+.ops-topbar:after{content:"Accountability  Scheduling  Communication  Reports";right:24px;bottom:12px}
+.ops-topbar h1{max-width:980px}
+.ops-topbar p{max-width:920px}
+.ops-portal .portal-section{animation:opsFade .28s ease both}
+@keyframes opsFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ops-portal .portal-panel{
+  border-radius:22px;
+  border:1px solid rgba(17,25,54,.09);
+  background:rgba(255,255,255,.84);
+  box-shadow:0 18px 60px rgba(7,9,20,.08);
+  backdrop-filter:blur(12px);
+}
+.ops-portal .hero-panel,
+.ops-portal .ops-hero{
+  background:
+    linear-gradient(135deg,rgba(204,163,76,.16),transparent 34%),
+    linear-gradient(140deg,#050816 0%,#08132f 58%,#02040a 100%);
+  border-color:rgba(214,178,92,.18);
+  box-shadow:0 26px 80px rgba(2,4,10,.22);
+}
+.ops-portal .hero-panel:before{border-color:rgba(204,163,76,.08)}
+.ops-portal .panel-kicker{color:#8f6f2b}
+.ops-portal .hero-panel .panel-kicker{color:#f5d88f}
+.ops-hero-grid{grid-template-columns:1.45fr .82fr}
+.ops-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ops-stats .stat-card{min-height:150px}
+.warning-stat{background:linear-gradient(135deg,#fff,#fff8e8)!important;border-color:rgba(204,163,76,.24)!important}
+.warning-stat strong{color:#8a5e00}
+.light-metrics div{
+  border-color:rgba(17,25,54,.1);
+  background:#f6f8fc;
+}
+.light-metrics strong{color:#111827}
+.light-metrics span{color:#667086}
+.button-row,.action-pair{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.ghost-btn{background:#eef2f8!important;color:#0a112b!important;border:1px solid rgba(17,25,54,.12)!important}
+.status-pill{
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  max-width:100%;
+  margin:8px 0 14px;
+  border:1px solid rgba(17,25,54,.1);
+  border-radius:999px;
+  background:#f1f5f9;
+  color:#334155;
+  padding:9px 12px;
+  font-size:12px;
+  font-weight:950;
+}
+.status-pill.clocked-in,.badge.good{background:#e9fbf0!important;color:#12783c!important;border-color:rgba(18,120,60,.18)!important}
+.status-pill.clocked-out,.badge.warn,.status-pill.pending{background:#fff7df!important;color:#8a5e00!important;border-color:rgba(204,163,76,.28)!important}
+.badge.danger{background:#fff0f0!important;color:#a12828!important;border-color:rgba(161,40,40,.18)!important}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(17,25,54,.1);
+  border-radius:999px;
+  padding:7px 9px;
+  font-size:12px;
+  font-weight:950;
+  white-space:nowrap;
+}
+.approval-note{
+  display:inline-flex;
+  border:1px solid rgba(204,163,76,.26);
+  background:#fff8e8;
+  color:#6f4b00!important;
+  border-radius:14px;
+  padding:10px 12px;
+  font-weight:850;
+}
+.ops-table{display:grid;gap:10px;margin-top:18px}
+.ops-table>div{
+  display:grid;
+  gap:12px;
+  align-items:center;
+  padding:14px;
+  border:1px solid rgba(17,25,54,.08);
+  border-radius:16px;
+  background:#f8fafc;
+}
+.ops-table .table-head{
+  background:#07112e;
+  color:#fff;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  font-weight:950;
+}
+.ops-table span{color:#5f6b80;font-size:13px;font-weight:750;line-height:1.35}
+.ops-table strong{color:#111827}
+.student-ops-table>div{grid-template-columns:1.05fr .65fr .75fr .55fr 1.3fr .65fr}
+.compact-ops-table>div{grid-template-columns:1fr .8fr 1fr .8fr}
+.reschedule-table>div{grid-template-columns:.9fr .9fr 1fr 1.1fr .65fr 1fr}
+.login-table>div{grid-template-columns:.9fr 1fr 1.2fr .75fr .75fr .55fr .8fr}
+.action-pair button{
+  border:0;
+  border-radius:11px;
+  padding:9px 10px;
+  background:#07112e;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.action-pair button+button{background:#fff0f0;color:#a12828}
+.schedule-control-grid{grid-template-columns:1.2fr .8fr}
+.week-schedule{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(150px,1fr));
+  gap:12px;
+  margin-top:18px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+.day-column{
+  min-width:150px;
+  border:1px solid rgba(17,25,54,.08);
+  border-radius:18px;
+  background:#f8fafc;
+  padding:12px;
+}
+.day-column>strong{display:block;color:#07112e;margin-bottom:12px;font-size:18px}
+.lesson-block{
+  display:grid;
+  gap:5px;
+  margin-top:10px;
+  border-left:4px solid #07112e;
+  border-radius:14px;
+  background:#fff;
+  padding:12px;
+  box-shadow:0 10px 28px rgba(7,9,20,.06);
+}
+.lesson-block b{font-size:12px;color:#667086}
+.lesson-block span{font-weight:950;color:#111827}
+.lesson-block small{color:#667086;line-height:1.35;font-weight:750}
+.lesson-block.completed{border-left-color:#1f9b55}
+.lesson-block.late,.lesson-block.requested{border-left-color:#cca34c}
+.lesson-block.no-show{border-left-color:#b42318}
+.clock-grid,.reports-grid,.login-grid{grid-template-columns:.9fr 1.1fr}
+.clock-widget small{display:block;color:#667086;line-height:1.45;margin-top:12px}
+.ops-resource-grid div{
+  background:linear-gradient(135deg,#fff,#f8fafc);
+  border-color:rgba(17,25,54,.08);
+}
+.demo-toast{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+  z-index:1000;
+  max-width:360px;
+  padding:14px 16px;
+  border-radius:16px;
+  background:#07112e;
+  color:#fff;
+  box-shadow:0 22px 70px rgba(2,4,10,.32);
+  opacity:0;
+  transform:translateY(12px);
+  pointer-events:none;
+  transition:.22s ease;
+  font-weight:850;
+}
+.demo-toast.show{opacity:1;transform:none}
+.ops-portal select{
+  appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,#667086 50%),linear-gradient(135deg,#667086 50%,transparent 50%);
+  background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;
+  background-size:5px 5px,5px 5px;
+  background-repeat:no-repeat;
+}
+@media(max-width:1240px){
+  .ops-stats{grid-template-columns:repeat(2,1fr)}
+  .ops-hero-grid,.schedule-control-grid,.clock-grid,.reports-grid,.login-grid{grid-template-columns:1fr}
+  .week-schedule{grid-template-columns:repeat(3,minmax(190px,1fr))}
+}
+@media(max-width:1100px){
+  .ops-portal .portal-shell{grid-template-columns:1fr}
+  .ops-portal .portal-sidebar{position:relative;height:auto}
+  .ops-portal .portal-nav{grid-template-columns:repeat(2,1fr);overflow:visible}
+  .ops-topbar:after{position:static;margin-top:14px}
+}
+@media(max-width:820px){
+  .ops-portal .portal-main{padding:18px}
+  .ops-topbar{padding:20px}
+  .ops-stats,.two-grid,.settings-grid{grid-template-columns:1fr}
+  .week-schedule{grid-template-columns:1fr;overflow:visible}
+  .student-ops-table>div,.compact-ops-table>div,.reschedule-table>div,.login-table>div{
+    grid-template-columns:1fr;
+  }
+  .ops-table .table-head{display:none}
+  .ops-table>div{gap:7px}
+  .portal-panel-head{display:grid}
+  .button-row,.action-pair{width:100%}
+  .action-pair button{flex:1}
+}
+@media(max-width:560px){
+  .ops-portal .portal-nav{grid-template-columns:1fr}
+  .ops-topbar h1{font-size:34px}
+  .portal-actions{width:100%}
+  .portal-action-btn,.inline-btn{width:100%;justify-content:center}
+  .metric-row{grid-template-columns:1fr}
+}

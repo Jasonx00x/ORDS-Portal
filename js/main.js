@@ -50,31 +50,31 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
   const roleCopy={
     student:{
       title:'Good afternoon, Mateo.',
-      subtitle:'Your ORDS practice, schedule, progress, files, and resources in one focused workspace.',
+      subtitle:'Your ORDS schedule, homework, announcements, reports, resources, and approved reschedule requests in one focused workspace.',
       settings:'Student',
-      schedule:'Students can view schedule and request changes. Billing and admin tools stay hidden.'
+      schedule:'Students can view schedule and submit reschedule requests, but instructor/admin approval is required.'
     },
     parent:{
       title:'Good afternoon, Parent.',
-      subtitle:'Observe child progress, upcoming lessons, instructor notes, and invoices without changing assignments.',
+      subtitle:'Observe student progress, homework, announcements, schedule, read receipts, and reschedule request status.',
       settings:'Parent',
-      schedule:'Parents can observe child schedule and notes, but lesson changes stay controlled by ORDS staff.'
+      schedule:'Parents can request a reschedule, but ORDS keeps instructor/admin control over final lesson times.'
     },
     client:{
       title:'Welcome back, Jordan.',
-      subtitle:'Independent client workspace for adult lessons, studio coaching, Drive files, progress, and billing.',
+      subtitle:'Independent client workspace for coaching sessions, resources, announcements, files, and approved schedule changes.',
       settings:'Independent Client',
-      schedule:'Independent clients can view schedule, request changes, and manage their own billing.'
+      schedule:'Independent clients can request schedule changes; instructors/admins approve the final time.'
     },
     instructor:{
-      title:'Teaching dashboard.',
-      subtitle:'Today’s lessons, student roster, lesson notes, assignment reviews, and Drive resources.',
+      title:'Instructor operations dashboard.',
+      subtitle:'Clock in, view today’s schedule, submit lesson reports, track homework, and review reschedule requests.',
       settings:'Instructor',
-      schedule:'Instructors can manage teaching workflow and requests, but cannot access billing or revenue.'
+      schedule:'Instructors can manage teaching workflow, reports, clock-in records, and request approvals.'
     },
     admin:{
       title:'ORDS operations dashboard.',
-      subtitle:'Manage students, parents, instructors, programs, billing, permissions, analytics, and resources.',
+      subtitle:'A polished MVP preview for Karina showing instructor accountability, scheduling control, login records, communication proof, and report completion.',
       settings:'Admin',
       schedule:'Admins can view and manage the full academy schedule across instructors, rooms, and programs.'
     }
@@ -89,7 +89,7 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
   const settingsRole=document.querySelector('#settingsRole');
   const permissionNote=document.querySelector('[data-permission-note]');
   const portalActions=document.querySelector('.portal-actions');
-  let currentRole='student';
+  let currentRole='admin';
 
   const canSee=(btn,role)=>(btn.dataset.roles||'').split(' ').includes(role);
   const actionCanSee=(item,role)=>(item.dataset.actionRoles||'').split(' ').includes(role);
@@ -121,6 +121,63 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
       showSection(btn.dataset.portalSection);
     });
   });
+  document.querySelectorAll('[data-portal-section-jump]').forEach(btn=>{
+    btn.addEventListener('click',()=>showSection(btn.dataset.portalSectionJump));
+  });
   roleTabs.forEach(tab=>tab.addEventListener('click',()=>setRole(tab.dataset.role)));
   if(roleTabs.length) setRole(currentRole);
+})();
+
+// ORDS portal demo interactions
+(function(){
+  const toast=document.querySelector('#demoToast');
+  const showToast=(message)=>{
+    if(!toast) return;
+    toast.textContent=message;
+    toast.classList.add('show');
+    window.clearTimeout(showToast.timer);
+    showToast.timer=window.setTimeout(()=>toast.classList.remove('show'),2600);
+  };
+  const updateTime=()=>{
+    const now=new Date();
+    const value=now.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+    document.querySelectorAll('#demoTime,#demoTimeInstructor').forEach(el=>{el.textContent=value});
+  };
+  updateTime();
+  window.setInterval(updateTime,30000);
+
+  const setClockStatus=(label,cls)=>{
+    document.querySelectorAll('#clockStatus,#instructorClockStatus').forEach(el=>{
+      el.textContent=label;
+      el.classList.remove('clocked-in','clocked-out');
+      if(cls) el.classList.add(cls);
+    });
+  };
+  document.querySelectorAll('[data-clock-action]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const now=new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+      if(btn.dataset.clockAction==='in'){
+        setClockStatus(`Clocked in at ${now}`,'clocked-in');
+        showToast('Clock-in saved. Location captured for this demo event.');
+      }else{
+        setClockStatus(`Clocked out at ${now}`,'clocked-out');
+        showToast('Clock-out saved. Location captured for this demo event.');
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-demo-toast]').forEach(btn=>{
+    btn.addEventListener('click',()=>showToast(btn.dataset.demoToast));
+  });
+  document.querySelectorAll('[data-request-decision]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const row=btn.closest('.ops-table > div');
+      const badge=row?.querySelector('.badge');
+      if(badge){
+        badge.textContent=btn.dataset.requestDecision;
+        badge.className=`badge ${btn.dataset.requestDecision==='Approved'?'good':'danger'}`;
+      }
+      showToast(`Reschedule request ${btn.dataset.requestDecision.toLowerCase()} in the demo queue.`);
+    });
+  });
 })();
