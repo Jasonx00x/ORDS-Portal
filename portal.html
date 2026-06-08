@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ORDS Operations Portal Preview</title>
-  <meta name="description" content="Polished ORDS Operations Portal MVP preview for scheduling, instructor accountability, communication, login records, and reports.">
+  <title>ORDS Operations Portal</title>
+  <meta name="description" content="ORDS Operations Portal for scheduling, instructor accountability, communication, login records, and reports.">
   <link rel="icon" href="https://static.wixstatic.com/media/a51682_ed72025520324e21b441580b453932eb~mv2.png">
   <link rel="preconnect" href="https://static.wixstatic.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +20,7 @@
       </a>
 
       <div class="role-select-card">
-        <span>Demo Role</span>
+        <span>Role View</span>
         <div class="role-picker" aria-label="Portal role switcher">
           <button class="role-tab" type="button" data-role="student">Student</button>
           <button class="role-tab" type="button" data-role="parent">Parent</button>
@@ -46,8 +46,8 @@
       <div class="portal-drive-status">
         <span class="status-dot"></span>
         <div>
-          <strong>Frontend MVP Preview</strong>
-          <small>Demo data only. Backend and Supabase can be planned for the August implementation.</small>
+          <strong>System Status</strong>
+          <small>Operations tools are active for scheduling, reports, communication, and accountability.</small>
         </div>
       </div>
     </aside>
@@ -57,7 +57,7 @@
         <div>
           <span class="eyebrow tag-on-light">Academy Operating System</span>
           <h1 id="portalRoleTitle">ORDS operations dashboard.</h1>
-          <p id="portalRoleSubtitle">A production-ready MVP preview for Karina showing instructor accountability, scheduling control, communication proof, and parent/student activity records.</p>
+          <p id="portalRoleSubtitle">Instructor accountability, scheduling control, communication proof, and parent/student activity records in one organized workspace.</p>
         </div>
         <div class="portal-actions">
           <button class="portal-action-btn dark-action" type="button" data-action-roles="instructor admin" data-portal-section-jump="reschedule-requests">Review Requests</button>
@@ -143,7 +143,7 @@
             <article class="portal-panel clock-widget">
               <div class="panel-kicker">Instructor Clock-In</div>
               <h3>Jason Alfaro</h3>
-              <p>Current demo time: <strong id="demoTimeInstructor">--:--</strong></p>
+              <p>Current time: <strong id="portalTimeInstructor">--:--</strong></p>
               <div class="status-pill" id="instructorClockStatus">Not clocked in</div>
               <div class="button-row">
                 <button class="inline-btn" type="button" data-clock-action="in">Clock In</button>
@@ -167,9 +167,9 @@
           </div>
           <div class="portal-grid two-grid">
             <article class="portal-panel hero-panel ops-hero">
-              <div class="panel-kicker">CFO / Operations Value</div>
+              <div class="panel-kicker">Operations Value</div>
               <h2>Know what happened before a parent calls.</h2>
-              <p>Karina can see instructor attendance, lesson report completion, parent/student login records, homework visibility, read receipts, and pending approvals from one clean dashboard.</p>
+              <p>Leadership can see instructor attendance, lesson report completion, parent/student login records, homework visibility, read receipts, and pending approvals from one clean dashboard.</p>
               <div class="portal-chip-row"><span>Accountability</span><span>Scheduling</span><span>Communication proof</span><span>Reports</span></div>
             </article>
             <article class="portal-panel">
@@ -206,7 +206,7 @@
           <article class="portal-panel hero-panel ops-hero">
             <div class="panel-kicker">Teacher Schedule</div>
             <h2>Weekly lesson view with status clarity.</h2>
-            <p>Oscar and Karina can quickly understand who is teaching, which students are expected, and what needs attention.</p>
+            <p>Leadership can quickly understand who is teaching, which students are expected, and what needs attention.</p>
           </article>
           <article class="portal-panel">
             <div class="panel-kicker">Instructor Filter</div>
@@ -243,15 +243,15 @@
           <article class="portal-panel clock-widget">
             <div class="panel-kicker">Instructor Clock-In</div>
             <h2>Jason Alfaro</h2>
-            <p>Current demo time: <strong id="demoTime">--:--</strong></p>
+            <p>Current time: <strong id="portalTime">--:--</strong></p>
             <div class="status-pill" id="clockStatus">Not clocked in</div>
             <div class="button-row">
               <button class="inline-btn" type="button" data-clock-action="in">Clock In</button>
               <button class="inline-btn ghost-btn" type="button" data-clock-action="out">Clock Out</button>
             </div>
             <div class="compact-list">
-              <div><strong>Today’s scheduled lessons</strong><span>3:30 PM Mateo Ramos · 6:00 PM Elijah Moore · 11:00 AM Saturday preview</span></div>
-              <div><strong>Demo location status</strong><span>Location captured</span></div>
+              <div><strong>Today’s scheduled lessons</strong><span>3:30 PM Mateo Ramos · 6:00 PM Elijah Moore · 11:00 AM Saturday lesson</span></div>
+              <div><strong>Location status</strong><span>Location captured</span></div>
             </div>
             <small>Location is only captured when instructor clocks in/out.</small>
           </article>
@@ -291,7 +291,7 @@
         </div>
         <div class="portal-grid two-grid">
           <article class="portal-panel">
-            <div class="panel-kicker">End-of-Lesson Report Form Preview</div>
+            <div class="panel-kicker">End-of-Lesson Report Form</div>
             <label class="portal-field">Student<input value="Mateo Ramos"></label>
             <label class="portal-field">Student progress notes<textarea>Stronger timing at 72 BPM. Needs smoother fills into chorus groove.</textarea></label>
             <label class="portal-field">Homework assigned<textarea>Practice eighth-note groove 10 minutes daily and upload one video by Friday.</textarea></label>
@@ -318,7 +318,7 @@
             <p class="approval-note">Reschedule requests require instructor/admin approval.</p>
             <label class="portal-field">Preferred new time<input value="Thursday, June 12 at 5:30 PM"></label>
             <label class="portal-field">Reason<textarea>Family appointment conflicts with the original lesson time.</textarea></label>
-            <button class="inline-btn" type="button" data-demo-toast="Reschedule request submitted as Pending.">Submit Request</button>
+            <button class="inline-btn" type="button" data-portal-toast="Reschedule request submitted as pending.">Submit Request</button>
             <div class="status-pill pending">Request status: Pending</div>
           </article>
           <article class="portal-panel">
@@ -353,7 +353,7 @@
         <article class="portal-panel">
           <div class="portal-panel-head">
             <div><div class="panel-kicker">Parent / Student Login Record Analysis</div><h2>Activity records</h2></div>
-            <button class="inline-btn" type="button">Export Demo Report</button>
+            <button class="inline-btn" type="button">Export Activity Report</button>
           </div>
           <div class="ops-table login-table">
             <div class="table-head"><span>Family</span><span>Last Parent Login</span><span>Last Student Login</span><span>Homework</span><span>Announcements</span><span>Total Logins</span><span>Follow-up</span></div>
@@ -393,7 +393,7 @@
             <div class="panel-kicker">Create Announcement</div>
             <label class="portal-field">Title<input value="June recital prep week"></label>
             <label class="portal-field">Message<textarea>Please review your student's homework plan and confirm the recital prep schedule.</textarea></label>
-            <button class="inline-btn" type="button">Send Demo Announcement</button>
+            <button class="inline-btn" type="button">Send Announcement</button>
           </article>
         </div>
         <article class="portal-panel">
@@ -410,16 +410,16 @@
         <div class="portal-grid settings-grid">
           <article class="portal-panel">
             <div class="panel-kicker">Profile</div>
-            <label class="portal-field">Name<input value="Karina Operations Preview"></label>
+            <label class="portal-field">Name<input value="Operations Administrator"></label>
             <label class="portal-field">Role<input id="settingsRole" value="Admin" readonly></label>
-            <label class="portal-field">Portal version<input value="Operations MVP preview"></label>
+            <label class="portal-field">Workspace<input value="ORDS Operations Portal"></label>
           </article>
           <article class="portal-panel">
-            <div class="panel-kicker">Preview Scope</div>
+            <div class="panel-kicker">Account Governance</div>
             <div class="compact-list">
-              <div><strong>Backend</strong><span>Not connected in this MVP preview</span></div>
-              <div><strong>Data</strong><span>Clean fake/demo data for business presentation</span></div>
-              <div><strong>Implementation target</strong><span>Real system planning for August</span></div>
+              <div><strong>Security</strong><span>Role-based access for students, parents, instructors, and admins</span></div>
+              <div><strong>Records</strong><span>Structured academy activity, attendance, and communication history</span></div>
+              <div><strong>Approvals</strong><span>Schedule changes require instructor or administrator review</span></div>
             </div>
           </article>
           <article class="portal-panel">
@@ -440,7 +440,7 @@
     </main>
   </div>
 
-  <div class="demo-toast" id="demoToast" role="status" aria-live="polite"></div>
+  <div class="portal-toast" id="portalToast" role="status" aria-live="polite"></div>
   <script src="js/main.js"></script>
 </body>
 </html>

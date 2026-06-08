@@ -142,7 +142,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .final-video-grid .unmute-btn{z-index:6}
 @media(max-width:980px){.final-video-grid{grid-template-columns:1fr!important;max-width:720px!important}.final-video-grid .video-label{left:22px;right:22px;bottom:22px}}
 
-/* ORDS Portal preview */
+/* ORDS Portal */
 .portal-body{background:#eef2f7;color:#111827;min-height:100vh}
 .portal-shell{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:100vh}
 .portal-sidebar{position:sticky;top:0;height:100vh;background:#02040a;color:#fff;border-right:1px solid rgba(255,255,255,.08);padding:22px;display:flex;flex-direction:column;gap:24px}
@@ -199,7 +199,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 @media(max-width:1180px){.student-hero-grid,.parent-grid,.instructor-grid,.progress-page-grid,.billing-grid{grid-template-columns:1fr}.resource-grid,.drive-toolbar{grid-template-columns:1fr}.roster-table div{grid-template-columns:1fr 1fr}.portal-topbar:after{position:static;display:block;margin-top:12px}}
 @media(max-width:760px){.role-picker{grid-template-columns:1fr}.metric-row{grid-template-columns:1fr}.resource-grid,.settings-grid{grid-template-columns:1fr}.message-grid{grid-template-columns:1fr}.roster-table div{grid-template-columns:1fr}.portal-topbar:after{letter-spacing:.12em;line-height:1.6}.value-badges span,.achievement-grid span,.schema-grid span,.drive-category-row span{font-size:11px}}
 
-/* ORDS Operations Portal final MVP preview */
+/* ORDS Operations Portal final operations portal */
 .ops-portal{background:
   radial-gradient(circle at 88% 0%,rgba(204,163,76,.16),transparent 32%),
   linear-gradient(135deg,#e9edf5 0%,#f8fafc 42%,#eef2f7 100%);
@@ -378,7 +378,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   background:linear-gradient(135deg,#fff,#f8fafc);
   border-color:rgba(17,25,54,.08);
 }
-.demo-toast{
+.portal-toast{
   position:fixed;
   right:22px;
   bottom:22px;
@@ -395,7 +395,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   transition:.22s ease;
   font-weight:850;
 }
-.demo-toast.show{opacity:1;transform:none}
+.portal-toast.show{opacity:1;transform:none}
 .ops-portal select{
   appearance:none;
   background-image:linear-gradient(45deg,transparent 50%,#667086 50%),linear-gradient(135deg,#667086 50%,transparent 50%);

@@ -74,7 +74,7 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
     },
     admin:{
       title:'ORDS operations dashboard.',
-      subtitle:'A polished MVP preview for Karina showing instructor accountability, scheduling control, login records, communication proof, and report completion.',
+      subtitle:'Instructor accountability, scheduling control, login records, communication proof, and report completion in one organized workspace.',
       settings:'Admin',
       schedule:'Admins can view and manage the full academy schedule across instructors, rooms, and programs.'
     }
@@ -128,9 +128,9 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
   if(roleTabs.length) setRole(currentRole);
 })();
 
-// ORDS portal demo interactions
+// ORDS portal interactions
 (function(){
-  const toast=document.querySelector('#demoToast');
+  const toast=document.querySelector('#portalToast');
   const showToast=(message)=>{
     if(!toast) return;
     toast.textContent=message;
@@ -141,7 +141,7 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
   const updateTime=()=>{
     const now=new Date();
     const value=now.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-    document.querySelectorAll('#demoTime,#demoTimeInstructor').forEach(el=>{el.textContent=value});
+    document.querySelectorAll('#portalTime,#portalTimeInstructor').forEach(el=>{el.textContent=value});
   };
   updateTime();
   window.setInterval(updateTime,30000);
@@ -158,16 +158,16 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
       const now=new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
       if(btn.dataset.clockAction==='in'){
         setClockStatus(`Clocked in at ${now}`,'clocked-in');
-        showToast('Clock-in saved. Location captured for this demo event.');
+        showToast('Clock-in saved. Location captured for this clock event.');
       }else{
         setClockStatus(`Clocked out at ${now}`,'clocked-out');
-        showToast('Clock-out saved. Location captured for this demo event.');
+        showToast('Clock-out saved. Location captured for this clock event.');
       }
     });
   });
 
-  document.querySelectorAll('[data-demo-toast]').forEach(btn=>{
-    btn.addEventListener('click',()=>showToast(btn.dataset.demoToast));
+  document.querySelectorAll('[data-portal-toast]').forEach(btn=>{
+    btn.addEventListener('click',()=>showToast(btn.dataset.portalToast));
   });
   document.querySelectorAll('[data-request-decision]').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -177,7 +177,7 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
         badge.textContent=btn.dataset.requestDecision;
         badge.className=`badge ${btn.dataset.requestDecision==='Approved'?'good':'danger'}`;
       }
-      showToast(`Reschedule request ${btn.dataset.requestDecision.toLowerCase()} in the demo queue.`);
+      showToast(`Reschedule request ${btn.dataset.requestDecision.toLowerCase()} in the approval queue.`);
     });
   });
 })();
