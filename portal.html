@@ -33,13 +33,15 @@
       <nav class="portal-nav" aria-label="Portal sections">
         <button class="portal-nav-item active" type="button" data-portal-section="dashboard" data-roles="student parent client instructor admin">Dashboard</button>
         <button class="portal-nav-item" type="button" data-portal-section="students" data-roles="instructor admin">Students</button>
-        <button class="portal-nav-item" type="button" data-portal-section="teacher-schedule" data-roles="student parent client instructor admin">Teacher Schedule</button>
+        <button class="portal-nav-item" type="button" data-portal-section="teacher-schedule" data-roles="admin">Teacher Schedule</button>
         <button class="portal-nav-item" type="button" data-portal-section="clock-in-logs" data-roles="instructor admin">Clock-In Logs</button>
         <button class="portal-nav-item" type="button" data-portal-section="lesson-reports" data-roles="instructor admin">Lesson Reports</button>
         <button class="portal-nav-item" type="button" data-portal-section="reschedule-requests" data-roles="student parent client instructor admin">Reschedule Requests</button>
-        <button class="portal-nav-item" type="button" data-portal-section="login-records" data-roles="parent instructor admin">Login Records</button>
-        <button class="portal-nav-item" type="button" data-portal-section="resources" data-roles="student parent client instructor admin">Resources</button>
-        <button class="portal-nav-item" type="button" data-portal-section="announcements" data-roles="student parent client instructor admin">Announcements</button>
+        <button class="portal-nav-item" type="button" data-portal-section="login-records" data-roles="admin">Login Records</button>
+        <button class="portal-nav-item" type="button" data-portal-section="homework" data-roles="student client instructor admin">Homework</button>
+        <button class="portal-nav-item" type="button" data-portal-section="progress" data-roles="parent admin">Progress</button>
+        <button class="portal-nav-item" type="button" data-portal-section="billing" data-roles="parent admin">Billing</button>
+        <button class="portal-nav-item" type="button" data-portal-section="announcements" data-roles="student client admin">Announcements</button>
         <button class="portal-nav-item" type="button" data-portal-section="settings" data-roles="student parent client instructor admin">Settings</button>
       </nav>
 
@@ -71,7 +73,7 @@
             <article class="portal-panel hero-panel ops-hero">
               <div class="panel-kicker">Student Portal</div>
               <h2>Welcome back, Mateo.</h2>
-              <p>Your schedule, homework, announcements, reports, and reschedule requests are organized in one place.</p>
+              <p>Your homework, announcements, progress, and reschedule requests are organized in one place.</p>
               <div class="metric-row">
                 <div><strong>Sat</strong><span>Next lesson</span></div>
                 <div><strong>Viewed</strong><span>Homework status</span></div>
@@ -92,18 +94,18 @@
             <article class="portal-panel hero-panel ops-hero">
               <div class="panel-kicker">Parent Portal</div>
               <h2>Clear proof of communication.</h2>
-              <p>Parents can see homework, announcements, schedules, and activity receipts without needing staff to guess who saw what.</p>
+              <p>Parents can track student progress, billing, notifications, and reschedule request status without seeing internal staff tools.</p>
               <div class="metric-row">
                 <div><strong>7:42 PM</strong><span>Homework viewed</span></div>
                 <div><strong>12 days</strong><span>Student inactive</span></div>
-                <div><strong>14/20</strong><span>Announcement reads</span></div>
+                <div><strong>$180</strong><span>Open invoice</span></div>
               </div>
             </article>
             <article class="portal-panel">
               <div class="panel-kicker">Parent Assurance</div>
               <h3>Schedule changes are approved.</h3>
               <p>Parents can request a change, but ORDS keeps instructor/admin control over final lesson times.</p>
-              <button class="inline-btn" type="button" data-portal-section-jump="login-records">View Login Records</button>
+              <button class="inline-btn" type="button" data-portal-section-jump="progress">View Progress</button>
             </article>
           </div>
         </div>
@@ -113,10 +115,10 @@
             <article class="portal-panel hero-panel ops-hero">
               <div class="panel-kicker">Independent Client</div>
               <h2>Studio coaching, organized.</h2>
-              <p>Clients can view coaching sessions, upload resources, read announcements, and request schedule changes.</p>
+              <p>Clients can view assigned homework, read announcements, and request schedule changes from approved instructor availability.</p>
               <div class="metric-row">
                 <div><strong>Thu</strong><span>Next session</span></div>
-                <div><strong>5</strong><span>Drive files</span></div>
+                <div><strong>5</strong><span>Homework items</span></div>
                 <div><strong>Pending</strong><span>Schedule request</span></div>
               </div>
             </article>
@@ -133,7 +135,7 @@
             <article class="portal-panel hero-panel ops-hero">
               <div class="panel-kicker">Instructor Workflow</div>
               <h2>Clock in. Teach. Submit reports.</h2>
-              <p>Fast tools for instructor accountability, student notes, homework, attendance, and reschedule approvals.</p>
+              <p>Fast tools for instructor accountability, assigned students, homework, lesson reports, attendance, and reschedule approvals.</p>
               <div class="metric-row">
                 <div><strong>6</strong><span>Lessons today</span></div>
                 <div><strong>2</strong><span>Reports missing</span></div>
@@ -164,6 +166,7 @@
             <article class="portal-panel stat-card"><span>Login activity</span><strong>86</strong><small>This month</small></article>
             <article class="portal-panel stat-card warning-stat"><span>Attendance issues</span><strong>5</strong><small>Late/no-show flags</small></article>
             <article class="portal-panel stat-card"><span>Announcement reads</span><strong>14/20</strong><small>Families confirmed</small></article>
+            <article class="portal-panel stat-card"><span>Billing follow-up</span><strong>6</strong><small>Open invoices</small></article>
           </div>
           <div class="portal-grid two-grid">
             <article class="portal-panel hero-panel ops-hero">
@@ -192,11 +195,11 @@
             <button class="inline-btn" type="button">Add Student</button>
           </div>
           <div class="ops-table student-ops-table">
-            <div class="table-head"><span>Student</span><span>Program</span><span>Instructor</span><span>Attendance</span><span>Login Signal</span><span>Status</span></div>
-            <div><strong>Mateo Ramos</strong><span>Drums</span><span>Jason Alfaro</span><span>97%</span><span>Parent viewed homework yesterday at 7:42 PM</span><span class="badge good">On track</span></div>
-            <div><strong>Ari Thompson</strong><span>Piano</span><span>David</span><span>88%</span><span>Student has not logged in for 12 days</span><span class="badge warn">Needs follow-up</span></div>
-            <div><strong>Naomi Lee</strong><span>Vocals</span><span>Bryan</span><span>94%</span><span>Announcement read</span><span class="badge good">On track</span></div>
-            <div><strong>Jordan Cruz</strong><span>Audio</span><span>Oscar Ramos</span><span>100%</span><span>Client logged in today</span><span class="badge good">Client</span></div>
+            <div class="table-head"><span>Student</span><span>Program</span><span>Instructor</span><span>Attendance</span><span>Care Notes</span><span>Status</span></div>
+            <div><strong>Mateo Ramos</strong><span>Drums</span><span>Jason Alfaro</span><span>97%</span><span>Homework needs one video upload</span><span class="badge good">On track</span></div>
+            <div><strong>Ari Thompson</strong><span>Piano</span><span>David</span><span>88%</span><span>Practice consistency needs follow-up</span><span class="badge warn">Needs follow-up</span></div>
+            <div><strong>Naomi Lee</strong><span>Vocals</span><span>Bryan</span><span>94%</span><span>Strong progress on breath support</span><span class="badge good">On track</span></div>
+            <div><strong>Jordan Cruz</strong><span>Audio</span><span>Oscar Ramos</span><span>100%</span><span>Mix draft ready for review</span><span class="badge good">Client</span></div>
           </div>
         </article>
       </section>
@@ -219,7 +222,7 @@
                 <option>Oscar Ramos</option>
               </select>
             </label>
-            <div class="portal-chip-row"><span>Scheduled</span><span>Completed</span><span>Late Arrival</span><span>No Show</span><span>Reschedule Requested</span></div>
+            <div class="instrument-legend"><span class="inst-drums">Drums</span><span class="inst-guitar">Guitar</span><span class="inst-piano">Piano</span><span class="inst-vocals">Vocals</span><span class="inst-audio">Audio</span></div>
           </article>
         </div>
         <article class="portal-panel">
@@ -228,12 +231,12 @@
             <button class="inline-btn" type="button" data-portal-section-jump="reschedule-requests">Review Requests</button>
           </div>
           <div class="week-schedule">
-            <div class="day-column"><strong>Mon</strong><article class="lesson-block scheduled"><b>3:30 PM</b><span>Mateo Ramos</span><small>Drums · Jason Alfaro · Scheduled</small></article><article class="lesson-block completed"><b>5:00 PM</b><span>Naomi Lee</span><small>Vocals · Bryan · Completed</small></article></div>
-            <div class="day-column"><strong>Tue</strong><article class="lesson-block late"><b>4:00 PM</b><span>Ari Thompson</span><small>Piano · David · Late Arrival</small></article><article class="lesson-block scheduled"><b>6:30 PM</b><span>Jordan Cruz</span><small>Audio · Oscar Ramos · Scheduled</small></article></div>
-            <div class="day-column"><strong>Wed</strong><article class="lesson-block no-show"><b>4:30 PM</b><span>Camila Reyes</span><small>Guitar · Bryan · No Show</small></article><article class="lesson-block completed"><b>6:00 PM</b><span>Elijah Moore</span><small>Bass · Jason Alfaro · Completed</small></article></div>
-            <div class="day-column"><strong>Thu</strong><article class="lesson-block requested"><b>5:30 PM</b><span>Mateo Ramos</span><small>Drums · Jason Alfaro · Reschedule Requested</small></article><article class="lesson-block scheduled"><b>7:00 PM</b><span>Grace Kim</span><small>Piano · David · Scheduled</small></article></div>
-            <div class="day-column"><strong>Fri</strong><article class="lesson-block scheduled"><b>3:00 PM</b><span>Sofia Vega</span><small>Vocals · Bryan · Scheduled</small></article><article class="lesson-block completed"><b>4:30 PM</b><span>Isaac King</span><small>Guitar · Oscar Ramos · Completed</small></article></div>
-            <div class="day-column"><strong>Sat</strong><article class="lesson-block scheduled"><b>11:00 AM</b><span>Mateo Ramos</span><small>Drums · Jason Alfaro · Scheduled</small></article><article class="lesson-block scheduled"><b>1:00 PM</b><span>Ari Thompson</span><small>Piano · David · Scheduled</small></article></div>
+            <div class="day-column"><strong>Mon</strong><article class="lesson-block instrument-drums"><b>3:30 PM</b><span>Mateo Ramos</span><small>Drums · Jason Alfaro · Scheduled</small></article><article class="lesson-block instrument-vocals"><b>5:00 PM</b><span>Naomi Lee</span><small>Vocals · Bryan · Completed</small></article></div>
+            <div class="day-column"><strong>Tue</strong><article class="lesson-block instrument-piano status-late"><b>4:00 PM</b><span>Ari Thompson</span><small>Piano · David · Late Arrival</small></article><article class="lesson-block instrument-audio"><b>6:30 PM</b><span>Jordan Cruz</span><small>Audio · Oscar Ramos · Scheduled</small></article></div>
+            <div class="day-column"><strong>Wed</strong><article class="lesson-block instrument-guitar status-alert"><b>4:30 PM</b><span>Camila Reyes</span><small>Guitar · Bryan · No Show</small></article><article class="lesson-block instrument-drums"><b>6:00 PM</b><span>Elijah Moore</span><small>Drums · Jason Alfaro · Completed</small></article></div>
+            <div class="day-column"><strong>Thu</strong><article class="lesson-block instrument-drums status-requested"><b>5:30 PM</b><span>Mateo Ramos</span><small>Drums · Jason Alfaro · Reschedule Requested</small></article><article class="lesson-block instrument-piano"><b>7:00 PM</b><span>Grace Kim</span><small>Piano · David · Scheduled</small></article></div>
+            <div class="day-column"><strong>Fri</strong><article class="lesson-block instrument-vocals"><b>3:00 PM</b><span>Sofia Vega</span><small>Vocals · Bryan · Scheduled</small></article><article class="lesson-block instrument-guitar"><b>4:30 PM</b><span>Isaac King</span><small>Guitar · Oscar Ramos · Completed</small></article></div>
+            <div class="day-column"><strong>Sat</strong><article class="lesson-block instrument-drums"><b>11:00 AM</b><span>Mateo Ramos</span><small>Drums · Jason Alfaro · Scheduled</small></article><article class="lesson-block instrument-piano"><b>1:00 PM</b><span>Ari Thompson</span><small>Piano · David · Scheduled</small></article></div>
           </div>
         </article>
       </section>
@@ -255,7 +258,7 @@
             </div>
             <small>Location is only captured when instructor clocks in/out.</small>
           </article>
-          <article class="portal-panel">
+          <article class="portal-panel" data-action-roles="admin">
             <div class="panel-kicker">Admin View</div>
             <h2>Clock-in logs</h2>
             <div class="ops-table compact-ops-table">
@@ -313,15 +316,22 @@
       <section class="portal-section" data-section="reschedule-requests">
         <div class="portal-grid two-grid">
           <article class="portal-panel">
-            <div class="panel-kicker">Parent / Student Request</div>
+            <div class="panel-kicker">Reschedule Request</div>
             <h2>Request Reschedule</h2>
             <p class="approval-note">Reschedule requests require instructor/admin approval.</p>
-            <label class="portal-field">Preferred new time<input value="Thursday, June 12 at 5:30 PM"></label>
+            <label class="portal-field">Assigned instructor<input value="Jason Alfaro" readonly></label>
+            <label class="portal-field">Available times
+              <select>
+                <option>Thursday, June 12 at 5:30 PM</option>
+                <option>Saturday, June 14 at 12:30 PM</option>
+                <option>Monday, June 16 at 4:00 PM</option>
+              </select>
+            </label>
             <label class="portal-field">Reason<textarea>Family appointment conflicts with the original lesson time.</textarea></label>
             <button class="inline-btn" type="button" data-portal-toast="Reschedule request submitted as pending.">Submit Request</button>
             <div class="status-pill pending">Request status: Pending</div>
           </article>
-          <article class="portal-panel">
+          <article class="portal-panel" data-action-roles="instructor admin">
             <div class="panel-kicker">Instructor / Admin Approval Queue</div>
             <h2>Pending approvals</h2>
             <div class="ops-table reschedule-table">
@@ -365,21 +375,69 @@
         </article>
       </section>
 
-      <section class="portal-section" data-section="resources">
+      <section class="portal-section" data-section="homework">
         <article class="portal-panel">
           <div class="portal-panel-head">
-            <div><div class="panel-kicker">Resources</div><h2>Academy materials and homework support</h2></div>
-            <button class="inline-btn" type="button">Upload Resource</button>
+            <div><div class="panel-kicker">Homework</div><h2>Assignments and practice materials</h2></div>
+            <button class="inline-btn" type="button" data-action-roles="instructor admin">Assign Homework</button>
           </div>
           <div class="resource-grid ops-resource-grid">
-            <div><strong>Drums</strong><span>Rudiments, worship grooves, metronome practice plans</span></div>
-            <div><strong>Piano</strong><span>Chord charts, number system sheets, practice tracks</span></div>
-            <div><strong>Vocals</strong><span>Warmups, breath support, pitch training references</span></div>
-            <div><strong>Audio</strong><span>Mix templates, EQ notes, session prep checklists</span></div>
-            <div><strong>Parent Docs</strong><span>Attendance policy, communication standards, tuition reminders</span></div>
-            <div><strong>Instructor Docs</strong><span>Clock-in expectations, report templates, student care process</span></div>
+            <div><strong>Mateo Ramos</strong><span>Drums · Rudiments, worship groove at 72 BPM, upload one practice video</span></div>
+            <div><strong>Jordan Cruz</strong><span>Audio · Revise EQ balance and upload the next mix draft</span></div>
+            <div><strong>Ari Thompson</strong><span>Piano · Practice I-IV-V progressions and record chord transitions</span></div>
+            <div><strong>Naomi Lee</strong><span>Vocals · Breath support warmup and pitch matching exercise</span></div>
+            <div data-action-roles="instructor admin"><strong>Instructor Library</strong><span>Reusable homework templates, lesson materials, and upload links</span></div>
+            <div data-action-roles="instructor admin"><strong>Assignment Queue</strong><span>3 homework submissions waiting for instructor review</span></div>
           </div>
         </article>
+      </section>
+
+      <section class="portal-section" data-section="progress">
+        <div class="portal-grid two-grid">
+          <article class="portal-panel hero-panel ops-hero">
+            <div class="panel-kicker">Student Progress</div>
+            <h2>Mateo is on track this month.</h2>
+            <p>Parents can view progress, attendance, instructor feedback, and report summaries without seeing internal admin records.</p>
+            <div class="metric-row">
+              <div><strong>97%</strong><span>Attendance</span></div>
+              <div><strong>84%</strong><span>Homework viewed</span></div>
+              <div><strong>72%</strong><span>Timing focus</span></div>
+            </div>
+          </article>
+          <article class="portal-panel">
+            <div class="panel-kicker">Instructor Summary</div>
+            <h3>Progress notes</h3>
+            <p>Mateo is improving consistency and confidence. Next focus is cleaner transitions between groove patterns.</p>
+            <div class="compact-list">
+              <div><strong>Last report</strong><span>Submitted by Jason Alfaro after Saturday’s lesson</span></div>
+              <div><strong>Current concern</strong><span>Practice video has not been uploaded this week</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="portal-section" data-section="billing">
+        <div class="portal-grid two-grid">
+          <article class="portal-panel hero-panel ops-hero">
+            <div class="panel-kicker">Billing</div>
+            <h2>QuickBooks payment status</h2>
+            <p>Parents can see tuition status while QuickBooks remains the official payment and accounting system.</p>
+            <div class="metric-row">
+              <div><strong>$180</strong><span>Current invoice</span></div>
+              <div><strong>Sent</strong><span>Invoice status</span></div>
+              <div><strong>Jun 10</strong><span>Due date</span></div>
+            </div>
+          </article>
+          <article class="portal-panel">
+            <div class="panel-kicker">Invoices</div>
+            <div class="ops-table compact-ops-table">
+              <div class="table-head"><span>Invoice</span><span>Amount</span><span>Status</span><span>System</span></div>
+              <div><strong>June Tuition</strong><span>$180</span><span class="badge warn">Sent</span><span>QuickBooks</span></div>
+              <div><strong>May Tuition</strong><span>$180</span><span class="badge good">Paid</span><span>QuickBooks</span></div>
+              <div><strong>Studio Add-on</strong><span>$60</span><span class="badge good">Paid</span><span>QuickBooks</span></div>
+            </div>
+          </article>
+        </div>
       </section>
 
       <section class="portal-section" data-section="announcements">
@@ -387,9 +445,9 @@
           <article class="portal-panel hero-panel ops-hero">
             <div class="panel-kicker">Announcements</div>
             <h2>Clear updates with read receipts.</h2>
-            <p>Families can receive academy updates, homework reminders, event notices, and schedule alerts with admin visibility into who opened them.</p>
+            <p>Families receive academy updates, homework reminders, event notices, and schedule alerts in one place.</p>
           </article>
-          <article class="portal-panel">
+          <article class="portal-panel" data-action-roles="admin">
             <div class="panel-kicker">Create Announcement</div>
             <label class="portal-field">Title<input value="June recital prep week"></label>
             <label class="portal-field">Message<textarea>Please review your student's homework plan and confirm the recital prep schedule.</textarea></label>
@@ -410,7 +468,7 @@
         <div class="portal-grid settings-grid">
           <article class="portal-panel">
             <div class="panel-kicker">Profile</div>
-            <label class="portal-field">Name<input value="Operations Administrator"></label>
+            <label class="portal-field">Name<input value="ORDS Account User"></label>
             <label class="portal-field">Role<input id="settingsRole" value="Admin" readonly></label>
             <label class="portal-field">Workspace<input value="ORDS Operations Portal"></label>
           </article>

@@ -50,27 +50,27 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
   const roleCopy={
     student:{
       title:'Good afternoon, Mateo.',
-      subtitle:'Your ORDS schedule, homework, announcements, reports, resources, and approved reschedule requests in one focused workspace.',
+      subtitle:'Your homework, announcements, progress, and approved reschedule requests in one focused workspace.',
       settings:'Student',
-      schedule:'Students can view schedule and submit reschedule requests, but instructor/admin approval is required.'
+      schedule:'Students can request a new lesson time from their assigned instructor’s available openings.'
     },
     parent:{
       title:'Good afternoon, Parent.',
-      subtitle:'Observe student progress, homework, announcements, schedule, read receipts, and reschedule request status.',
+      subtitle:'View student progress, billing status, settings, and reschedule request status without internal staff tools.',
       settings:'Parent',
-      schedule:'Parents can request a reschedule, but ORDS keeps instructor/admin control over final lesson times.'
+      schedule:'Parents can request a new lesson time from the assigned teacher’s available openings.'
     },
     client:{
       title:'Welcome back, Jordan.',
-      subtitle:'Independent client workspace for coaching sessions, resources, announcements, files, and approved schedule changes.',
+      subtitle:'View assigned homework, announcements, and reschedule requests for your coaching sessions.',
       settings:'Independent Client',
-      schedule:'Independent clients can request schedule changes; instructors/admins approve the final time.'
+      schedule:'Independent clients can request schedule changes from approved instructor availability.'
     },
     instructor:{
       title:'Instructor operations dashboard.',
-      subtitle:'Clock in, view today’s schedule, submit lesson reports, track homework, and review reschedule requests.',
+      subtitle:'Manage assigned students, clock-ins, lesson reports, homework, and reschedule approvals.',
       settings:'Instructor',
-      schedule:'Instructors can manage teaching workflow, reports, clock-in records, and request approvals.'
+      schedule:'Instructors can manage students, homework, reports, clock-in records, and request approvals.'
     },
     admin:{
       title:'ORDS operations dashboard.',
