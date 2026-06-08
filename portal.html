@@ -41,7 +41,7 @@
         <button class="portal-nav-item" type="button" data-portal-section="homework" data-roles="student client instructor admin">Homework</button>
         <button class="portal-nav-item" type="button" data-portal-section="progress" data-roles="parent admin">Progress</button>
         <button class="portal-nav-item" type="button" data-portal-section="billing" data-roles="parent admin">Billing</button>
-        <button class="portal-nav-item" type="button" data-portal-section="announcements" data-roles="student client admin">Announcements</button>
+        <button class="portal-nav-item" type="button" data-portal-section="announcements" data-roles="student client instructor admin">Announcements</button>
         <button class="portal-nav-item" type="button" data-portal-section="settings" data-roles="student parent client instructor admin">Settings</button>
       </nav>
 
@@ -444,22 +444,47 @@
         <div class="portal-grid two-grid">
           <article class="portal-panel hero-panel ops-hero">
             <div class="panel-kicker">Announcements</div>
-            <h2>Clear updates with read receipts.</h2>
-            <p>Families receive academy updates, homework reminders, event notices, and schedule alerts in one place.</p>
+            <h2>Separate staff and student communication.</h2>
+            <p>Internal teacher announcements stay with the instructor team. External announcements go to students and clients with read receipts.</p>
+          </article>
+          <article class="portal-panel" data-action-roles="instructor admin">
+            <div class="panel-kicker">Internal Teacher Announcements</div>
+            <h3>Staff updates</h3>
+            <div class="activity-feed">
+              <div><span></span><strong>Clock-in reminder</strong><small>All instructors must clock in before the first lesson block.</small></div>
+              <div><span></span><strong>Report deadline</strong><small>End-of-lesson reports should be submitted before leaving the studio.</small></div>
+              <div><span></span><strong>Room change</strong><small>Piano lessons move to Room 2 on Thursday after 5:00 PM.</small></div>
+            </div>
           </article>
           <article class="portal-panel" data-action-roles="admin">
-            <div class="panel-kicker">Create Announcement</div>
+            <div class="panel-kicker">Create Internal Announcement</div>
+            <label class="portal-field">Title<input value="Saturday room assignments"></label>
+            <label class="portal-field">Message<textarea>Review your room assignments before clocking in for Saturday lessons.</textarea></label>
+            <button class="inline-btn" type="button">Send to Teachers</button>
+          </article>
+          <article class="portal-panel" data-action-roles="admin">
+            <div class="panel-kicker">Create External Announcement</div>
             <label class="portal-field">Title<input value="June recital prep week"></label>
             <label class="portal-field">Message<textarea>Please review your student's homework plan and confirm the recital prep schedule.</textarea></label>
-            <button class="inline-btn" type="button">Send Announcement</button>
+            <button class="inline-btn" type="button">Send to Students</button>
           </article>
         </div>
-        <article class="portal-panel">
+        <article class="portal-panel" data-action-roles="student client admin">
+          <div class="panel-kicker">External Student Announcements</div>
           <div class="ops-table compact-ops-table">
             <div class="table-head"><span>Announcement</span><span>Audience</span><span>Read Receipts</span><span>Action Needed</span></div>
             <div><strong>June recital prep week</strong><span>All families</span><span>14/20 families</span><span class="badge warn">6 unread</span></div>
             <div><strong>Homework reminder</strong><span>Drum students</span><span>9/10 families</span><span class="badge good">Healthy</span></div>
             <div><strong>Studio policy update</strong><span>Clients</span><span>3/3 clients</span><span class="badge good">Complete</span></div>
+          </div>
+        </article>
+        <article class="portal-panel" data-action-roles="instructor admin">
+          <div class="panel-kicker">Internal Announcement Log</div>
+          <div class="ops-table compact-ops-table">
+            <div class="table-head"><span>Announcement</span><span>Audience</span><span>Read Receipts</span><span>Action Needed</span></div>
+            <div><strong>Clock-in reminder</strong><span>Teachers</span><span>5/6 instructors</span><span class="badge warn">1 unread</span></div>
+            <div><strong>Report deadline</strong><span>Teachers</span><span>6/6 instructors</span><span class="badge good">Complete</span></div>
+            <div><strong>Room change</strong><span>Thursday staff</span><span>3/3 instructors</span><span class="badge good">Complete</span></div>
           </div>
         </article>
       </section>
