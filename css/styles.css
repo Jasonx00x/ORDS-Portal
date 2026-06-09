@@ -256,6 +256,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .ops-portal .panel-kicker{color:#8f6f2b}
 .ops-portal .hero-panel .panel-kicker{color:#f5d88f}
 .ops-hero-grid{grid-template-columns:1.45fr .82fr}
+.student-dashboard-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .ops-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
 .ops-stats .stat-card{min-height:150px}
 .warning-stat{background:linear-gradient(135deg,#fff,#fff8e8)!important;border-color:rgba(204,163,76,.24)!important}
@@ -429,6 +430,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 }
 @media(max-width:1240px){
   .ops-stats{grid-template-columns:repeat(2,1fr)}
+  .student-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ops-hero-grid,.schedule-control-grid,.clock-grid,.reports-grid,.login-grid{grid-template-columns:1fr}
   .week-schedule{grid-template-columns:repeat(3,minmax(190px,1fr))}
 }
@@ -441,7 +443,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 @media(max-width:820px){
   .ops-portal .portal-main{padding:18px}
   .ops-topbar{padding:20px}
-  .ops-stats,.two-grid,.settings-grid{grid-template-columns:1fr}
+  .ops-stats,.student-dashboard-grid,.two-grid,.settings-grid{grid-template-columns:1fr}
   .week-schedule{grid-template-columns:1fr;overflow:visible}
   .student-ops-table>div,.compact-ops-table>div,.reschedule-table>div,.login-table>div{
     grid-template-columns:1fr;
