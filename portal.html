@@ -121,8 +121,8 @@
               <h2>Clear proof of communication.</h2>
               <p>Parents can track student progress, billing, notifications, and reschedule request status without seeing internal staff tools.</p>
               <div class="metric-row">
-                <div><strong>7:42 PM</strong><span>Homework viewed</span></div>
-                <div><strong>12 days</strong><span>Student inactive</span></div>
+                <div><strong>88%</strong><span>Student progress</span></div>
+                <div><strong>Sat</strong><span>Next lesson</span></div>
                 <div><strong>$180</strong><span>Open invoice</span></div>
               </div>
             </article>
@@ -191,7 +191,6 @@
             <article class="portal-panel stat-card"><span>Login activity</span><strong>86</strong><small>This month</small></article>
             <article class="portal-panel stat-card warning-stat"><span>Attendance issues</span><strong>5</strong><small>Late/no-show flags</small></article>
             <article class="portal-panel stat-card"><span>Announcement reads</span><strong>14/20</strong><small>Families confirmed</small></article>
-            <article class="portal-panel stat-card"><span>Billing follow-up</span><strong>6</strong><small>Open invoices</small></article>
           </div>
           <div class="portal-grid two-grid">
             <article class="portal-panel hero-panel ops-hero">
@@ -217,7 +216,7 @@
         <article class="portal-panel">
           <div class="portal-panel-head">
             <div><div class="panel-kicker">Students</div><h2>Roster, accountability, and family visibility</h2></div>
-            <button class="inline-btn" type="button">Add Student</button>
+            <button class="inline-btn" type="button" data-portal-toast="Student intake workflow opened.">Add Student</button>
           </div>
           <div class="ops-table student-ops-table">
             <div class="table-head"><span>Student</span><span>Program</span><span>Instructor</span><span>Attendance</span><span>Care Notes</span><span>Status</span></div>
@@ -324,7 +323,7 @@
             <label class="portal-field">Student progress notes<textarea>Stronger timing at 72 BPM. Needs smoother fills into chorus groove.</textarea></label>
             <label class="portal-field">Homework assigned<textarea>Practice eighth-note groove 10 minutes daily and upload one video by Friday.</textarea></label>
             <label class="portal-field">Next lesson focus<textarea>Clean transitions, dynamic control, and worship groove consistency.</textarea></label>
-            <button class="inline-btn" type="button">Submit Lesson Report</button>
+            <button class="inline-btn" type="button" data-portal-toast="Lesson report saved and homework assigned.">Submit Lesson Report</button>
           </article>
           <article class="portal-panel">
             <div class="panel-kicker">Missing Reports</div>
@@ -340,11 +339,11 @@
 
       <section class="portal-section" data-section="reschedule-requests">
         <div class="portal-grid two-grid">
-          <article class="portal-panel">
+          <article class="portal-panel" data-action-roles="student parent client">
             <div class="panel-kicker">Reschedule Request</div>
             <h2>Request Reschedule</h2>
             <p class="approval-note">Reschedule requests require instructor/admin approval.</p>
-            <label class="portal-field">Assigned instructor<input value="Jason Alfaro" readonly></label>
+            <label class="portal-field">Assigned instructor<input id="assignedInstructor" value="Jason Alfaro" readonly></label>
             <label class="portal-field">Available times
               <select>
                 <option>Thursday, June 12 at 5:30 PM</option>
@@ -388,7 +387,7 @@
         <article class="portal-panel">
           <div class="portal-panel-head">
             <div><div class="panel-kicker">Parent / Student Login Record Analysis</div><h2>Activity records</h2></div>
-            <button class="inline-btn" type="button">Export Activity Report</button>
+            <button class="inline-btn" type="button" data-portal-toast="Activity report export prepared.">Export Activity Report</button>
           </div>
           <div class="ops-table login-table">
             <div class="table-head"><span>Family</span><span>Last Parent Login</span><span>Last Student Login</span><span>Homework</span><span>Announcements</span><span>Total Logins</span><span>Follow-up</span></div>
@@ -404,15 +403,23 @@
         <article class="portal-panel">
           <div class="portal-panel-head">
             <div><div class="panel-kicker">Homework</div><h2>Assignments and practice materials</h2></div>
-            <button class="inline-btn" type="button" data-action-roles="instructor admin">Assign Homework</button>
+            <button class="inline-btn" type="button" data-action-roles="instructor admin" data-portal-toast="Assignment composer opened.">Assign Homework</button>
           </div>
-          <div class="resource-grid ops-resource-grid">
+          <div class="resource-grid ops-resource-grid" data-action-roles="student">
+            <div><strong>Mateo Ramos</strong><span>Drums · Rudiments, worship groove at 72 BPM, upload one practice video</span></div>
+            <div><strong>Practice checklist</strong><span>10 minutes rudiments, 10 minutes groove, one upload before Friday</span></div>
+          </div>
+          <div class="resource-grid ops-resource-grid" data-action-roles="client">
+            <div><strong>Jordan Cruz</strong><span>Audio · Revise EQ balance and upload the next mix draft</span></div>
+            <div><strong>Session prep</strong><span>Bring one reference track and notes on mix changes</span></div>
+          </div>
+          <div class="resource-grid ops-resource-grid" data-action-roles="instructor admin">
             <div><strong>Mateo Ramos</strong><span>Drums · Rudiments, worship groove at 72 BPM, upload one practice video</span></div>
             <div><strong>Jordan Cruz</strong><span>Audio · Revise EQ balance and upload the next mix draft</span></div>
             <div><strong>Ari Thompson</strong><span>Piano · Practice I-IV-V progressions and record chord transitions</span></div>
             <div><strong>Naomi Lee</strong><span>Vocals · Breath support warmup and pitch matching exercise</span></div>
-            <div data-action-roles="instructor admin"><strong>Instructor Library</strong><span>Reusable homework templates, lesson materials, and upload links</span></div>
-            <div data-action-roles="instructor admin"><strong>Assignment Queue</strong><span>3 homework submissions waiting for instructor review</span></div>
+            <div><strong>Instructor Library</strong><span>Reusable homework templates, lesson materials, and upload links</span></div>
+            <div><strong>Assignment Queue</strong><span>3 homework submissions waiting for instructor review</span></div>
           </div>
         </article>
       </section>
@@ -425,7 +432,7 @@
             <p>Parents can view progress, attendance, instructor feedback, and report summaries without seeing internal admin records.</p>
             <div class="metric-row">
               <div><strong>97%</strong><span>Attendance</span></div>
-              <div><strong>84%</strong><span>Homework viewed</span></div>
+              <div><strong>84%</strong><span>Practice consistency</span></div>
               <div><strong>72%</strong><span>Timing focus</span></div>
             </div>
           </article>
@@ -485,16 +492,24 @@
             <div class="panel-kicker">Create Internal Announcement</div>
             <label class="portal-field">Title<input value="Saturday room assignments"></label>
             <label class="portal-field">Message<textarea>Review your room assignments before clocking in for Saturday lessons.</textarea></label>
-            <button class="inline-btn" type="button">Send to Teachers</button>
+            <button class="inline-btn" type="button" data-portal-toast="Internal announcement queued for teachers.">Send to Teachers</button>
           </article>
           <article class="portal-panel" data-action-roles="admin">
             <div class="panel-kicker">Create External Announcement</div>
             <label class="portal-field">Title<input value="June recital prep week"></label>
             <label class="portal-field">Message<textarea>Please review your student's homework plan and confirm the recital prep schedule.</textarea></label>
-            <button class="inline-btn" type="button">Send to Students</button>
+            <button class="inline-btn" type="button" data-portal-toast="External announcement queued for students and clients.">Send to Students</button>
           </article>
         </div>
-        <article class="portal-panel" data-action-roles="student client admin">
+        <article class="portal-panel" data-action-roles="student client">
+          <div class="panel-kicker">External Student Announcements</div>
+          <div class="compact-list">
+            <div><strong>June recital prep week</strong><span>Please review your practice plan and confirm your recital preparation schedule.</span></div>
+            <div><strong>Homework reminder</strong><span>Your current assignment is due before the next lesson.</span></div>
+            <div><strong>Studio policy update</strong><span>Please arrive five minutes early for coaching sessions.</span></div>
+          </div>
+        </article>
+        <article class="portal-panel" data-action-roles="admin">
           <div class="panel-kicker">External Student Announcements</div>
           <div class="ops-table compact-ops-table">
             <div class="table-head"><span>Announcement</span><span>Audience</span><span>Read Receipts</span><span>Action Needed</span></div>
@@ -522,7 +537,7 @@
             <label class="portal-field">Role<input id="settingsRole" value="Admin" readonly></label>
             <label class="portal-field">Workspace<input value="ORDS Operations Portal"></label>
           </article>
-          <article class="portal-panel">
+          <article class="portal-panel" data-action-roles="admin">
             <div class="panel-kicker">Account Governance</div>
             <div class="compact-list">
               <div><strong>Security</strong><span>Role-based access for students, parents, instructors, and admins</span></div>
@@ -530,16 +545,30 @@
               <div><strong>Approvals</strong><span>Schedule changes require instructor or administrator review</span></div>
             </div>
           </article>
+          <article class="portal-panel" data-action-roles="student parent client">
+            <div class="panel-kicker">Account Preferences</div>
+            <div class="compact-list">
+              <div><strong>Profile</strong><span>Update name, contact details, and communication preferences</span></div>
+              <div><strong>Notifications</strong><span>Lesson reminders, approvals, and announcement alerts are enabled</span></div>
+            </div>
+          </article>
+          <article class="portal-panel" data-action-roles="instructor">
+            <div class="panel-kicker">Instructor Preferences</div>
+            <div class="compact-list">
+              <div><strong>Teaching alerts</strong><span>Clock-in reminders, report due alerts, and request approvals are enabled</span></div>
+              <div><strong>Student updates</strong><span>Homework submissions and roster changes are sent to this account</span></div>
+            </div>
+          </article>
           <article class="portal-panel">
             <div class="panel-kicker">Notification Controls</div>
             <div class="settings-options">
               <label><input type="checkbox" checked> Lesson reminders</label>
-              <label><input type="checkbox" checked> Missing report alerts</label>
-              <label><input type="checkbox" checked> Reschedule approval alerts</label>
-              <label><input type="checkbox" checked> Parent/student inactivity alerts</label>
+              <label><input type="checkbox" checked> Reschedule updates</label>
+              <label><input type="checkbox" checked> Announcement alerts</label>
+              <label><input type="checkbox" checked> Account and billing reminders</label>
             </div>
           </article>
-          <article class="portal-panel">
+          <article class="portal-panel" data-action-roles="admin">
             <div class="panel-kicker">Brand</div>
             <div class="value-badges"><span>Premium navy</span><span>Black</span><span>White</span><span>Subtle gold</span><span>Christian academy tone</span></div>
           </article>

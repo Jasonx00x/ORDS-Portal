@@ -87,6 +87,7 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
   const title=document.querySelector('#portalRoleTitle');
   const subtitle=document.querySelector('#portalRoleSubtitle');
   const settingsRole=document.querySelector('#settingsRole');
+  const assignedInstructor=document.querySelector('#assignedInstructor');
   const permissionNote=document.querySelector('[data-permission-note]');
   const portalActions=document.querySelector('.portal-actions');
   let currentRole='admin';
@@ -110,6 +111,7 @@ document.querySelectorAll('[data-flow-back]').forEach(btn=>btn.addEventListener(
     if(title) title.textContent=roleCopy[role].title;
     if(subtitle) subtitle.textContent=roleCopy[role].subtitle;
     if(settingsRole) settingsRole.value=roleCopy[role].settings;
+    if(assignedInstructor) assignedInstructor.value=role==='client' ? 'Oscar Ramos' : 'Jason Alfaro';
     if(permissionNote) permissionNote.textContent=roleCopy[role].schedule;
     const active=document.querySelector('.portal-nav-item.active');
     if(!active || active.classList.contains('is-hidden')) showSection('dashboard');
