@@ -73,10 +73,17 @@ export function PortalShell({ section }: PortalShellProps) {
         </Link>
 
         <div className="role-select-card">
-          <span>Mock Role</span>
-          <div className="role-picker" aria-label="Development role switcher">
+          <span>Portal Access</span>
+          <div className="role-picker" aria-label="Portal access role switcher">
             {roles.map((item) => (
-              <button className={item === role ? "role-tab active" : "role-tab"} key={item} type="button" onClick={() => changeRole(item)}>
+              <button
+                aria-pressed={item === role}
+                className={item === role ? "role-tab active" : "role-tab"}
+                data-role={item}
+                key={item}
+                type="button"
+                onClick={() => changeRole(item)}
+              >
                 {roleLabels[item]}
               </button>
             ))}
@@ -85,7 +92,7 @@ export function PortalShell({ section }: PortalShellProps) {
 
         <nav className="portal-nav" aria-label="Portal sections">
           {visibleNav.map((item) => (
-            <Link className={pathname === item.href ? "portal-nav-item active" : "portal-nav-item"} href={item.href} key={item.href}>
+            <Link className={pathname === item.href ? "portal-nav-item active" : "portal-nav-item"} data-section={item.section} href={item.href} key={item.href}>
               {item.label}
             </Link>
           ))}
@@ -94,8 +101,8 @@ export function PortalShell({ section }: PortalShellProps) {
         <div className="portal-drive-status">
           <span className="status-dot" />
           <div>
-            <strong>Phase 1 Local App</strong>
-            <small>Mock auth and role permissions are active. Supabase comes in Phase 2.</small>
+            <strong>Access Controls Active</strong>
+            <small>Role-based navigation is ready for connected accounts.</small>
           </div>
         </div>
       </aside>

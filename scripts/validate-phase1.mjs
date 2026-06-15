@@ -1,0 +1,89 @@
+import { accessSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import ts from "typescript";
+
+const root = process.cwd();
+const rolesSource = readFileSync(join(root, "lib/roles.ts"), "utf8");
+const rolesModule = ts.transpileModule(rolesSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+});
+const rolesDataUrl = `data:text/javascript;base64,${Buffer.from(rolesModule.outputText).toString("base64")}`;
+const { navItems, roleLabels } = await import(rolesDataUrl);
+
+const expectedNav = {
+  admin: [
+    "Dashboard",
+    "Students",
+    "Teacher Schedule",
+    "Clock-In Logs",
+    "Lesson Reports",
+    "Reschedule Requests",
+    "Login Records",
+    "Homework",
+    "Progress",
+    "Billing",
+    "Announcements",
+    "Settings",
+  ],
+  instructor: ["Dashboard", "Students", "Clock-In Logs", "Lesson Reports", "Reschedule Requests", "Homework", "Announcements", "Settings"],
+  parent: ["Dashboard", "Reschedule Requests", "Progress", "Billing", "Settings"],
+  student: ["Dashboard", "Reschedule Requests", "Homework", "Announcements", "Settings"],
+  client: ["Dashboard", "Reschedule Requests", "Homework", "Announcements", "Settings"],
+};
+
+const requiredRoutes = [
+  "app/dashboard/page.tsx",
+  "app/students/page.tsx",
+  "app/schedule/page.tsx",
+  "app/clock-in/page.tsx",
+  "app/lesson-reports/page.tsx",
+  "app/reschedule-requests/page.tsx",
+  "app/login-records/page.tsx",
+  "app/homework/page.tsx",
+  "app/progress/page.tsx",
+  "app/billing/page.tsx",
+  "app/announcements/page.tsx",
+  "app/settings/page.tsx",
+  "app/login/page.tsx",
+];
+
+const visibleUiFiles = ["components/PortalShell.tsx", "app/login/page.tsx"];
+const blockedPreviewTerms = [/Karina/i, /\bCFO\b/i, /\bMVP\b/i, /Supabase/i, /Mock Role/i, /Phase 1/i];
+const failures = [];
+
+for (const role of Object.keys(roleLabels)) {
+  const actual = navItems.filter((item) => item.roles.includes(role)).map((item) => item.label);
+  const expected = expectedNav[role];
+  if (!expected) {
+    failures.push(`Missing expected navigation contract for role: ${role}`);
+    continue;
+  }
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    failures.push(`Navigation mismatch for ${role}: expected [${expected.join(", ")}], got [${actual.join(", ")}]`);
+  }
+}
+
+for (const route of requiredRoutes) {
+  try {
+    accessSync(join(root, route));
+  } catch {
+    failures.push(`Missing route file: ${route}`);
+  }
+}
+
+for (const file of visibleUiFiles) {
+  const source = readFileSync(join(root, file), "utf8");
+  for (const term of blockedPreviewTerms) {
+    if (term.test(source)) failures.push(`Preview-only wording found in ${file}: ${term}`);
+  }
+}
+
+if (failures.length) {
+  console.error(failures.map((failure) => `- ${failure}`).join("\n"));
+  process.exit(1);
+}
+
+console.log("Phase 1 validation passed.");

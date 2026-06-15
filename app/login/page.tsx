@@ -17,12 +17,12 @@ export default function LoginPage() {
     <main className="login-shell">
       <section className="login-panel">
         <span className="eyebrow tag-on-light">ORDS Operations Portal</span>
-        <h1>Choose a role to enter the local MVP.</h1>
-        <p>Phase 1 uses mock authentication so we can build and test permissions before Supabase is connected.</p>
+        <h1>Choose portal access.</h1>
+        <p>Select a role to review the tailored workspace, permissions, and daily workflow for each account type.</p>
         <div className="login-role-grid">
           {roles.map((role) => (
-            <button className="inline-btn" key={role} type="button" onClick={() => enterAs(role)}>
-              Continue as {roleLabels[role]}
+            <button className="inline-btn" data-role={role} key={role} type="button" onClick={() => enterAs(role)}>
+              Enter as {roleLabels[role]}
             </button>
           ))}
         </div>
