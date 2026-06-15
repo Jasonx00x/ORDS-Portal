@@ -1,2 +1,7 @@
 preview-server.*.log
 .DS_Store
+node_modules/
+.next/
+out/
+.env.local
+npm-debug.log*

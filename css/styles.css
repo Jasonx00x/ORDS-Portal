@@ -461,3 +461,28 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .portal-action-btn,.inline-btn{width:100%;justify-content:center}
   .metric-row{grid-template-columns:1fr}
 }
+
+.login-shell{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:28px;
+}
+.login-panel{
+  width:min(760px,100%);
+  border:1px solid rgba(17,25,54,.1);
+  border-radius:28px;
+  background:rgba(255,255,255,.86);
+  box-shadow:0 28px 90px rgba(7,9,20,.12);
+  padding:34px;
+}
+.login-panel h1{
+  color:#111827;
+  font-size:clamp(36px,5vw,64px);
+  line-height:.96;
+  letter-spacing:-.055em;
+  margin:18px 0 12px;
+}
+.login-panel p{color:#596174;line-height:1.65;margin:0 0 22px}
+.login-role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(max-width:680px){.login-role-grid{grid-template-columns:1fr}.login-panel{padding:22px}}
