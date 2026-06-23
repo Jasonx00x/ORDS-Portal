@@ -8,6 +8,9 @@ Build ORDS booking as a real operating workflow: instructor availability, studen
 
 - Students, parents, and clients only see openings for their assigned instructor.
 - Booked, blocked, and pending slots are not selectable for new booking.
+- Every booking must reserve one configured ORDS room.
+- Current rooms are Studio, Drum Room, and Auditorium. More rooms can be added later as records instead of code changes.
+- The system should prevent double-booking the same room at the same date and time.
 - ORDS can choose whether a slot becomes confirmed immediately or requires instructor/admin approval.
 - Every confirmed booking should create reminder records.
 - Payment and accounting stay in QuickBooks. The portal can display billing status later, but it should not replace QuickBooks.
@@ -19,6 +22,8 @@ Build ORDS booking as a real operating workflow: instructor availability, studen
 - `student_guardians`: parent to student relationships.
 - `instructor_assignments`: which instructor owns each student/client.
 - `instructor_availability`: weekly recurring availability windows.
+- `rooms`: Studio, Drum Room, Auditorium, and future rooms.
+- `room_blocks`: room maintenance, events, rehearsals, and other unavailable room windows.
 - `availability_exceptions`: blocked dates, time off, room conflicts, special openings.
 - `lesson_bookings`: requested, approved, denied, cancelled, completed, and no-show lessons.
 - `booking_requests`: request reason, requested slot, approver, decision, decision note.
@@ -30,13 +35,14 @@ Build ORDS booking as a real operating workflow: instructor availability, studen
 
 1. Booking request is submitted.
 2. Instructor/admin approves the request.
-3. Portal creates a confirmed `lesson_bookings` row.
-4. Portal creates reminder jobs:
+3. Portal confirms instructor availability and room availability.
+4. Portal creates a confirmed `lesson_bookings` row with the reserved room.
+5. Portal creates reminder jobs:
    - confirmation immediately
    - 24-hour email reminder
    - same-day optional SMS reminder
    - change notice if booking is updated or cancelled
-5. Scheduled backend job sends due reminders and records delivery status.
+6. Scheduled backend job sends due reminders and records delivery status.
 
 ## Backend Plan
 

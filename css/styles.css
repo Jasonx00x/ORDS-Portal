@@ -440,6 +440,37 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .booking-booked{border-left-color:#07112e;background:linear-gradient(135deg,#fff,#f1f5f9)}
 .booking-blocked{border-left-color:#a12828;background:linear-gradient(135deg,#fff,#fff0f0)}
 .booking-actions{margin-top:16px}
+.booking-side-stack{display:grid;gap:18px}
+.room-card-grid{
+  display:grid;
+  gap:12px;
+  margin-top:18px;
+}
+.room-card{
+  display:grid;
+  gap:6px;
+  border:1px solid rgba(17,25,54,.08);
+  border-left:5px solid #64748b;
+  border-radius:17px;
+  background:#f8fafc;
+  padding:14px;
+}
+.room-card strong{color:#111827;font-size:18px}
+.room-card span,.room-card small{color:#667086;line-height:1.35;font-weight:800}
+.room-card b{
+  width:max-content;
+  border-radius:999px;
+  padding:7px 9px;
+  background:#eef2f8;
+  color:#334155;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.room-open{border-left-color:#1f9b55;background:linear-gradient(135deg,#fff,#f0fff5)}
+.room-busy{border-left-color:#cca34c;background:linear-gradient(135deg,#fff,#fff8e8)}
+.room-blocked{border-left-color:#a12828;background:linear-gradient(135deg,#fff,#fff0f0)}
+.room-add-btn{margin-top:14px}
 .reminder-grid{display:grid;gap:12px;margin-top:14px}
 .reminder-grid label{
   display:flex;

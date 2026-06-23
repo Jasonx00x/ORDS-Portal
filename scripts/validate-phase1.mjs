@@ -4,14 +4,23 @@ import ts from "typescript";
 
 const root = process.cwd();
 const rolesSource = readFileSync(join(root, "lib/roles.ts"), "utf8");
+const bookingSource = readFileSync(join(root, "lib/booking-data.ts"), "utf8");
 const rolesModule = ts.transpileModule(rolesSource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
   },
 });
+const bookingModule = ts.transpileModule(bookingSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ES2022,
+    target: ts.ScriptTarget.ES2022,
+  },
+});
 const rolesDataUrl = `data:text/javascript;base64,${Buffer.from(rolesModule.outputText).toString("base64")}`;
+const bookingDataUrl = `data:text/javascript;base64,${Buffer.from(bookingModule.outputText).toString("base64")}`;
 const { navItems, roleLabels } = await import(rolesDataUrl);
+const { bookingRooms, bookingSlots, roomConflictRows } = await import(bookingDataUrl);
 
 const expectedNav = {
   admin: [
@@ -81,6 +90,21 @@ for (const file of visibleUiFiles) {
   for (const term of blockedPreviewTerms) {
     if (term.test(source)) failures.push(`Preview-only wording found in ${file}: ${term}`);
   }
+}
+
+const requiredRooms = ["Studio", "Drum Room", "Auditorium"];
+const configuredRooms = bookingRooms.map((room) => room.name);
+for (const room of requiredRooms) {
+  if (!configuredRooms.includes(room)) failures.push(`Missing required ORDS room: ${room}`);
+}
+
+for (const slot of bookingSlots) {
+  if (!configuredRooms.includes(slot.location)) failures.push(`Booking slot ${slot.id} uses unconfigured room: ${slot.location}`);
+}
+
+const roomConflicts = roomConflictRows();
+if (roomConflicts.some((row) => row.includes("Conflict"))) {
+  failures.push("Room conflict check found a double-booked room.");
 }
 
 if (failures.length) {

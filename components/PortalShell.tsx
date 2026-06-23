@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { bookingProfileByRole, bookingRequests, reminderQueue, reminderRules, visibleBookingSlots, type BookingSlot } from "@/lib/booking-data";
+import { bookingProfileByRole, bookingRequests, bookingRooms, reminderQueue, reminderRules, roomConflictRows, roomScheduleSummary, visibleBookingSlots, type BookingSlot } from "@/lib/booking-data";
 import { assignedInstructorByRole, dashboardStats, homeworkByRole, lessonBlocks } from "@/lib/demo-data";
 import { canAccess, defaultPathForRole, navItems, roleLabels, roleProfiles, type PortalSection, type Role } from "@/lib/roles";
 
@@ -286,12 +286,35 @@ function Booking({ role, notify }: { role: Role; notify: (message: string) => vo
               {slots.map((slot) => <BookingSlotCard key={slot.id} slot={slot} />)}
             </div>
           </Card>
+          <div className="booking-side-stack">
+            <Card kicker="Rooms" title="ORDS room resources">
+              <div className="room-card-grid">
+                {bookingRooms.map((room) => (
+                  <article className={`room-card room-${room.status}`} key={room.id}>
+                    <strong>{room.name}</strong>
+                    <span>{room.bestFor}</span>
+                    <small>{room.note}</small>
+                    <b>{room.status}</b>
+                  </article>
+                ))}
+              </div>
+              {role === "admin" && <button className="inline-btn room-add-btn" type="button" onClick={() => notify("Room setup opened. Add future rooms here when ORDS expands.")}>Add Room</button>}
+            </Card>
+            <Card kicker="Room Conflicts" title="Room conflict check">
+              <Table rows={roomConflictRows()} />
+            </Card>
+          </div>
+        </div>
+        <div className="portal-grid booking-admin-grid">
           <Card kicker="Approval Queue" title="Booking requests">
             <Table rows={visibleRequests.map((request) => [request.student, request.requestedTime, request.instructor, request.status])} />
             <div className="button-row booking-actions">
-              <button className="inline-btn" type="button" onClick={() => notify("Booking request approved and reminders queued.")}>Approve Selected</button>
+              <button className="inline-btn" type="button" onClick={() => notify("Booking request approved, room reserved, and reminders queued.")}>Approve Selected</button>
               <button className="inline-btn ghost-btn" type="button" onClick={() => notify("Booking request denied. Family notification queued.")}>Deny Selected</button>
             </div>
+          </Card>
+          <Card kicker="Room Schedule" title="Room usage summary">
+            <Table rows={roomScheduleSummary()} />
           </Card>
         </div>
         <Card kicker="Reminder Queue" title="Upcoming reminder activity">
@@ -307,7 +330,7 @@ function Booking({ role, notify }: { role: Role; notify: (message: string) => vo
         <Hero
           kicker="Booking"
           title="Book from approved instructor availability."
-          body="Choose only from your assigned instructor’s open times. ORDS keeps approval control, then sends confirmations and reminders."
+          body="Choose only from your assigned instructor’s open times. ORDS keeps approval control, reserves the room, then sends confirmations and reminders."
           metrics={[[profile.instructor, "Assigned instructor"], [profile.instrument, "Program"], [profile.nextLesson, "Next lesson"]]}
         />
         <Card kicker="Reminder Preferences" title="Reminders are on">
@@ -329,7 +352,7 @@ function Booking({ role, notify }: { role: Role; notify: (message: string) => vo
           <label className="portal-field">Booking note<textarea defaultValue="Please confirm this time works for the instructor." /></label>
           <button className="inline-btn" type="button" onClick={submitBookingRequest}>Submit Booking Request</button>
         </Card>
-        <Card kicker="Available Openings" title="Assigned teacher schedule">
+        <Card kicker="Available Openings" title="Assigned teacher and room">
           <div className="booking-slot-grid compact-booking-slots">
             {availableSlots.map((slot) => <BookingSlotCard key={slot.id} slot={slot} />)}
           </div>

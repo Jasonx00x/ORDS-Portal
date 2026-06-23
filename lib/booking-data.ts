@@ -1,6 +1,15 @@
 import type { Role } from "./roles";
 
 export type BookingSlotStatus = "available" | "booked" | "pending" | "blocked";
+export type RoomStatus = "open" | "busy" | "blocked";
+
+export type BookingRoom = {
+  id: string;
+  name: string;
+  bestFor: string;
+  status: RoomStatus;
+  note: string;
+};
 
 export type BookingSlot = {
   id: string;
@@ -24,14 +33,20 @@ export type BookingRequest = {
 };
 
 export const bookingSlots: BookingSlot[] = [
-  { id: "slot-jason-thu-530", day: "Thu", date: "Jun 25", time: "5:30 PM", instructor: "Jason Alfaro", instrument: "Drums", location: "Room A", status: "available" },
-  { id: "slot-jason-sat-1230", day: "Sat", date: "Jun 27", time: "12:30 PM", instructor: "Jason Alfaro", instrument: "Drums", location: "Room A", status: "available" },
-  { id: "slot-jason-mon-400", day: "Mon", date: "Jun 29", time: "4:00 PM", instructor: "Jason Alfaro", instrument: "Drums", location: "Room B", status: "pending", student: "Mateo Ramos" },
-  { id: "slot-bryan-fri-300", day: "Fri", date: "Jun 26", time: "3:00 PM", instructor: "Bryan", instrument: "Vocals", location: "Room C", status: "booked", student: "Naomi Lee" },
-  { id: "slot-david-tue-430", day: "Tue", date: "Jun 30", time: "4:30 PM", instructor: "David", instrument: "Piano", location: "Room B", status: "available" },
+  { id: "slot-jason-thu-530", day: "Thu", date: "Jun 25", time: "5:30 PM", instructor: "Jason Alfaro", instrument: "Drums", location: "Drum Room", status: "available" },
+  { id: "slot-jason-sat-1230", day: "Sat", date: "Jun 27", time: "12:30 PM", instructor: "Jason Alfaro", instrument: "Drums", location: "Drum Room", status: "available" },
+  { id: "slot-jason-mon-400", day: "Mon", date: "Jun 29", time: "4:00 PM", instructor: "Jason Alfaro", instrument: "Drums", location: "Drum Room", status: "pending", student: "Mateo Ramos" },
+  { id: "slot-bryan-fri-300", day: "Fri", date: "Jun 26", time: "3:00 PM", instructor: "Bryan", instrument: "Vocals", location: "Auditorium", status: "booked", student: "Naomi Lee" },
+  { id: "slot-david-tue-430", day: "Tue", date: "Jun 30", time: "4:30 PM", instructor: "David", instrument: "Piano", location: "Auditorium", status: "available" },
   { id: "slot-oscar-thu-630", day: "Thu", date: "Jun 25", time: "6:30 PM", instructor: "Oscar Ramos", instrument: "Audio", location: "Studio", status: "available" },
   { id: "slot-oscar-tue-700", day: "Tue", date: "Jun 30", time: "7:00 PM", instructor: "Oscar Ramos", instrument: "Audio", location: "Studio", status: "pending", student: "Jordan Cruz" },
-  { id: "slot-jason-wed-600", day: "Wed", date: "Jun 24", time: "6:00 PM", instructor: "Jason Alfaro", instrument: "Drums", location: "Room A", status: "blocked" },
+  { id: "slot-jason-wed-600", day: "Wed", date: "Jun 24", time: "6:00 PM", instructor: "Jason Alfaro", instrument: "Drums", location: "Drum Room", status: "blocked" },
+];
+
+export const bookingRooms: BookingRoom[] = [
+  { id: "studio", name: "Studio", bestFor: "Audio production, recording, mixing, coaching", status: "busy", note: "Oscar has one pending client request." },
+  { id: "drum-room", name: "Drum Room", bestFor: "Drums, rhythm coaching, louder practice blocks", status: "open", note: "Two Jason openings available this week." },
+  { id: "auditorium", name: "Auditorium", bestFor: "Vocals, piano, ensemble coaching, recitals", status: "busy", note: "One vocal lesson booked and one piano opening." },
 ];
 
 export const bookingRequests: BookingRequest[] = [
@@ -88,4 +103,32 @@ export function visibleBookingSlots(role: Role) {
   if (role === "admin") return bookingSlots;
   if (role === "instructor") return bookingSlots.filter((slot) => slot.instructor === profile.instructor);
   return bookingSlots.filter((slot) => slot.instructor === profile.instructor && slot.status === "available");
+}
+
+export function roomScheduleSummary() {
+  return bookingRooms.map((room) => {
+    const roomSlots = bookingSlots.filter((slot) => slot.location === room.name);
+    const open = roomSlots.filter((slot) => slot.status === "available").length;
+    const committed = roomSlots.filter((slot) => slot.status === "booked" || slot.status === "pending").length;
+    return [room.name, room.bestFor, `${open} open`, `${committed} booked/pending`, room.note];
+  });
+}
+
+export function roomConflictRows() {
+  const committedSlots = bookingSlots.filter((slot) => slot.status === "booked" || slot.status === "pending");
+  const conflicts = committedSlots.flatMap((slot, index) => {
+    const matching = committedSlots.slice(index + 1).filter((candidate) => (
+      candidate.date === slot.date &&
+      candidate.time === slot.time &&
+      candidate.location === slot.location
+    ));
+    return matching.map((candidate) => [
+      slot.location,
+      `${slot.day}, ${slot.date} at ${slot.time}`,
+      `${slot.student ?? slot.instructor} / ${candidate.student ?? candidate.instructor}`,
+      "Conflict",
+    ]);
+  });
+
+  return conflicts.length ? conflicts : [["All rooms", "This week", "No double-booked rooms", "Clear"]];
 }
