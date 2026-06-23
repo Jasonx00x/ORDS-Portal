@@ -2,6 +2,7 @@ export type Role = "admin" | "instructor" | "parent" | "student" | "client";
 
 export type PortalSection =
   | "dashboard"
+  | "booking"
   | "students"
   | "teacher-schedule"
   | "clock-in"
@@ -59,6 +60,7 @@ export const roleProfiles: Record<Role, { name: string; subtitle: string }> = {
 
 export const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", section: "dashboard", roles: ["student", "parent", "client", "instructor", "admin"] },
+  { href: "/booking", label: "Booking", section: "booking", roles: ["student", "parent", "client", "instructor", "admin"] },
   { href: "/students", label: "Students", section: "students", roles: ["instructor", "admin"] },
   { href: "/schedule", label: "Teacher Schedule", section: "teacher-schedule", roles: ["admin"] },
   { href: "/clock-in", label: "Clock-In Logs", section: "clock-in", roles: ["instructor", "admin"] },

@@ -403,6 +403,56 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   background:linear-gradient(135deg,#fff,#f8fafc);
   border-color:rgba(17,25,54,.08);
 }
+.booking-hero-grid{grid-template-columns:1.35fr .85fr}
+.booking-admin-grid,.booking-request-grid{grid-template-columns:1.15fr .85fr}
+.booking-slot-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:18px;
+}
+.compact-booking-slots{grid-template-columns:1fr}
+.booking-slot-card{
+  display:grid;
+  gap:6px;
+  min-height:132px;
+  border:1px solid rgba(17,25,54,.08);
+  border-left:5px solid #64748b;
+  border-radius:18px;
+  background:#f8fafc;
+  padding:15px;
+  box-shadow:0 12px 32px rgba(7,9,20,.06);
+}
+.booking-slot-card strong{color:#111827;font-size:17px}
+.booking-slot-card span,.booking-slot-card small{color:#667086;font-weight:800;line-height:1.35}
+.booking-slot-card b{
+  width:max-content;
+  border-radius:999px;
+  padding:7px 9px;
+  background:#eef2f8;
+  color:#334155;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.booking-available{border-left-color:#1f9b55;background:linear-gradient(135deg,#fff,#f0fff5)}
+.booking-pending{border-left-color:#cca34c;background:linear-gradient(135deg,#fff,#fff8e8)}
+.booking-booked{border-left-color:#07112e;background:linear-gradient(135deg,#fff,#f1f5f9)}
+.booking-blocked{border-left-color:#a12828;background:linear-gradient(135deg,#fff,#fff0f0)}
+.booking-actions{margin-top:16px}
+.reminder-grid{display:grid;gap:12px;margin-top:14px}
+.reminder-grid label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid rgba(17,25,54,.08);
+  border-radius:15px;
+  background:#f8fafc;
+  color:#334155;
+  padding:12px;
+  font-weight:900;
+}
+.reminder-grid input{accent-color:#07112e}
 .portal-toast{
   position:fixed;
   right:22px;
@@ -431,7 +481,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 @media(max-width:1240px){
   .ops-stats{grid-template-columns:repeat(2,1fr)}
   .student-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .ops-hero-grid,.schedule-control-grid,.clock-grid,.reports-grid,.login-grid{grid-template-columns:1fr}
+  .ops-hero-grid,.schedule-control-grid,.clock-grid,.reports-grid,.login-grid,.booking-hero-grid,.booking-admin-grid,.booking-request-grid{grid-template-columns:1fr}
   .week-schedule{grid-template-columns:repeat(3,minmax(190px,1fr))}
 }
 @media(max-width:1100px){
@@ -444,6 +494,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .ops-portal .portal-main{padding:18px}
   .ops-topbar{padding:20px}
   .ops-stats,.student-dashboard-grid,.two-grid,.settings-grid{grid-template-columns:1fr}
+  .booking-slot-grid{grid-template-columns:1fr}
   .week-schedule{grid-template-columns:1fr;overflow:visible}
   .student-ops-table>div,.compact-ops-table>div,.reschedule-table>div,.login-table>div{
     grid-template-columns:1fr;

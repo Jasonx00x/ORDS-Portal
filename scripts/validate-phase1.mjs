@@ -16,6 +16,7 @@ const { navItems, roleLabels } = await import(rolesDataUrl);
 const expectedNav = {
   admin: [
     "Dashboard",
+    "Booking",
     "Students",
     "Teacher Schedule",
     "Clock-In Logs",
@@ -28,14 +29,15 @@ const expectedNav = {
     "Announcements",
     "Settings",
   ],
-  instructor: ["Dashboard", "Students", "Clock-In Logs", "Lesson Reports", "Reschedule Requests", "Homework", "Announcements", "Settings"],
-  parent: ["Dashboard", "Reschedule Requests", "Progress", "Billing", "Settings"],
-  student: ["Dashboard", "Reschedule Requests", "Homework", "Announcements", "Settings"],
-  client: ["Dashboard", "Reschedule Requests", "Homework", "Announcements", "Settings"],
+  instructor: ["Dashboard", "Booking", "Students", "Clock-In Logs", "Lesson Reports", "Reschedule Requests", "Homework", "Announcements", "Settings"],
+  parent: ["Dashboard", "Booking", "Reschedule Requests", "Progress", "Billing", "Settings"],
+  student: ["Dashboard", "Booking", "Reschedule Requests", "Homework", "Announcements", "Settings"],
+  client: ["Dashboard", "Booking", "Reschedule Requests", "Homework", "Announcements", "Settings"],
 };
 
 const requiredRoutes = [
   "app/dashboard/page.tsx",
+  "app/booking/page.tsx",
   "app/students/page.tsx",
   "app/schedule/page.tsx",
   "app/clock-in/page.tsx",
@@ -86,4 +88,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Phase 1 validation passed.");
+console.log("Portal validation passed.");

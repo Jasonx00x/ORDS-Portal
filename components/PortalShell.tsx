@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { bookingProfileByRole, bookingRequests, reminderQueue, reminderRules, visibleBookingSlots, type BookingSlot } from "@/lib/booking-data";
 import { assignedInstructorByRole, dashboardStats, homeworkByRole, lessonBlocks } from "@/lib/demo-data";
 import { canAccess, defaultPathForRole, navItems, roleLabels, roleProfiles, type PortalSection, type Role } from "@/lib/roles";
 
@@ -117,10 +118,12 @@ export function PortalShell({ section }: PortalShellProps) {
           <div className="portal-actions">
             {(role === "instructor" || role === "admin") && (
               <>
+                <Link className="portal-action-btn" href="/booking">Manage Booking</Link>
                 <Link className="portal-action-btn dark-action" href="/reschedule-requests">Review Requests</Link>
                 <Link className="portal-action-btn" href="/lesson-reports">Submit Report</Link>
               </>
             )}
+            {(role === "student" || role === "parent" || role === "client") && <Link className="portal-action-btn dark-action" href="/booking">Book Lesson</Link>}
           </div>
         </header>
 
@@ -147,6 +150,8 @@ function SectionContent(props: ContentProps) {
   switch (props.section) {
     case "dashboard":
       return <Dashboard {...props} />;
+    case "booking":
+      return <Booking role={props.role} notify={props.notify} />;
     case "students":
       return <Students notify={props.notify} />;
     case "teacher-schedule":
@@ -177,9 +182,9 @@ function Dashboard({ role, time, clockStatus, onClock }: ContentProps) {
     return (
       <>
         <div className="portal-grid ops-hero-grid">
-          <Hero kicker="Student Portal" title="Welcome back, Mateo." body="Your homework, announcements, progress, and reschedule requests are organized in one place." metrics={[["Sat", "Next lesson"], ["Viewed", "Homework status"], ["1", "Open announcement"]]} />
-          <Card kicker="Request Control" title="Reschedules are requests only." body="Students can submit a preferred time and reason, but changes require instructor/admin approval.">
-            <Link className="inline-btn" href="/reschedule-requests">Request Reschedule</Link>
+          <Hero kicker="Student Portal" title="Welcome back, Mateo." body="Your homework, announcements, progress, and lesson booking are organized in one place." metrics={[["Thu", "Next lesson"], ["On", "Reminders"], ["1", "Open announcement"]]} />
+          <Card kicker="Booking" title="Book from approved teacher openings." body="Students can only choose times from their assigned instructor’s available schedule.">
+            <Link className="inline-btn" href="/booking">Book Lesson</Link>
           </Card>
         </div>
         <div className="portal-grid student-dashboard-grid">
@@ -188,7 +193,7 @@ function Dashboard({ role, time, clockStatus, onClock }: ContentProps) {
           <Card kicker="Open Announcement" title="June recital prep week" body="Please review your practice plan and confirm your recital preparation schedule.">
             <Link className="inline-btn ghost-btn" href="/announcements">View Announcement</Link>
           </Card>
-          <Card kicker="Schedule Request" title="No active request" body="Choose an available opening from your assigned instructor if your lesson time no longer works." />
+          <Card kicker="Booking Request" title="No active request" body="Choose an available opening from your assigned instructor if your lesson time no longer works." />
         </div>
       </>
     );
@@ -197,9 +202,9 @@ function Dashboard({ role, time, clockStatus, onClock }: ContentProps) {
   if (role === "parent") {
     return (
       <div className="portal-grid ops-hero-grid">
-        <Hero kicker="Parent Portal" title="Clear student visibility." body="Track student progress, billing, notifications, and reschedule status without internal staff tools." metrics={[["88%", "Student progress"], ["Sat", "Next lesson"], ["$180", "Open invoice"]]} />
+        <Hero kicker="Parent Portal" title="Clear student visibility." body="Track student progress, billing, reminders, and approved lesson booking without internal staff tools." metrics={[["88%", "Student progress"], ["Thu", "Next lesson"], ["On", "Reminders"]]} />
         <Card kicker="Parent Assurance" title="Schedule changes are approved." body="Parents can request a change, but ORDS keeps instructor/admin control over final lesson times.">
-          <Link className="inline-btn" href="/progress">View Progress</Link>
+          <Link className="inline-btn" href="/booking">View Booking</Link>
         </Card>
       </div>
     );
@@ -208,7 +213,7 @@ function Dashboard({ role, time, clockStatus, onClock }: ContentProps) {
   if (role === "client") {
     return (
       <div className="portal-grid ops-hero-grid">
-        <Hero kicker="Independent Client" title="Studio coaching, organized." body="View assigned homework, read announcements, and request schedule changes from approved instructor availability." metrics={[["Thu", "Next session"], ["5", "Homework items"], ["Pending", "Schedule request"]]} />
+        <Hero kicker="Independent Client" title="Studio coaching, organized." body="View assigned homework, read announcements, and book from approved instructor availability." metrics={[["Tue", "Next session"], ["5", "Homework items"], ["Pending", "Booking request"]]} />
         <Card kicker="Next Focus" title="Mix balance and EQ discipline" body="Upload the revised mix before the next studio coaching session." />
       </div>
     );
@@ -217,7 +222,7 @@ function Dashboard({ role, time, clockStatus, onClock }: ContentProps) {
   if (role === "instructor") {
     return (
       <div className="portal-grid ops-hero-grid">
-        <Hero kicker="Instructor Workflow" title="Clock in. Teach. Submit reports." body="Manage assigned students, homework, lesson reports, attendance, and reschedule approvals." metrics={[["6", "Lessons today"], ["2", "Reports missing"], ["1", "Late arrival"]]} />
+        <Hero kicker="Instructor Workflow" title="Clock in. Teach. Submit reports." body="Manage assigned students, booking approvals, reminders, lesson reports, and attendance." metrics={[["6", "Lessons today"], ["2", "Booking requests"], ["1", "Late arrival"]]} />
         <ClockWidget time={time} clockStatus={clockStatus} onClock={onClock} compact />
       </div>
     );
@@ -229,10 +234,126 @@ function Dashboard({ role, time, clockStatus, onClock }: ContentProps) {
         {dashboardStats.map(([label, value, detail]) => <StatCard key={label} label={label} value={value} detail={detail} />)}
       </div>
       <div className="portal-grid two-grid">
-        <Hero kicker="Operations Value" title="Know what happened before a parent calls." body="Leadership can see attendance, report completion, login records, homework visibility, read receipts, and pending approvals from one clean dashboard." chips={["Accountability", "Scheduling", "Communication proof", "Reports"]} />
-        <Card kicker="Today’s Priority Queue" title="Needs attention" body="Bryan missing clock-in, Mateo reschedule pending, Ari inactive login, and four lesson reports missing." />
+        <Hero kicker="Operations Value" title="Know what happened before a parent calls." body="Leadership can see booking, attendance, report completion, login records, homework visibility, read receipts, and pending approvals from one clean dashboard." chips={["Booking", "Reminders", "Accountability", "Reports"]} />
+        <Card kicker="Today’s Priority Queue" title="Needs attention" body="Bryan missing clock-in, Mateo booking request pending, Ari inactive login, and four lesson reports missing.">
+          <Link className="inline-btn" href="/booking">Open Booking Center</Link>
+        </Card>
       </div>
     </>
+  );
+}
+
+function Booking({ role, notify }: { role: Role; notify: (message: string) => void }) {
+  const profile = bookingProfileByRole[role];
+  const slots = visibleBookingSlots(role);
+  const availableSlots = slots.filter((slot) => slot.status === "available");
+  const [selectedSlotId, setSelectedSlotId] = useState(availableSlots[0]?.id ?? "");
+  const [localRequests, setLocalRequests] = useState<string[]>([]);
+  const selectedSlot = availableSlots.find((slot) => slot.id === selectedSlotId) ?? availableSlots[0];
+  const isStaff = role === "admin" || role === "instructor";
+
+  function formatSlot(slot: BookingSlot) {
+    return `${slot.day}, ${slot.date} at ${slot.time}`;
+  }
+
+  function submitBookingRequest() {
+    if (!selectedSlot) {
+      notify("No available booking time is selected.");
+      return;
+    }
+    setLocalRequests((current) => [`${profile.student} requested ${formatSlot(selectedSlot)} with ${selectedSlot.instructor}`, ...current]);
+    notify("Booking request submitted. Confirmation and reminders will be queued after approval.");
+  }
+
+  if (isStaff) {
+    const visibleRequests = role === "admin" ? bookingRequests : bookingRequests.filter((request) => request.instructor === profile.instructor);
+    return (
+      <>
+        <div className="portal-grid booking-hero-grid">
+          <Hero
+            kicker="Booking Center"
+            title="Real lesson scheduling control."
+            body="Manage instructor availability, pending booking approvals, lesson reminders, and schedule conflicts from one operations view."
+            metrics={[["7", "Open slots"], ["2", "Pending approvals"], ["4", "Reminders queued"]]}
+          />
+          <Card kicker="Reminder Engine" title="Automated reminders">
+            <Table rows={reminderRules} />
+          </Card>
+        </div>
+        <div className="portal-grid booking-admin-grid">
+          <Card kicker="Availability" title={role === "admin" ? "All instructor openings" : `${profile.instructor} openings`}>
+            <div className="booking-slot-grid">
+              {slots.map((slot) => <BookingSlotCard key={slot.id} slot={slot} />)}
+            </div>
+          </Card>
+          <Card kicker="Approval Queue" title="Booking requests">
+            <Table rows={visibleRequests.map((request) => [request.student, request.requestedTime, request.instructor, request.status])} />
+            <div className="button-row booking-actions">
+              <button className="inline-btn" type="button" onClick={() => notify("Booking request approved and reminders queued.")}>Approve Selected</button>
+              <button className="inline-btn ghost-btn" type="button" onClick={() => notify("Booking request denied. Family notification queued.")}>Deny Selected</button>
+            </div>
+          </Card>
+        </div>
+        <Card kicker="Reminder Queue" title="Upcoming reminder activity">
+          <Table rows={reminderQueue} />
+        </Card>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="portal-grid booking-hero-grid">
+        <Hero
+          kicker="Booking"
+          title="Book from approved instructor availability."
+          body="Choose only from your assigned instructor’s open times. ORDS keeps approval control, then sends confirmations and reminders."
+          metrics={[[profile.instructor, "Assigned instructor"], [profile.instrument, "Program"], [profile.nextLesson, "Next lesson"]]}
+        />
+        <Card kicker="Reminder Preferences" title="Reminders are on">
+          <div className="reminder-grid">
+            <label><input defaultChecked type="checkbox" /> Booking confirmation</label>
+            <label><input defaultChecked type="checkbox" /> 24-hour email reminder</label>
+            <label><input defaultChecked type="checkbox" /> Same-day text reminder</label>
+            <label><input defaultChecked type="checkbox" /> Reschedule updates</label>
+          </div>
+        </Card>
+      </div>
+      <div className="portal-grid booking-request-grid">
+        <Card kicker="Request Booking" title={`${profile.student} with ${profile.instructor}`} body="Available times are filtered to the assigned instructor only. Booked and blocked times are not selectable.">
+          <label className="portal-field">Available lesson time
+            <select value={selectedSlot?.id ?? ""} onChange={(event) => setSelectedSlotId(event.target.value)}>
+              {availableSlots.map((slot) => <option key={slot.id} value={slot.id}>{formatSlot(slot)} · {slot.location}</option>)}
+            </select>
+          </label>
+          <label className="portal-field">Booking note<textarea defaultValue="Please confirm this time works for the instructor." /></label>
+          <button className="inline-btn" type="button" onClick={submitBookingRequest}>Submit Booking Request</button>
+        </Card>
+        <Card kicker="Available Openings" title="Assigned teacher schedule">
+          <div className="booking-slot-grid compact-booking-slots">
+            {availableSlots.map((slot) => <BookingSlotCard key={slot.id} slot={slot} />)}
+          </div>
+        </Card>
+      </div>
+      <Card kicker="Request Activity" title="Booking status">
+        <Table rows={[
+          ...localRequests.map((request) => [profile.student, request, "Pending", "Reminders waiting for approval"]),
+          [profile.student, profile.nextLesson, "Confirmed", "24-hour and same-day reminders on"],
+        ]} />
+      </Card>
+    </>
+  );
+}
+
+function BookingSlotCard({ slot }: { slot: BookingSlot }) {
+  return (
+    <article className={`booking-slot-card booking-${slot.status}`}>
+      <strong>{slot.day}, {slot.date}</strong>
+      <span>{slot.time} · {slot.location}</span>
+      <small>{slot.instrument} with {slot.instructor}</small>
+      {slot.student && <small>{slot.student}</small>}
+      <b>{slot.status}</b>
+    </article>
   );
 }
 
