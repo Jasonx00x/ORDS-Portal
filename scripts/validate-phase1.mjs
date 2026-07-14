@@ -59,6 +59,9 @@ const requiredRoutes = [
   "app/announcements/page.tsx",
   "app/settings/page.tsx",
   "app/login/page.tsx",
+  "app/api/supabase/status/route.ts",
+  "lib/supabase-config.ts",
+  ".env.example",
 ];
 
 const visibleUiFiles = ["components/PortalShell.tsx", "app/login/page.tsx"];
@@ -83,6 +86,11 @@ for (const route of requiredRoutes) {
   } catch {
     failures.push(`Missing route file: ${route}`);
   }
+}
+
+const envExample = readFileSync(join(root, ".env.example"), "utf8");
+for (const key of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"]) {
+  if (!envExample.includes(key)) failures.push(`Missing ${key} in .env.example`);
 }
 
 for (const file of visibleUiFiles) {
