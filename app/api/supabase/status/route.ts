@@ -16,7 +16,6 @@ export async function GET() {
       projectRef: getSupabaseProjectRef(url),
       status: response.status,
       statusText: response.statusText,
-      url,
     });
   } catch (error) {
     return Response.json(
