@@ -60,11 +60,25 @@ const requiredRoutes = [
   "app/settings/page.tsx",
   "app/login/page.tsx",
   "app/api/supabase/status/route.ts",
+  "app/api/consultations/book/route.ts",
+  "app/api/consultations/slots/route.ts",
+  "app/book-consultation/page.tsx",
+  "app/admin/consultations/page.tsx",
+  "app/admin/consultations/availability/page.tsx",
+  "app/admin/consultations/settings/page.tsx",
   "lib/supabase-config.ts",
+  "lib/consultations/constants.ts",
+  "lib/consultations/email-service.ts",
+  "lib/consultations/email-templates.ts",
+  "lib/consultations/supabase-rest.ts",
+  "lib/consultations/validation.ts",
+  "supabase/migrations/202607140001_create_consultation_booking_system.sql",
+  "docs/consultation-booking-system.md",
+  "scripts/test-consultation-contract.mjs",
   ".env.example",
 ];
 
-const visibleUiFiles = ["components/PortalShell.tsx", "app/login/page.tsx"];
+const visibleUiFiles = ["components/PortalShell.tsx", "app/login/page.tsx", "components/consultations/ConsultationBookingPage.tsx"];
 const blockedPreviewTerms = [/Karina/i, /\bCFO\b/i, /\bMVP\b/i, /Supabase/i, /Mock Role/i, /Phase 1/i];
 const failures = [];
 
@@ -89,7 +103,7 @@ for (const route of requiredRoutes) {
 }
 
 const envExample = readFileSync(join(root, ".env.example"), "utf8");
-for (const key of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"]) {
+for (const key of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "RESEND_API_KEY", "ORDS_EMAIL_FROM", "ORDS_DEFAULT_NOTIFICATION_EMAIL"]) {
   if (!envExample.includes(key)) failures.push(`Missing ${key} in .env.example`);
 }
 

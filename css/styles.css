@@ -568,3 +568,177 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .login-panel p{color:#596174;line-height:1.65;margin:0 0 22px}
 .login-role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media(max-width:680px){.login-role-grid{grid-template-columns:1fr}.login-panel{padding:22px}}
+
+/* Public consultation booking */
+.consultation-public-page{
+  min-height:100vh;
+  color:#111827;
+  background:
+    radial-gradient(circle at 82% 0%,rgba(204,163,76,.18),transparent 28%),
+    linear-gradient(135deg,#eef2f7,#fff 48%,#e9edf5);
+}
+.consultation-public-hero{
+  min-height:46vh;
+  display:grid;
+  align-content:center;
+  gap:42px;
+  padding:34px clamp(20px,5vw,72px) 44px;
+  background:
+    linear-gradient(120deg,rgba(2,4,10,.92),rgba(7,17,46,.82),rgba(2,4,10,.62)),
+    url("https://static.wixstatic.com/media/a51682_6a38df84283349639b8695c44fd6328b~mv2.jpg") center/cover;
+  color:#fff;
+}
+.consultation-brand-row{display:flex;align-items:center;gap:13px;font-weight:950;letter-spacing:.03em}
+.consultation-brand-row img{width:46px;height:46px;object-fit:contain}
+.consultation-hero-copy{max-width:900px}
+.consultation-hero-copy h1{
+  font-size:clamp(46px,7vw,92px);
+  line-height:.92;
+  letter-spacing:-.065em;
+  margin:20px 0 16px;
+}
+.consultation-hero-copy p{max-width:720px;color:#dfe6f6;font-size:clamp(18px,2vw,23px);line-height:1.55;margin:0}
+.consultation-booking-shell{
+  width:min(1180px,92vw);
+  margin:-36px auto 0;
+  padding-bottom:72px;
+  display:grid;
+  grid-template-columns:.78fr 1.22fr;
+  gap:20px;
+  align-items:start;
+}
+.consultation-panel{
+  border:1px solid rgba(17,25,54,.1);
+  border-radius:24px;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 24px 80px rgba(7,9,20,.12);
+  padding:24px;
+  backdrop-filter:blur(14px);
+}
+.consultation-panel h2{font-size:32px;line-height:1;margin:0 0 12px;color:#111827;letter-spacing:-.045em}
+.consultation-panel p{color:#596174;line-height:1.65;margin:0}
+.consultation-proof-grid{display:grid;gap:10px;margin-top:22px}
+.consultation-proof-grid span{
+  border:1px solid rgba(17,25,54,.08);
+  border-radius:15px;
+  background:#f8fafc;
+  color:#0a112b;
+  padding:12px;
+  font-weight:900;
+}
+.consultation-form{display:grid;gap:16px}
+.consultation-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.consultation-form label{display:grid;gap:8px;color:#334155;font-weight:900}
+.consultation-form label span{color:#667086;font-size:12px}
+.consultation-form input,.consultation-form select,.consultation-form textarea{
+  width:100%;
+  border:1px solid rgba(17,25,54,.12);
+  border-radius:15px;
+  background:#f8fafc;
+  color:#111827;
+  padding:13px 14px;
+  font:inherit;
+  outline:none;
+}
+.consultation-form input:focus,.consultation-form select:focus,.consultation-form textarea:focus{
+  border-color:#0a112b;
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(10,17,43,.08);
+}
+.consultation-form textarea{min-height:120px;resize:vertical}
+.consultation-acknowledgement{grid-template-columns:auto 1fr!important;align-items:start;gap:10px!important;line-height:1.45}
+.consultation-acknowledgement input{width:auto;margin-top:3px;accent-color:#0a112b}
+.consultation-message,.consultation-error,.consultation-success{
+  border-radius:16px;
+  padding:13px 14px;
+  font-weight:850;
+}
+.consultation-message{background:#f1f5f9;color:#334155}
+.consultation-error{background:#fff0f0;color:#a12828}
+.consultation-success{display:grid;gap:5px;background:#e9fbf0;color:#12783c}
+.consultation-submit{
+  border:0;
+  border-radius:16px;
+  background:#0a112b;
+  color:#fff;
+  padding:15px 18px;
+  font-weight:950;
+  cursor:pointer;
+  box-shadow:0 18px 48px rgba(7,9,20,.18);
+}
+.consultation-submit:disabled{opacity:.58;cursor:not-allowed;box-shadow:none}
+.hp-field{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;opacity:0!important}
+@media(max-width:900px){
+  .consultation-booking-shell{grid-template-columns:1fr;margin-top:-24px}
+  .consultation-field-grid{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .consultation-public-hero{padding:24px 20px 42px}
+  .consultation-hero-copy h1{font-size:44px}
+  .consultation-booking-shell{width:min(100% - 28px,1180px)}
+  .consultation-panel{padding:18px;border-radius:20px}
+}
+
+.consultation-admin-shell{
+  min-height:100vh;
+  padding:30px;
+  background:linear-gradient(135deg,#e9edf5,#fff 50%,#eef2f7);
+  color:#111827;
+}
+.consultation-admin-head{
+  display:flex;
+  justify-content:space-between;
+  gap:22px;
+  align-items:flex-start;
+  margin-bottom:22px;
+  border:1px solid rgba(17,25,54,.08);
+  border-radius:26px;
+  background:rgba(255,255,255,.78);
+  box-shadow:0 22px 70px rgba(7,9,20,.08);
+  padding:24px;
+}
+.consultation-admin-head h1{
+  font-size:clamp(36px,5vw,66px);
+  line-height:.94;
+  letter-spacing:-.055em;
+  margin:16px 0 10px;
+}
+.consultation-admin-head p{max-width:820px;color:#596174;line-height:1.55;margin:0}
+.consultation-admin-head nav{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+.consultation-admin-head nav a{
+  border:1px solid rgba(17,25,54,.1);
+  border-radius:14px;
+  background:#fff;
+  color:#0a112b;
+  padding:11px 13px;
+  font-weight:900;
+}
+.consultation-admin-head nav a.active{background:#0a112b;color:#fff}
+.consultation-admin-search{
+  width:min(420px,100%);
+  border:1px solid rgba(17,25,54,.12);
+  border-radius:15px;
+  background:#f8fafc;
+  padding:13px 14px;
+  font:inherit;
+}
+.consultation-admin-table>div{grid-template-columns:1fr 1fr 1fr .8fr .7fr .8fr}
+.availability-admin-grid{display:grid;gap:12px;margin-top:18px}
+.availability-admin-grid label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid rgba(17,25,54,.08);
+  border-radius:15px;
+  background:#f8fafc;
+  padding:12px;
+  font-weight:900;
+  color:#334155;
+}
+.availability-admin-grid input{accent-color:#0a112b}
+@media(max-width:900px){
+  .consultation-admin-head{display:grid}
+  .consultation-admin-head nav{justify-content:flex-start}
+  .consultation-admin-table>div{grid-template-columns:1fr}
+}
+@media(max-width:560px){.consultation-admin-shell{padding:18px}.consultation-admin-head{padding:18px;border-radius:20px}}
