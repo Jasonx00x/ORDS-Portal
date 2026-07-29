@@ -13,7 +13,7 @@ Build ORDS booking as a real operating workflow: instructor availability, studen
 - The system should prevent double-booking the same room at the same date and time.
 - ORDS can choose whether a slot becomes confirmed immediately or requires instructor/admin approval.
 - Every confirmed booking should create reminder records.
-- Payment and accounting stay in QuickBooks. The portal can display billing status later, but it should not replace QuickBooks.
+- Payment and accounting stay in the external accounting system. The portal can display billing status later without becoming the payment system.
 
 ## First Supabase Tables
 

@@ -21,7 +21,7 @@ export const homeworkByRole: Record<Role, Array<{ title: string; detail: string 
     { title: "Session prep", detail: "Session prep appears after the first coaching session is scheduled." },
   ],
   instructor: [
-    { title: "No assigned students yet", detail: "Oscar assigns students after contracts and account setup." },
+    { title: "No assigned students yet", detail: "An ORDS administrator assigns students after contracts and account setup." },
     { title: "Homework templates", detail: "Build reusable homework once programs are configured." },
     { title: "Instructor Library", detail: "Reusable homework templates, lesson materials, and upload links" },
     { title: "Assignment Queue", detail: "No homework submissions yet." },

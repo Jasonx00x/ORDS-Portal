@@ -134,9 +134,9 @@ After applying, verify in Supabase:
 
 Before the migration is applied, `/api/consultations/slots` will return a friendly setup/unavailable response instead of exposing a database error. That is expected.
 
-## Oscar Setup
+## Owner Setup
 
-Oscar edits weekly availability from:
+The ORDS owner/admin edits weekly availability from:
 
 ```text
 /admin/consultations/availability
@@ -144,13 +144,13 @@ Oscar edits weekly availability from:
 
 Production note: the UI preview exists now, but write operations require Supabase Auth admin wiring before launch.
 
-Oscar can pause bookings by setting `bookings_enabled` to `false` in `consultation_settings`.
+The owner/admin can pause bookings by setting `bookings_enabled` to `false` in `consultation_settings`.
 
-Oscar can block one day by inserting a row in `consultation_blocked_dates` where `start_date` and `end_date` are the same.
+The owner/admin can block one day by inserting a row in `consultation_blocked_dates` where `start_date` and `end_date` are the same.
 
-Oscar can block a vacation week by inserting a row where `start_date` is the first vacation date and `end_date` is the last vacation date.
+The owner/admin can block a vacation week by inserting a row where `start_date` is the first vacation date and `end_date` is the last vacation date.
 
-Oscar sets notification email in `consultation_settings.notification_email`, or by setting `ORDS_DEFAULT_NOTIFICATION_EMAIL`.
+The owner/admin sets the notification email in `consultation_settings.notification_email`, or by setting `ORDS_DEFAULT_NOTIFICATION_EMAIL`.
 
 ## Resend Setup
 
@@ -164,12 +164,12 @@ Oscar sets notification email in `consultation_settings.notification_email`, or 
 8. Add `RESEND_API_KEY` to `.env.local`.
 9. Add `RESEND_API_KEY` to Netlify as a server-only env var.
 10. Set `ORDS_EMAIL_FROM`, for example `ORDS Music School <bookings@updates.ordsmusic.com>`.
-11. Set `ORDS_EMAIL_REPLY_TO` to Oscar or the correct ORDS inbox.
+11. Set `ORDS_EMAIL_REPLY_TO` to the correct ORDS inbox.
 12. Set `ORDS_DEFAULT_NOTIFICATION_EMAIL`.
 13. Redeploy.
 14. Make a test booking.
 15. Check Resend logs.
-16. Confirm both the customer and Oscar receive emails.
+16. Confirm both the customer and the ORDS notification inbox receive emails.
 
 If Resend is missing, bookings still save. Email delivery logs are written only when `SUPABASE_SERVICE_ROLE_KEY` is configured server-side.
 
@@ -285,6 +285,6 @@ Future services should add:
 - Calendar event update.
 - Calendar event cancellation.
 - External calendar event ID storage.
-- Oscar OAuth connection.
+- Owner/admin calendar connection.
 
 Google Calendar is not required for this MVP.

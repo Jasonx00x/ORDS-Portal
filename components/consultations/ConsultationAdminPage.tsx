@@ -105,8 +105,8 @@ function SettingsView() {
       <section className="portal-panel">
         <div className="panel-kicker">Email Setup</div>
         <h3>Notification settings</h3>
-        <label className="portal-field">Notification email<input placeholder="oscar@example.com" /></label>
-        <label className="portal-field">Reply-to email<input placeholder="oscar@example.com" /></label>
+        <label className="portal-field">Notification email<input placeholder="owner@example.com" /></label>
+        <label className="portal-field">Reply-to email<input placeholder="owner@example.com" /></label>
         <label className="portal-field">Meeting details<textarea defaultValue="ORDS Music School will confirm whether the consultation is in person or by phone." /></label>
       </section>
     </div>

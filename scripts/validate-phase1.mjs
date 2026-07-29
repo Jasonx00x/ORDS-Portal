@@ -85,7 +85,7 @@ const visibleUiFiles = [
   "components/consultations/ConsultationBookingPage.tsx",
   "components/consultations/ConsultationAdminPage.tsx",
 ];
-const blockedPreviewTerms = [/Karina/i, /\bCFO\b/i, /\bMVP\b/i, /Supabase/i, /Mock Role/i, /Phase 1/i];
+const blockedPreviewTerms = [/Karina/i, /Oscar/i, /\bCFO\b/i, /\bCEO\b/i, /\bMVP\b/i, /QuickBooks/i, /Supabase/i, /Mock Role/i, /Phase 1/i];
 const failures = [];
 
 for (const role of Object.keys(roleLabels)) {

@@ -35,19 +35,19 @@ export type BookingRequest = {
 export const defaultLessonMinutes = 60;
 
 export const setupChecklist = [
-  ["1", "Create owner account", "Oscar receives an admin invite and sets his password.", "Ready"],
+  ["1", "Create owner account", "The ORDS owner receives an admin invite and sets a password.", "Ready"],
   ["2", "Add ORDS rooms", "Studio, Drum Room, Auditorium, Youth Room, and Extra Room are available to configure.", "Ready"],
-  ["3", "Set school hours", "Oscar defines normal operating hours and closed days.", "Next"],
-  ["4", "Invite instructors", "Each instructor receives an email invite after Oscar creates the account.", "Next"],
+  ["3", "Set school hours", "The ORDS owner defines normal operating hours and closed days.", "Next"],
+  ["4", "Invite instructors", "Each instructor receives an email invite after an administrator creates the account.", "Next"],
   ["5", "Add contracted families", "Parents are created only after contract approval.", "Next"],
   ["6", "Build student schedules", "Instructors create 1-hour lessons for assigned students, then request room approval.", "Next"],
 ];
 
 export const accountRules = [
   ["Family signup", "Admin-created only", "Parents cannot self-register before contract approval."],
-  ["Invites", "Email password setup", "Oscar and instructors receive secure account invites."],
+  ["Invites", "Email password setup", "Owners and instructors receive secure account invites."],
   ["Parent access", "One parent, multiple students", "A parent account can manage every linked student."],
-  ["Billing", "QuickBooks later", "The portal can show status later without becoming the payment system."],
+  ["Billing", "Accounting later", "The portal can show status later without becoming the payment system."],
 ];
 
 export const bookingSlots: BookingSlot[] = [
@@ -57,7 +57,7 @@ export const bookingSlots: BookingSlot[] = [
 ];
 
 export const bookingRooms: BookingRoom[] = [
-  { id: "studio", name: "Studio", bestFor: "Audio production, recording, mixing, coaching", status: "open", note: "Ready for Oscar to approve lesson and studio use." },
+  { id: "studio", name: "Studio", bestFor: "Audio production, recording, mixing, coaching", status: "open", note: "Ready for owner/admin approval." },
   { id: "drum-room", name: "Drum Room", bestFor: "Drums, rhythm coaching, louder lesson blocks", status: "open", note: "Ready for approved drum schedules." },
   { id: "auditorium", name: "Auditorium", bestFor: "Vocals, piano, ensemble coaching, recitals", status: "open", note: "Ready for approved lessons and events." },
   { id: "youth-room", name: "Youth Room", bestFor: "Youth lessons, small groups, overflow instruction", status: "open", note: "Ready to configure." },

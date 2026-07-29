@@ -2,14 +2,14 @@
 
 ## Purpose
 
-Move the ORDS Portal from a used-looking demo into a fresh operating system that Oscar can set up from zero.
+Move the ORDS Portal from a used-looking demo into a fresh operating system that the ORDS owner/admin can set up from zero.
 
-The production portal should start empty. Oscar creates accounts, rooms, students, instructor assignments, availability, and schedules before parents or students can access anything.
+The production portal should start empty. The owner/admin creates accounts, rooms, students, instructor assignments, availability, and schedules before parents or students can access anything.
 
 ## Confirmed Rules
 
 - Parents cannot sign themselves up.
-- Oscar/admin creates parent accounts only after contract approval.
+- The owner/admin creates parent accounts only after contract approval.
 - Instructors receive an email invite to create their password.
 - One parent account can manage one or more linked students.
 - One student can support multiple instructor assignments later, even if ORDS does not currently need that.
@@ -22,10 +22,10 @@ The production portal should start empty. Oscar creates accounts, rooms, student
   - Auditorium
   - Youth Room
   - Extra Room
-- Oscar/admin approves room use.
+- The owner/admin approves room use.
 - Parents/students request reschedules from a list of available times only.
 - Assigned instructors approve student reschedule requests.
-- Billing stays in QuickBooks for now.
+- Billing stays in the external accounting system for now.
 - Roles:
   - Owner/Admin
   - Instructor
@@ -35,7 +35,7 @@ The production portal should start empty. Oscar creates accounts, rooms, student
 
 ## First-Run Admin Flow
 
-1. Invite Oscar as the first owner/admin account.
+1. Invite the first ORDS owner/admin account.
 2. Configure ORDS rooms.
 3. Set school hours and closed days.
 4. Invite instructors.
@@ -44,7 +44,7 @@ The production portal should start empty. Oscar creates accounts, rooms, student
 7. Assign each student to an instructor and program.
 8. Instructor adds availability.
 9. Instructor creates a 1-hour lesson schedule for the assigned student.
-10. Lesson room use remains pending until Oscar/admin approves.
+10. Lesson room use remains pending until the owner/admin approves.
 11. Parent/student can request changes only from generated available times.
 
 ## Database Foundation
@@ -77,10 +77,10 @@ Security:
 
 ## What Still Needs Real Backend Work
 
-- Supabase Auth invite flow for Oscar, instructors, parents, students, and clients.
+- Supabase Auth invite flow for owners, instructors, parents, students, and clients.
 - Server-side admin APIs for creating users and sending invite emails.
 - Real availability slot generation for regular 1-hour lessons.
 - Room approval actions.
 - Reschedule request generation from assigned instructor availability.
 - Reminder delivery after Resend is configured.
-- QuickBooks billing status display later.
+- External accounting status display later.

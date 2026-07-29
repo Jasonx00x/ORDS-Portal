@@ -427,7 +427,7 @@ values (
   30,
   null,
   null,
-  'Temporary starter setup. Oscar can edit consultation availability and meeting details before replacing Calendly.'
+  'Temporary starter setup. The ORDS owner/admin can edit consultation availability and meeting details before replacing the current scheduler.'
 )
 on conflict (singleton_key) do nothing;
 
