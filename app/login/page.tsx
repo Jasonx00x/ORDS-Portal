@@ -1,31 +1,22 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { roleLabels, type Role } from "@/lib/roles";
-
-const roles = Object.keys(roleLabels) as Role[];
+import { Suspense } from "react";
+import { AuthHashHandler } from "./auth-hash-handler";
+import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
-  const router = useRouter();
-
-  function enterAs(role: Role) {
-    window.localStorage.setItem("ords-role", role);
-    router.push("/dashboard");
-  }
-
   return (
     <main className="login-shell">
+      <AuthHashHandler />
       <section className="login-panel">
-        <span className="eyebrow tag-on-light">ORDS Operations Portal</span>
-        <h1>Choose portal access.</h1>
-        <p>Select a role to review the tailored workspace, permissions, and daily workflow for each account type.</p>
-        <div className="login-role-grid">
-          {roles.map((role) => (
-            <button className="inline-btn" data-role={role} key={role} type="button" onClick={() => enterAs(role)}>
-              Enter as {roleLabels[role]}
-            </button>
-          ))}
+        <div className="login-brand-row">
+          <img src="https://static.wixstatic.com/media/a51682_27dfdd46028443e7a016d349782ffa8f~mv2.png" alt="ORDS logo" />
+          <span>ORDS Operations Portal</span>
         </div>
+        <span className="eyebrow tag-on-light">Secure Account Access</span>
+        <h1>Welcome back.</h1>
+        <p>Sign in with the email address connected to your ORDS account.</p>
+        <Suspense>
+          <LoginForm />
+        </Suspense>
       </section>
     </main>
   );

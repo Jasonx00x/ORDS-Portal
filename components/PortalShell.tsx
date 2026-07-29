@@ -1,39 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import type { PortalUser } from "@/lib/auth";
 import { accountRules, bookingProfileByRole, bookingRequests, bookingRooms, defaultLessonMinutes, reminderQueue, reminderRules, roomConflictRows, roomScheduleSummary, setupChecklist, visibleBookingSlots, type BookingSlot } from "@/lib/booking-data";
 import { assignedInstructorByRole, homeworkByRole, lessonBlocks } from "@/lib/demo-data";
-import { canAccess, defaultPathForRole, navItems, roleLabels, roleProfiles, type PortalSection, type Role } from "@/lib/roles";
-
-const roles = Object.keys(roleLabels) as Role[];
+import { navItems, roleLabels, roleProfiles, type PortalSection, type Role } from "@/lib/roles";
 
 type PortalShellProps = {
   section: PortalSection;
+  user: PortalUser;
 };
 
-export function PortalShell({ section }: PortalShellProps) {
-  const router = useRouter();
+export function PortalShell({ section, user }: PortalShellProps) {
   const pathname = usePathname();
-  const [role, setRole] = useState<Role>("admin");
-  const [roleReady, setRoleReady] = useState(false);
   const [clockStatus, setClockStatus] = useState("Not clocked in");
   const [toast, setToast] = useState("");
   const [time, setTime] = useState("");
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("ords-role") as Role | null;
-    if (saved && roles.includes(saved)) setRole(saved);
-    setRoleReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!roleReady) return;
-    window.localStorage.setItem("ords-role", role);
-    if (!canAccess(role, section)) router.replace(defaultPathForRole(role));
-  }, [role, roleReady, router, section]);
 
   useEffect(() => {
     const update = () => setTime(new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
@@ -48,12 +33,9 @@ export function PortalShell({ section }: PortalShellProps) {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const visibleNav = useMemo(() => navItems.filter((item) => item.roles.includes(role)), [role]);
+  const role = user.role;
+  const visibleNav = navItems.filter((item) => item.roles.includes(role));
   const profile = roleProfiles[role];
-
-  function changeRole(nextRole: Role) {
-    setRole(nextRole);
-  }
 
   function notify(message: string) {
     setToast(message);
@@ -73,22 +55,14 @@ export function PortalShell({ section }: PortalShellProps) {
           <span>ORDS Operations</span>
         </Link>
 
-        <div className="role-select-card">
-          <span>Portal Access</span>
-          <div className="role-picker" aria-label="Portal access role switcher">
-            {roles.map((item) => (
-              <button
-                aria-pressed={item === role}
-                className={item === role ? "role-tab active" : "role-tab"}
-                data-role={item}
-                key={item}
-                type="button"
-                onClick={() => changeRole(item)}
-              >
-                {roleLabels[item]}
-              </button>
-            ))}
-          </div>
+        <div className="role-select-card account-summary">
+          <span>Signed In</span>
+          <strong>{user.displayName}</strong>
+          <small>{roleLabels[role]} account</small>
+          {user.email && <small className="account-email">{user.email}</small>}
+          <form action="/auth/signout" method="post">
+            <button type="submit">Sign Out</button>
+          </form>
         </div>
 
         <nav className="portal-nav" aria-label="Portal sections">

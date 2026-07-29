@@ -98,6 +98,7 @@ create or replace function public.is_ords_admin()
 returns boolean
 language sql
 stable
+set search_path = ''
 as $$
   select coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') in ('admin', 'staff', 'owner');
 $$;
@@ -144,6 +145,7 @@ using (public.is_ords_admin());
 create or replace function public.touch_updated_at()
 returns trigger
 language plpgsql
+set search_path = ''
 as $$
 begin
   new.updated_at = now();
@@ -171,6 +173,7 @@ create or replace function public.make_consultation_reference()
 returns text
 language sql
 volatile
+set search_path = public, extensions
 as $$
   select 'ORDS-' || upper(encode(gen_random_bytes(4), 'hex'));
 $$;
@@ -405,6 +408,7 @@ $$;
 grant execute on function public.get_consultation_available_slots(date) to anon, authenticated;
 grant execute on function public.create_consultation_booking(text, text, text, text, integer, text, text, timestamptz, text) to anon, authenticated;
 revoke all on function public.log_consultation_email_attempt(uuid, text, text, text, text, text, text) from public;
+revoke all on function public.log_consultation_email_attempt(uuid, text, text, text, text, text, text) from anon, authenticated;
 grant execute on function public.log_consultation_email_attempt(uuid, text, text, text, text, text, text) to service_role;
 
 insert into public.consultation_settings (

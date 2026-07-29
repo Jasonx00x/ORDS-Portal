@@ -570,6 +570,26 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .login-panel p{color:#596174;line-height:1.65;margin:0 0 22px}
 .login-role-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media(max-width:680px){.login-role-grid{grid-template-columns:1fr}.login-panel{padding:22px}}
+.login-brand-row{display:flex;align-items:center;gap:12px;margin-bottom:26px;color:#0a112b;font-weight:950}
+.login-brand-row img{width:44px;height:44px;object-fit:contain;background:#050914;border-radius:12px;padding:6px}
+.auth-form{display:grid;gap:4px}
+.auth-form .portal-field{margin:8px 0}
+.auth-submit{width:100%;margin-top:12px}
+.auth-submit:disabled{cursor:wait;opacity:.62}
+.auth-message{border-radius:14px;padding:12px 14px!important;margin:10px 0 0!important;font-size:14px;font-weight:800}
+.auth-error{background:#fff0f0;color:#9f2525!important;border:1px solid #efc2c2}
+.auth-success{background:#edf9f1;color:#17653a!important;border:1px solid #bce2ca}
+.auth-form-footer{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:16px;color:#667086;font-size:13px;font-weight:750}
+.auth-form-footer a,.auth-back-link{color:#0a112b;text-decoration:underline;text-underline-offset:3px;font-weight:900}
+.auth-back-link{display:inline-block;margin-top:20px}
+.account-summary strong,.account-summary small{display:block}
+.account-summary strong{color:#fff;line-height:1.25;overflow-wrap:anywhere}
+.account-summary small{color:#aeb9d3;margin-top:5px;line-height:1.35}
+.account-summary .account-email{font-size:11px;overflow-wrap:anywhere}
+.account-summary form{margin-top:12px}
+.account-summary button{width:100%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;border-radius:11px;padding:9px 11px;font:inherit;font-size:12px;font-weight:900;cursor:pointer}
+.account-summary button:hover{background:rgba(255,255,255,.14)}
+@media(max-width:560px){.auth-form-footer{align-items:flex-start;flex-direction:column}}
 
 /* Public consultation booking */
 .consultation-public-page{

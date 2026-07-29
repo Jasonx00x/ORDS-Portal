@@ -1,29 +1,10 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { requirePortalUser } from "@/lib/auth";
 
 type AdminView = "availability" | "consultations" | "settings";
 
-export function ConsultationAdminPage({ view }: { view: AdminView }) {
-  const [role, setRole] = useState("");
-
-  useEffect(() => {
-    setRole(window.localStorage.getItem("ords-role") ?? "");
-  }, []);
-
-  if (role && role !== "admin") {
-    return (
-      <main className="consultation-admin-shell">
-        <section className="consultation-panel">
-          <span className="eyebrow tag-on-light">Protected Area</span>
-          <h1>Admin access required.</h1>
-          <p>Consultation records and settings are available only to authorized ORDS administrators.</p>
-          <Link className="inline-btn" href="/login">Choose Admin Role</Link>
-        </section>
-      </main>
-    );
-  }
+export async function ConsultationAdminPage({ view }: { view: AdminView }) {
+  await requirePortalUser("login-records");
 
   return (
     <main className="consultation-admin-shell">

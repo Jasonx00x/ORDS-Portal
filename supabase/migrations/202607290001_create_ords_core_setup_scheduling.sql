@@ -8,6 +8,52 @@ create table if not exists public.app_profiles (
   updated_at timestamptz not null default now()
 );
 
+create or replace function public.sync_ords_auth_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_role text;
+  v_display_name text;
+begin
+  v_role := coalesce(new.raw_app_meta_data ->> 'role', 'client');
+  if v_role not in ('owner', 'admin', 'instructor', 'parent', 'student', 'client') then
+    v_role := 'client';
+  end if;
+
+  v_display_name := coalesce(
+    nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''),
+    nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''),
+    nullif(trim(new.raw_user_meta_data ->> 'name'), ''),
+    split_part(coalesce(new.email, 'ORDS Portal User'), '@', 1)
+  );
+
+  insert into public.app_profiles (id, display_name, role, invite_status)
+  values (
+    new.id,
+    v_display_name,
+    v_role,
+    case when new.last_sign_in_at is null then 'pending' else 'accepted' end
+  )
+  on conflict (id) do update
+  set display_name = excluded.display_name,
+      role = excluded.role,
+      invite_status = excluded.invite_status,
+      updated_at = now();
+
+  return new;
+end;
+$$;
+
+drop trigger if exists sync_ords_auth_profile_after_change on auth.users;
+create trigger sync_ords_auth_profile_after_change
+after insert or update of raw_app_meta_data, raw_user_meta_data, last_sign_in_at on auth.users
+for each row execute function public.sync_ords_auth_profile();
+
+revoke all on function public.sync_ords_auth_profile() from public, anon, authenticated;
+
 create table if not exists public.rooms (
   id uuid primary key default gen_random_uuid(),
   name text not null unique,
