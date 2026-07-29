@@ -9,7 +9,7 @@ Build ORDS booking as a real operating workflow: instructor availability, studen
 - Students, parents, and clients only see openings for their assigned instructor.
 - Booked, blocked, and pending slots are not selectable for new booking.
 - Every booking must reserve one configured ORDS room.
-- Current rooms are Studio, Drum Room, and Auditorium. More rooms can be added later as records instead of code changes.
+- Current rooms are Studio, Drum Room, Auditorium, Youth Room, and Extra Room. More rooms can be added later as records instead of code changes.
 - The system should prevent double-booking the same room at the same date and time.
 - ORDS can choose whether a slot becomes confirmed immediately or requires instructor/admin approval.
 - Every confirmed booking should create reminder records.

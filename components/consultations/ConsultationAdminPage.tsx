@@ -5,12 +5,6 @@ import { useEffect, useState } from "react";
 
 type AdminView = "availability" | "consultations" | "settings";
 
-const demoConsultations = [
-  ["ORDS-8F3A21B0", "Mateo Ramos", "Ramos Family", "Drums", "Confirmed", "Email skipped"],
-  ["ORDS-94C2D801", "Naomi Lee", "Lee Family", "Voice", "Completed", "Sent"],
-  ["ORDS-C118A40F", "Jordan Cruz", "Jordan Cruz", "Music Production", "No-show", "Failed"],
-];
-
 export function ConsultationAdminPage({ view }: { view: AdminView }) {
   const [role, setRole] = useState("");
 
@@ -24,7 +18,7 @@ export function ConsultationAdminPage({ view }: { view: AdminView }) {
         <section className="consultation-panel">
           <span className="eyebrow tag-on-light">Protected Area</span>
           <h1>Admin access required.</h1>
-          <p>This preview uses the current local role switcher. Production admin access must be connected to Supabase Auth before launch.</p>
+          <p>Consultation records and settings are available only to authorized ORDS administrators.</p>
           <Link className="inline-btn" href="/login">Choose Admin Role</Link>
         </section>
       </main>
@@ -37,7 +31,7 @@ export function ConsultationAdminPage({ view }: { view: AdminView }) {
         <div>
           <span className="eyebrow tag-on-light">Consultation Admin</span>
           <h1>Free consultation booking system.</h1>
-          <p>Manage consultation requests, availability, blocked dates, and launch settings. This admin area is demo-guarded until Supabase Auth roles are connected.</p>
+          <p>Manage consultation requests, availability, blocked dates, and booking settings from one workspace.</p>
         </div>
         <nav>
           <Link className={view === "consultations" ? "active" : ""} href="/admin/consultations">Consultations</Link>
@@ -57,20 +51,20 @@ function ConsultationsView() {
   return (
     <>
       <div className="portal-grid stat-grid ops-stats">
-        <article className="portal-panel stat-card"><span>Upcoming</span><strong>1</strong><small>Confirmed consultations</small></article>
+        <article className="portal-panel stat-card"><span>Upcoming</span><strong>0</strong><small>No confirmed consultations</small></article>
         <article className="portal-panel stat-card"><span>Today</span><strong>0</strong><small>No consultations today</small></article>
-        <article className="portal-panel stat-card"><span>Past</span><strong>2</strong><small>Completed/no-show</small></article>
-        <article className="portal-panel stat-card"><span>Email issues</span><strong>2</strong><small>Setup or retry needed</small></article>
+        <article className="portal-panel stat-card"><span>Past</span><strong>0</strong><small>No consultation history</small></article>
+        <article className="portal-panel stat-card"><span>Email issues</span><strong>0</strong><small>No delivery issues</small></article>
       </div>
       <section className="portal-panel">
         <div className="portal-panel-head">
           <div><div className="panel-kicker">Dashboard</div><h3>Consultation records</h3></div>
           <input className="consultation-admin-search" placeholder="Search by name, email, phone, instrument, or reference" />
         </div>
-        <div className="ops-table consultation-admin-table">
-          {demoConsultations.map((row) => <div key={row[0]}>{row.map((cell, index) => index === 0 ? <strong key={cell}>{cell}</strong> : <span key={`${cell}-${index}`}>{cell}</span>)}</div>)}
+        <div className="booking-empty-state">
+          <strong>No consultation records yet</strong>
+          <span>Confirmed consultation requests will appear here with contact details, program interest, status, and email delivery history.</span>
         </div>
-        <p className="approval-note">Real consultation records will appear here after the Supabase migration is applied and admin auth is connected.</p>
       </section>
     </>
   );
@@ -81,10 +75,9 @@ function AvailabilityView() {
     <div className="portal-grid two-grid">
       <section className="portal-panel">
         <div className="panel-kicker">Weekly Availability</div>
-        <h3>Temporary starter schedule</h3>
+        <h3>Consultation hours</h3>
         <div className="availability-admin-grid">
-          {["Monday 10:00 AM-2:00 PM", "Wednesday 12:00 PM-4:00 PM", "Saturday 10:00 AM-1:00 PM"].map((item) => <label key={item}><input defaultChecked type="checkbox" /> {item}</label>)}
-          {["Tuesday unavailable", "Thursday unavailable", "Friday unavailable", "Sunday unavailable"].map((item) => <label key={item}><input type="checkbox" /> {item}</label>)}
+          {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((item) => <label key={item}><input type="checkbox" /> {item} available</label>)}
         </div>
       </section>
       <section className="portal-panel">
@@ -92,7 +85,7 @@ function AvailabilityView() {
         <h3>Vacation and unavailable dates</h3>
         <label className="portal-field">Start date<input type="date" /></label>
         <label className="portal-field">End date<input type="date" /></label>
-        <label className="portal-field">Reason<textarea defaultValue="Vacation week" /></label>
+        <label className="portal-field">Reason<textarea placeholder="Reason for blocking these dates" /></label>
         <button className="inline-btn" type="button">Add Blocked Period</button>
       </section>
     </div>

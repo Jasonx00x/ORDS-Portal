@@ -1,4 +1,4 @@
-import { getSupabaseConfig, getSupabaseProjectRef } from "@/lib/supabase-config";
+import { getSupabaseConfig } from "@/lib/supabase-config";
 
 export async function GET() {
   try {
@@ -11,17 +11,12 @@ export async function GET() {
       cache: "no-store",
     });
 
-    return Response.json({
-      connected: response.ok,
-      projectRef: getSupabaseProjectRef(url),
-      status: response.status,
-      statusText: response.statusText,
-    });
-  } catch (error) {
+    return Response.json({ connected: response.ok });
+  } catch {
     return Response.json(
       {
         connected: false,
-        message: error instanceof Error ? error.message : "Unable to check Supabase connection.",
+        message: "Connection check unavailable.",
       },
       { status: 500 },
     );

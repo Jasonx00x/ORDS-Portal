@@ -32,9 +32,9 @@ export const roleLabels: Record<Role, string> = {
 
 export const roleProfiles: Record<Role, { name: string; subtitle: string }> = {
   admin: {
-    name: "ORDS operations dashboard.",
+    name: "ORDS operations setup.",
     subtitle:
-      "Instructor accountability, scheduling control, login records, communication proof, and report completion in one organized workspace.",
+      "Create the first real accounts, rooms, schedules, approvals, and operating rules before families and instructors start using the portal.",
   },
   instructor: {
     name: "Instructor operations dashboard.",
@@ -42,19 +42,19 @@ export const roleProfiles: Record<Role, { name: string; subtitle: string }> = {
       "Manage assigned students, clock-ins, lesson reports, homework, and reschedule approvals.",
   },
   parent: {
-    name: "Good afternoon, Parent.",
+    name: "Parent account setup.",
     subtitle:
-      "View student progress, billing status, settings, and reschedule request status without internal staff tools.",
+      "After contract approval, a parent account can manage one or more linked students without seeing internal staff tools.",
   },
   student: {
-    name: "Good afternoon, Mateo.",
+    name: "Student account setup.",
     subtitle:
-      "Your homework, announcements, progress, and approved reschedule requests in one focused workspace.",
+      "Students see homework, announcements, progress, and approved schedule requests after an admin creates the account.",
   },
   client: {
-    name: "Welcome back, Jordan.",
+    name: "Client account setup.",
     subtitle:
-      "View assigned homework, announcements, and reschedule requests for your coaching sessions.",
+      "Clients see assigned coaching homework, announcements, and request options after ORDS creates the account.",
   },
 };
 

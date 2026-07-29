@@ -73,12 +73,18 @@ const requiredRoutes = [
   "lib/consultations/supabase-rest.ts",
   "lib/consultations/validation.ts",
   "supabase/migrations/202607140001_create_consultation_booking_system.sql",
+  "supabase/migrations/202607290001_create_ords_core_setup_scheduling.sql",
   "docs/consultation-booking-system.md",
   "scripts/test-consultation-contract.mjs",
   ".env.example",
 ];
 
-const visibleUiFiles = ["components/PortalShell.tsx", "app/login/page.tsx", "components/consultations/ConsultationBookingPage.tsx"];
+const visibleUiFiles = [
+  "components/PortalShell.tsx",
+  "app/login/page.tsx",
+  "components/consultations/ConsultationBookingPage.tsx",
+  "components/consultations/ConsultationAdminPage.tsx",
+];
 const blockedPreviewTerms = [/Karina/i, /\bCFO\b/i, /\bMVP\b/i, /Supabase/i, /Mock Role/i, /Phase 1/i];
 const failures = [];
 
@@ -107,6 +113,27 @@ for (const key of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE
   if (!envExample.includes(key)) failures.push(`Missing ${key} in .env.example`);
 }
 
+const statusRoute = readFileSync(join(root, "app/api/supabase/status/route.ts"), "utf8");
+for (const internalField of ["projectRef:", "publishableKey:", "statusText:"]) {
+  if (statusRoute.includes(internalField)) failures.push(`Public connection status exposes internal field: ${internalField}`);
+}
+
+const schedulingMigration = readFileSync(
+  join(root, "supabase/migrations/202607290001_create_ords_core_setup_scheduling.sql"),
+  "utf8",
+);
+for (const requiredSchemaRule of [
+  "profile_id uuid unique references public.app_profiles",
+  "lesson_schedules_room_no_overlap",
+  "lesson_schedules_instructor_no_overlap",
+  "lesson_schedules_student_no_overlap",
+  "Instructors create assigned lesson requests",
+  "Students view own lesson schedules",
+  "Instructors create own room approvals",
+]) {
+  if (!schedulingMigration.includes(requiredSchemaRule)) failures.push(`Missing scheduling schema rule: ${requiredSchemaRule}`);
+}
+
 for (const file of visibleUiFiles) {
   const source = readFileSync(join(root, file), "utf8");
   for (const term of blockedPreviewTerms) {
@@ -114,7 +141,7 @@ for (const file of visibleUiFiles) {
   }
 }
 
-const requiredRooms = ["Studio", "Drum Room", "Auditorium"];
+const requiredRooms = ["Studio", "Drum Room", "Auditorium", "Youth Room", "Extra Room"];
 const configuredRooms = bookingRooms.map((room) => room.name);
 for (const room of requiredRooms) {
   if (!configuredRooms.includes(room)) failures.push(`Missing required ORDS room: ${room}`);

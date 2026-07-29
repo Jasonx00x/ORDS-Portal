@@ -1,75 +1,65 @@
 import type { Role } from "./roles";
 
 export const dashboardStats = [
-  ["Active students", "48", "31 active weekly"],
-  ["Reports submitted", "18", "Today"],
-  ["Missing reports", "4", "Needs follow-up"],
-  ["Today’s clock-ins", "2/3", "One missing"],
-  ["Pending reschedules", "3", "Approval required"],
-  ["Login activity", "86", "This month"],
-  ["Attendance issues", "5", "Late/no-show flags"],
-  ["Announcement reads", "14/20", "Families confirmed"],
+  ["Active students", "0", "Add after contracts"],
+  ["Reports submitted", "0", "Starts after lessons"],
+  ["Missing reports", "0", "No lessons yet"],
+  ["Today’s clock-ins", "0", "Invite instructors first"],
+  ["Pending reschedules", "0", "No requests yet"],
+  ["Login activity", "0", "No invited accounts yet"],
+  ["Attendance issues", "0", "No lessons yet"],
+  ["Announcement reads", "0", "No announcements sent"],
 ];
 
 export const homeworkByRole: Record<Role, Array<{ title: string; detail: string }>> = {
   student: [
-    { title: "Mateo Ramos", detail: "Drums · Rudiments, worship groove at 72 BPM, upload one practice video" },
-    { title: "Practice checklist", detail: "10 minutes rudiments, 10 minutes groove, one upload before Friday" },
+    { title: "No homework yet", detail: "Homework appears after the instructor submits the first lesson report." },
+    { title: "Practice checklist", detail: "Practice items will be assigned by the instructor." },
   ],
   client: [
-    { title: "Jordan Cruz", detail: "Audio · Revise EQ balance and upload the next mix draft" },
-    { title: "Session prep", detail: "Bring one reference track and notes on mix changes" },
+    { title: "No coaching homework yet", detail: "Homework appears after the assigned coach submits notes." },
+    { title: "Session prep", detail: "Session prep appears after the first coaching session is scheduled." },
   ],
   instructor: [
-    { title: "Mateo Ramos", detail: "Drums · Rudiments, worship groove at 72 BPM, upload one practice video" },
-    { title: "Jordan Cruz", detail: "Audio · Revise EQ balance and upload the next mix draft" },
-    { title: "Ari Thompson", detail: "Piano · Practice I-IV-V progressions and record chord transitions" },
-    { title: "Naomi Lee", detail: "Vocals · Breath support warmup and pitch matching exercise" },
+    { title: "No assigned students yet", detail: "Oscar assigns students after contracts and account setup." },
+    { title: "Homework templates", detail: "Build reusable homework once programs are configured." },
     { title: "Instructor Library", detail: "Reusable homework templates, lesson materials, and upload links" },
-    { title: "Assignment Queue", detail: "3 homework submissions waiting for instructor review" },
+    { title: "Assignment Queue", detail: "No homework submissions yet." },
   ],
   admin: [
-    { title: "Mateo Ramos", detail: "Drums · Rudiments, worship groove at 72 BPM, upload one practice video" },
-    { title: "Jordan Cruz", detail: "Audio · Revise EQ balance and upload the next mix draft" },
-    { title: "Ari Thompson", detail: "Piano · Practice I-IV-V progressions and record chord transitions" },
-    { title: "Naomi Lee", detail: "Vocals · Breath support warmup and pitch matching exercise" },
+    { title: "No homework yet", detail: "Assignments begin after instructors submit reports." },
+    { title: "No student submissions yet", detail: "Student uploads appear after accounts are invited." },
     { title: "Instructor Library", detail: "Reusable homework templates, lesson materials, and upload links" },
-    { title: "Assignment Queue", detail: "3 homework submissions waiting for instructor review" },
+    { title: "Assignment Queue", detail: "No homework submissions yet." },
   ],
   parent: [],
 };
 
 export const assignedInstructorByRole: Record<Role, string> = {
-  student: "Jason Alfaro",
-  parent: "Jason Alfaro",
-  client: "Oscar Ramos",
-  instructor: "Jason Alfaro",
-  admin: "Jason Alfaro",
+  student: "Assigned after setup",
+  parent: "Assigned after setup",
+  client: "Assigned after setup",
+  instructor: "Instructor account",
+  admin: "All instructors",
 };
 
 export const lessonBlocks = [
   { day: "Mon", lessons: [
-    ["3:30 PM", "Mateo Ramos", "Drums", "Jason Alfaro", "Scheduled", "drums"],
-    ["5:00 PM", "Naomi Lee", "Vocals", "Bryan", "Completed", "vocals"],
+    ["Setup", "No lessons yet", "Add instructor availability", "Admin", "Setup Required", "audio"],
   ] },
   { day: "Tue", lessons: [
-    ["4:00 PM", "Ari Thompson", "Piano", "David", "Late Arrival", "piano"],
-    ["6:30 PM", "Jordan Cruz", "Audio", "Oscar Ramos", "Scheduled", "audio"],
+    ["Setup", "Room approval", "Every lesson needs a room", "Admin", "Setup Required", "audio"],
   ] },
   { day: "Wed", lessons: [
-    ["4:30 PM", "Camila Reyes", "Guitar", "Bryan", "No Show", "guitar"],
-    ["6:00 PM", "Elijah Moore", "Drums", "Jason Alfaro", "Completed", "drums"],
+    ["Setup", "1-hour lessons", "Default duration", "Admin", "Setup Required", "audio"],
   ] },
   { day: "Thu", lessons: [
-    ["5:30 PM", "Mateo Ramos", "Drums", "Jason Alfaro", "Reschedule Requested", "drums"],
-    ["7:00 PM", "Grace Kim", "Piano", "David", "Scheduled", "piano"],
+    ["Setup", "Invite instructors", "Email password setup", "Admin", "Setup Required", "audio"],
   ] },
   { day: "Fri", lessons: [
-    ["3:00 PM", "Sofia Vega", "Vocals", "Bryan", "Scheduled", "vocals"],
-    ["4:30 PM", "Isaac King", "Guitar", "Oscar Ramos", "Completed", "guitar"],
+    ["Setup", "Add contracted families", "No parent self-signup", "Admin", "Setup Required", "audio"],
   ] },
   { day: "Sat", lessons: [
-    ["11:00 AM", "Mateo Ramos", "Drums", "Jason Alfaro", "Scheduled", "drums"],
-    ["1:00 PM", "Ari Thompson", "Piano", "David", "Scheduled", "piano"],
+    ["Setup", "Build first schedule", "Use available room", "Admin", "Setup Required", "audio"],
   ] },
 ] as const;
