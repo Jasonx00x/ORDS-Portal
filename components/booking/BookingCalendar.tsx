@@ -22,6 +22,7 @@ import {
 } from "@/app/booking/actions";
 import type {
   BookingAssignment,
+  BookingConsultation,
   BookingLesson,
   BookingUnavailability,
   BookingWorkspaceData,
@@ -33,6 +34,7 @@ type CalendarDialog =
   | { kind: "create"; mode: "lesson" | "block"; startsAt: string; endsAt: string }
   | { kind: "lesson"; lessonId: string }
   | { kind: "blocked"; unavailableId: string }
+  | { kind: "consultation"; consultationId: string }
   | null;
 
 type BookingCalendarProps = {
@@ -253,13 +255,33 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
           title: "Available",
         }));
 
-    return [...availabilityEvents, ...blockedEvents, ...lessonEvents];
+    const consultationEvents: EventInput[] =
+      isAdmin && instructorFilter === "all" && roomFilter === "all"
+        ? data.consultations
+          .filter((consultation) => consultation.status !== "cancelled")
+          .map((consultation) => ({
+            classNames: ["ords-calendar-event", "calendar-consultation"],
+            end: isoToEasternCalendarValue(consultation.endsAt),
+            extendedProps: {
+              consultationId: consultation.id,
+              kind: "consultation",
+              subtitle: `${consultation.instrumentOrService} | Website booking`,
+            },
+            id: `consultation-${consultation.id}`,
+            start: isoToEasternCalendarValue(consultation.startsAt),
+            title: `Consultation: ${consultation.customerName}`,
+          }))
+        : [];
+
+    return [...availabilityEvents, ...blockedEvents, ...lessonEvents, ...consultationEvents];
   }, [
     data.availability,
+    data.consultations,
     data.lessons,
     data.unavailability,
     instructorById,
     instructorFilter,
+    isAdmin,
     role,
     roomFilter,
     userId,
@@ -346,6 +368,12 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
     if (kind === "blocked") {
       setDialog({ kind: "blocked", unavailableId: String(info.event.extendedProps.unavailableId) });
     }
+    if (kind === "consultation") {
+      setDialog({
+        consultationId: String(info.event.extendedProps.consultationId),
+        kind: "consultation",
+      });
+    }
   }
 
   function submitLesson(event: FormEvent<HTMLFormElement>) {
@@ -384,13 +412,18 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
   const detailBlocked: BookingUnavailability | undefined = dialog?.kind === "blocked"
     ? data.unavailability.find((item) => item.id === dialog.unavailableId)
     : undefined;
+  const detailConsultation: BookingConsultation | undefined = dialog?.kind === "consultation"
+    ? data.consultations.find((item) => item.id === dialog.consultationId)
+    : undefined;
 
   return (
     <section className="portal-panel booking-calendar-panel" aria-labelledby="booking-calendar-title">
       <div className="booking-calendar-head">
         <div>
           <div className="panel-kicker">Operations Calendar</div>
-          <h3 id="booking-calendar-title">Lessons, rooms, and blocked time</h3>
+          <h3 id="booking-calendar-title">
+            {isAdmin ? "Website bookings and instructor schedules" : "Lessons, rooms, and blocked time"}
+          </h3>
           <p>Eastern Time</p>
         </div>
         <div className="booking-calendar-filters">
@@ -420,6 +453,7 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
         <span className="legend-scheduled">Scheduled</span>
         <span className="legend-pending">Pending room approval</span>
         <span className="legend-blocked">Blocked</span>
+        {isAdmin && <span className="legend-consultation">Website consultation</span>}
       </div>
 
       <div className="booking-calendar-frame">
@@ -455,6 +489,7 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
           selectOverlap={(event) => {
             if (event.display === "background") return true;
             const kind = String(event.extendedProps.kind ?? "");
+            if (kind === "consultation") return true;
             if (kind === "blocked") return instructorFilter === "all" && role !== "instructor";
             if (kind !== "lesson") return false;
             const instructorConflict =
@@ -563,6 +598,24 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
                   <button className="inline-btn danger-btn" disabled={isPending} type="button" onClick={() => run(() => deleteUnavailabilityAction(detailBlocked.id))}>Remove Block</button>
                   <button className="inline-btn ghost-btn" type="button" onClick={() => setDialog(null)}>Close</button>
                 </div>
+              </>
+            )}
+
+            {dialog.kind === "consultation" && detailConsultation && (
+              <>
+                <div className="panel-kicker">Website Consultation</div>
+                <h3 id="booking-dialog-title">{detailConsultation.customerName}</h3>
+                <dl className="booking-dialog-details">
+                  <div><dt>Time</dt><dd>{formatEastern(detailConsultation.startsAt)} - {new Date(detailConsultation.endsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" })}</dd></div>
+                  <div><dt>Student</dt><dd>{detailConsultation.studentName}</dd></div>
+                  <div><dt>Interest</dt><dd>{detailConsultation.instrumentOrService}</dd></div>
+                  <div><dt>Email</dt><dd><a href={`mailto:${detailConsultation.customerEmail}`}>{detailConsultation.customerEmail}</a></dd></div>
+                  <div><dt>Phone</dt><dd><a href={`tel:${detailConsultation.customerPhone}`}>{detailConsultation.customerPhone}</a></dd></div>
+                  <div><dt>Reference</dt><dd>{detailConsultation.bookingReference}</dd></div>
+                  <div><dt>Status</dt><dd>{statusLabel(detailConsultation.status)}</dd></div>
+                  {detailConsultation.musicalGoals && <div><dt>Goals</dt><dd>{detailConsultation.musicalGoals}</dd></div>}
+                </dl>
+                <button className="inline-btn ghost-btn" type="button" onClick={() => setDialog(null)}>Close</button>
               </>
             )}
           </section>

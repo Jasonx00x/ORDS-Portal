@@ -10,6 +10,7 @@ import {
   decideApprovalAction,
   deleteAvailabilityAction,
   deleteUnavailabilityAction,
+  inviteInstructorAction,
   saveSchoolHoursAction,
   setRoomStatusAction,
   type BookingActionResult,
@@ -101,6 +102,9 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
   const activeRooms = data.rooms.filter((room) => room.isActive);
   const pendingApprovals = data.approvals.filter((approval) => approval.status === "pending");
   const upcomingLessons = data.lessons.filter((lesson) => new Date(lesson.endsAt) >= new Date() && lesson.status !== "cancelled");
+  const upcomingConsultations = data.consultations.filter(
+    (consultation) => new Date(consultation.endsAt) >= new Date() && consultation.status !== "cancelled",
+  );
 
   const setupItems = [
     { complete: activeRooms.length > 0, label: "Active rooms" },
@@ -152,6 +156,28 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
       displayName: String(values.get("displayName") ?? ""),
       primaryProgram: String(values.get("primaryProgram") ?? ""),
     }), () => form.reset());
+  }
+
+  function submitInstructor(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const values = new FormData(form);
+    run(() => inviteInstructorAction({
+      displayName: String(values.get("displayName") ?? ""),
+      email: String(values.get("email") ?? ""),
+      phone: String(values.get("phone") ?? ""),
+    }), () => form.reset());
+  }
+
+  async function copyEmbedCode() {
+    const bookingUrl = `${window.location.origin}/book-consultation?embed=1`;
+    const embedCode = `<iframe src="${bookingUrl}" title="Book an ORDS consultation" style="width:100%;min-height:900px;border:0" loading="lazy"></iframe>`;
+    try {
+      await navigator.clipboard.writeText(embedCode);
+      notify("Website embed code copied.");
+    } catch {
+      notify("Open the public calendar and use its URL for the website embed.");
+    }
   }
 
   function submitAssignment(event: FormEvent<HTMLFormElement>) {
@@ -213,7 +239,10 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
           <div className="metric-row">
             <div><strong>{upcomingLessons.length}</strong><span>Upcoming lessons</span></div>
             <div><strong>{pendingApprovals.length}</strong><span>Pending approvals</span></div>
-            <div><strong>{activeRooms.length}</strong><span>Active rooms</span></div>
+            <div>
+              <strong>{isAdmin ? upcomingConsultations.length : activeRooms.length}</strong>
+              <span>{isAdmin ? "Website consultations" : "Active rooms"}</span>
+            </div>
           </div>
         </article>
         <BookingCard kicker="System Status" title={isAdmin ? `${completedSetup} of ${setupItems.length} setup steps complete` : "Scheduling safeguards active"}>
@@ -236,6 +265,42 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
       </div>
 
       <BookingCalendar data={data} notify={notify} role={role} userId={userId} />
+
+      {isAdmin && (
+        <div className="portal-grid booking-admin-grid">
+          <BookingCard kicker="Instructor Accounts" title="Invite and manage instructors" body="Each instructor receives a private account invitation and creates their own password.">
+            <form className="setup-form-grid booking-form" onSubmit={submitInstructor}>
+              <label className="portal-field">Full name<input autoComplete="name" name="displayName" required /></label>
+              <label className="portal-field">Email<input autoComplete="email" name="email" required type="email" /></label>
+              <label className="portal-field">Phone <span className="optional-label">optional</span><input autoComplete="tel" name="phone" type="tel" /></label>
+              <button className="inline-btn booking-form-button" disabled={isPending} type="submit">
+                {isPending ? "Working..." : "Send Invitation"}
+              </button>
+            </form>
+            {data.instructors.length === 0 ? <EmptyState>No instructors have been invited yet.</EmptyState> : (
+              <div className="booking-record-list">
+                {data.instructors.map((instructor) => (
+                  <div className="booking-record" key={instructor.id}>
+                    <div><strong>{instructor.displayName}</strong><span>Instructor account</span></div>
+                    <b className={`booking-status status-${instructor.inviteStatus}`}>{statusLabel(instructor.inviteStatus)}</b>
+                  </div>
+                ))}
+              </div>
+            )}
+          </BookingCard>
+
+          <BookingCard kicker="Website Booking" title="Public consultation calendar" body="Families can book a consultation from the ORDS website. Lesson enrollment still requires ORDS approval and a contract.">
+            <div className="website-booking-summary">
+              <div><strong>{upcomingConsultations.length}</strong><span>Upcoming website bookings</span></div>
+              <div><strong>30 min</strong><span>Consultation length</span></div>
+            </div>
+            <div className="button-row">
+              <a className="inline-btn" href="/book-consultation" rel="noreferrer" target="_blank">Open Calendar</a>
+              <button className="inline-btn ghost-btn" onClick={copyEmbedCode} type="button">Copy Embed Code</button>
+            </div>
+          </BookingCard>
+        </div>
+      )}
 
       {isAdmin && (
         <div className="portal-grid booking-admin-grid">

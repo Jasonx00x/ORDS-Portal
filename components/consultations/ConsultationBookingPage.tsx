@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import FullCalendar from "@fullcalendar/react";
+import type { DatesSetArg } from "@fullcalendar/core";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin, {
+  type DateClickArg,
+} from "@fullcalendar/interaction";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { instrumentOptions } from "@/lib/consultations/constants";
 
 type Slot = {
@@ -9,8 +15,26 @@ type Slot = {
   timezone: string;
 };
 
+type AvailableDate = {
+  date: string;
+  slots: number;
+};
+
 function dateToInputValue(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const pad = (number: number) => String(number).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function easternDateValue(offsetDays = 0) {
+  const date = new Date(Date.now() + offsetDays * 86_400_000);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "America/New_York",
+    year: "numeric",
+  }).formatToParts(date);
+  const value = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
+  return `${value("year")}-${value("month")}-${value("day")}`;
 }
 
 function formatEasternTime(iso: string) {
@@ -19,6 +43,13 @@ function formatEasternTime(iso: string) {
     minute: "2-digit",
     timeZone: "America/New_York",
   }).format(new Date(iso));
+}
+
+function formatEasternDate(isoDate: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "full",
+    timeZone: "America/New_York",
+  }).format(new Date(`${isoDate}T12:00:00-04:00`));
 }
 
 function formatEasternDateTime(iso: string) {
@@ -34,21 +65,24 @@ function createIdempotencyKey() {
   return `booking-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function ConsultationBookingPage() {
-  const tomorrow = useMemo(() => {
-    const date = new Date();
-    date.setDate(date.getDate() + 1);
-    return dateToInputValue(date);
-  }, []);
-
-  const [selectedDate, setSelectedDate] = useState(tomorrow);
+export function ConsultationBookingPage({ embedded = false }: { embedded?: boolean }) {
+  const calendarRef = useRef<FullCalendar | null>(null);
+  const loadedRangeRef = useRef("");
+  const initialDate = useMemo(() => easternDateValue(1), []);
+  const [selectedDate, setSelectedDate] = useState(initialDate);
+  const [availableDates, setAvailableDates] = useState<AvailableDate[]>([]);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [selectedStartTime, setSelectedStartTime] = useState("");
+  const [loadingDates, setLoadingDates] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState<{ bookingReference: string; startTime: string } | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState(createIdempotencyKey);
+  const availableDateSet = useMemo(
+    () => new Set(availableDates.map((item) => item.date)),
+    [availableDates],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +93,7 @@ export function ConsultationBookingPage() {
     fetch(`/api/consultations/slots?date=${selectedDate}`)
       .then(async (response) => {
         const payload = await response.json();
-        if (!response.ok) throw new Error(payload.message ?? "No consultation times are available for this date.");
+        if (!response.ok) throw new Error(payload.message ?? "No consultation times are available.");
         return payload.slots as Slot[];
       })
       .then((nextSlots) => {
@@ -70,7 +104,7 @@ export function ConsultationBookingPage() {
       .catch((slotError) => {
         if (cancelled) return;
         setSlots([]);
-        setError(slotError instanceof Error ? slotError.message : "No consultation times are available for this date.");
+        setError(slotError instanceof Error ? slotError.message : "No consultation times are available.");
       })
       .finally(() => {
         if (!cancelled) setLoadingSlots(false);
@@ -80,6 +114,56 @@ export function ConsultationBookingPage() {
       cancelled = true;
     };
   }, [selectedDate]);
+
+  function loadAvailableDates(info: DatesSetArg) {
+    const viewDate = info.view.calendar.getDate();
+    const monthStart = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+    const lookAheadEnd = new Date(monthStart);
+    lookAheadEnd.setDate(lookAheadEnd.getDate() + 44);
+    const start = dateToInputValue(monthStart);
+    const end = dateToInputValue(lookAheadEnd);
+    const rangeKey = `${start}:${end}`;
+    if (loadedRangeRef.current === rangeKey) return;
+    loadedRangeRef.current = rangeKey;
+
+    setLoadingDates(true);
+    fetch(`/api/consultations/dates?start=${start}&end=${end}`)
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.message ?? "Available dates could not be loaded.");
+        return payload.dates as AvailableDate[];
+      })
+      .then((dates) => {
+        setAvailableDates(dates);
+        if (dates.length > 0 && !dates.some((item) => item.date === selectedDate)) {
+          setSelectedDate(dates[0].date);
+        }
+        const calendarDate = calendarRef.current?.getApi().getDate();
+        const firstDate = dates[0] ? new Date(`${dates[0].date}T12:00:00`) : null;
+        if (
+          calendarDate &&
+          firstDate &&
+          (calendarDate.getFullYear() !== firstDate.getFullYear() ||
+            calendarDate.getMonth() !== firstDate.getMonth())
+        ) {
+          calendarRef.current?.getApi().gotoDate(dates[0].date);
+        }
+      })
+      .catch((dateError) => {
+        setAvailableDates([]);
+        setError(dateError instanceof Error ? dateError.message : "Available dates could not be loaded.");
+      })
+      .finally(() => setLoadingDates(false));
+  }
+
+  function chooseDate(info: DateClickArg) {
+    const date = dateToInputValue(info.date);
+    if (date < easternDateValue(1) || !availableDateSet.has(date)) {
+      setError("No consultation times are available on that date.");
+      return;
+    }
+    setSelectedDate(date);
+  }
 
   async function submitBooking(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -110,7 +194,6 @@ export function ConsultationBookingPage() {
         body: JSON.stringify(payload),
       });
       const result = await response.json();
-
       if (!response.ok) throw new Error(result.message ?? "Unable to complete this booking.");
 
       setSuccess({ bookingReference: result.bookingReference, startTime: result.startTime });
@@ -123,80 +206,103 @@ export function ConsultationBookingPage() {
   }
 
   return (
-    <main className="consultation-public-page">
-      <section className="consultation-public-hero">
-        <div className="consultation-brand-row">
-          <img src="https://static.wixstatic.com/media/a51682_27dfdd46028443e7a016d349782ffa8f~mv2.png" alt="ORDS logo" />
-          <span>ORDS Music School</span>
-        </div>
-        <div className="consultation-hero-copy">
-          <span className="eyebrow">Free Consultation</span>
-          <h1>Book Your Free 30-Minute Consultation</h1>
-          <p>
-            Tell us about the student’s goals, choose an available Eastern Time slot, and ORDS will recommend the right instruction path.
-          </p>
-        </div>
-      </section>
+    <main className={`consultation-public-page${embedded ? " consultation-embedded" : ""}`}>
+      {!embedded && (
+        <section className="consultation-public-hero">
+          <div className="consultation-brand-row">
+            <img src="https://static.wixstatic.com/media/a51682_27dfdd46028443e7a016d349782ffa8f~mv2.png" alt="ORDS logo" />
+            <span>ORDS Music School</span>
+          </div>
+          <div className="consultation-hero-copy">
+            <span className="eyebrow">Free Consultation</span>
+            <h1>Book Your Free Consultation</h1>
+            <p>Choose a time to speak with ORDS about the student’s goals and the right instruction path.</p>
+          </div>
+        </section>
+      )}
 
       <section className="consultation-booking-shell" aria-label="Consultation booking form">
-        <div className="consultation-panel consultation-info-panel">
-          <h2>What to expect</h2>
-          <p>A short conversation helps ORDS understand the student’s musical goals, experience level, schedule needs, and best next step.</p>
-          <div className="consultation-proof-grid">
-            <span>30 minutes</span>
-            <span>Eastern Time</span>
-            <span>No payment required</span>
-            <span>Faith-aligned music academy</span>
+        {!embedded && (
+          <div className="consultation-panel consultation-info-panel">
+            <h2>Start with a conversation</h2>
+            <p>A 30-minute consultation helps ORDS understand the student’s goals, experience, schedule needs, and best next step.</p>
+            <div className="consultation-proof-grid">
+              <span>30 minutes</span>
+              <span>Eastern Time</span>
+              <span>No payment required</span>
+              <span>Enrollment completed by ORDS</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <form className="consultation-panel consultation-form" onSubmit={submitBooking}>
           <input autoComplete="off" className="hp-field" name="companyWebsite" tabIndex={-1} />
 
-          <div className="consultation-field-grid">
-            <label>
-              Available date
-              <input name="date" type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} />
-            </label>
-            <label>
-              Available time
-              <select disabled={loadingSlots || slots.length === 0} value={selectedStartTime} onChange={(event) => setSelectedStartTime(event.target.value)}>
-                {loadingSlots && <option>Loading times...</option>}
-                {!loadingSlots && slots.length === 0 && <option>No times available</option>}
-                {!loadingSlots && slots.map((slot) => <option key={slot.startTime} value={slot.startTime}>{formatEasternTime(slot.startTime)} Eastern</option>)}
-              </select>
-            </label>
+          <div className="consultation-step-head">
+            <span>1</span>
+            <div><strong>Choose a date and time</strong><small>All times are shown in Eastern Time.</small></div>
+          </div>
+          <div className="consultation-calendar-layout">
+            <div className="consultation-date-calendar" aria-busy={loadingDates}>
+              <FullCalendar
+                buttonText={{ today: "Today" }}
+                dateClick={chooseDate}
+                datesSet={loadAvailableDates}
+                dayCellClassNames={(info) => {
+                  const date = dateToInputValue(info.date);
+                  return [
+                    availableDateSet.has(date) ? "consultation-day-available" : "consultation-day-unavailable",
+                    date === selectedDate ? "consultation-day-selected" : "",
+                  ].filter(Boolean);
+                }}
+                dayHeaderFormat={{ weekday: "short" }}
+                fixedWeekCount={false}
+                headerToolbar={{ center: "title", end: "next", start: "prev" }}
+                height="auto"
+                initialView="dayGridMonth"
+                plugins={[dayGridPlugin, interactionPlugin]}
+                ref={calendarRef}
+                showNonCurrentDates={false}
+                validRange={{ start: easternDateValue(1) }}
+              />
+            </div>
+            <div className="consultation-time-panel">
+              <h3>{formatEasternDate(selectedDate)}</h3>
+              {loadingSlots ? (
+                <p className="consultation-message">Loading available times...</p>
+              ) : slots.length === 0 ? (
+                <p className="consultation-message">No times are available on this date.</p>
+              ) : (
+                <div className="consultation-time-grid">
+                  {slots.map((slot) => (
+                    <button
+                      className={selectedStartTime === slot.startTime ? "selected" : ""}
+                      key={slot.startTime}
+                      onClick={() => setSelectedStartTime(slot.startTime)}
+                      type="button"
+                    >
+                      {formatEasternTime(slot.startTime)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {!loadingSlots && slots.length === 0 && <p className="consultation-message">No consultation times are available for this date.</p>}
-
-          <div className="consultation-field-grid">
-            <label>
-              Parent or customer name
-              <input autoComplete="name" name="customerName" required />
-            </label>
-            <label>
-              Student name
-              <input autoComplete="off" name="studentName" required />
-            </label>
+          <div className="consultation-step-head">
+            <span>2</span>
+            <div><strong>Tell us about the student</strong><small>ORDS will use these details to prepare for the consultation.</small></div>
           </div>
-
           <div className="consultation-field-grid">
-            <label>
-              Email
-              <input autoComplete="email" name="customerEmail" required type="email" />
-            </label>
-            <label>
-              Phone
-              <input autoComplete="tel" name="customerPhone" required type="tel" />
-            </label>
+            <label>Parent or customer name<input autoComplete="name" name="customerName" required /></label>
+            <label>Student name<input autoComplete="off" name="studentName" required /></label>
           </div>
-
           <div className="consultation-field-grid">
-            <label>
-              Student age <span>optional</span>
-              <input inputMode="numeric" name="studentAge" type="number" min="0" max="120" />
-            </label>
+            <label>Email<input autoComplete="email" name="customerEmail" required type="email" /></label>
+            <label>Phone<input autoComplete="tel" name="customerPhone" required type="tel" /></label>
+          </div>
+          <div className="consultation-field-grid">
+            <label>Student age <span>optional</span><input inputMode="numeric" name="studentAge" type="number" min="0" max="120" /></label>
             <label>
               Instrument or service
               <select name="instrumentOrService" required defaultValue="">
@@ -205,17 +311,12 @@ export function ConsultationBookingPage() {
               </select>
             </label>
           </div>
-
-          <label>
-            Musical goals
-            <textarea name="musicalGoals" required minLength={5} maxLength={1200} placeholder="Tell us what the student wants to learn, improve, or prepare for." />
-          </label>
-
+          <label>Musical goals<textarea name="musicalGoals" required minLength={5} maxLength={1200} placeholder="What would the student like to learn or improve?" /></label>
           <label className="consultation-acknowledgement">
-            <input required type="checkbox" /> I understand this is a free 30-minute consultation and ORDS will confirm details by email.
+            <input required type="checkbox" /> I understand this is a free consultation and enrollment is completed separately by ORDS.
           </label>
 
-          {selectedStartTime && <p className="consultation-message">Selected time: {formatEasternDateTime(selectedStartTime)} Eastern Time</p>}
+          {selectedStartTime && <p className="consultation-message">Selected: {formatEasternDateTime(selectedStartTime)} Eastern Time</p>}
           {error && <p className="consultation-error" role="alert">{error}</p>}
           {success && (
             <div className="consultation-success" role="status">
@@ -226,7 +327,7 @@ export function ConsultationBookingPage() {
           )}
 
           <button className="consultation-submit" disabled={submitting || loadingSlots || !selectedStartTime} type="submit">
-            {submitting ? "Booking..." : "Book Your Free Consultation"}
+            {submitting ? "Booking..." : "Confirm Free Consultation"}
           </button>
         </form>
       </section>

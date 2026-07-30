@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePortalUser } from "@/lib/auth";
 import { localDateTimeToIso } from "@/lib/booking/time";
+import { getSupabaseConfig } from "@/lib/supabase-config";
 import { createClient } from "@/lib/supabase/server";
 
 export type BookingActionResult = {
@@ -131,6 +132,54 @@ export async function addRoomAction(input: {
     if (error) throw new Error(error.message);
     revalidateBooking();
     return success("Room added. New lesson requests will require owner approval.");
+  } catch (error) {
+    return failure(bookingError(error));
+  }
+}
+
+export async function inviteInstructorAction(input: {
+  displayName: string;
+  email: string;
+  phone: string;
+}): Promise<BookingActionResult> {
+  try {
+    await requireAdmin();
+    const displayName = cleanText(input.displayName, "Instructor name", 100);
+    const email = cleanText(input.email, "Instructor email", 254).toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return failure("Enter a valid instructor email address.");
+    }
+
+    const supabase = await createClient();
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) return failure("Authentication is required.");
+
+    const { publishableKey, url } = getSupabaseConfig();
+    const portalUrl = process.env.NEXT_PUBLIC_ORDS_PORTAL_URL || "https://ords-portal.netlify.app";
+    const redirectTo = new URL("/login", portalUrl).toString();
+    const response = await fetch(`${url}/functions/v1/invite-portal-user`, {
+      method: "POST",
+      headers: {
+        apikey: publishableKey,
+        authorization: `Bearer ${accessToken}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        displayName,
+        email,
+        phone: optionalText(input.phone, 40),
+        redirectTo,
+      }),
+      cache: "no-store",
+    });
+    const result = await response.json() as { message?: string };
+    if (!response.ok) {
+      return failure(result.message || "The instructor invitation could not be sent.");
+    }
+
+    revalidateBooking();
+    return success(result.message || `Invitation sent to ${email}.`);
   } catch (error) {
     return failure(bookingError(error));
   }

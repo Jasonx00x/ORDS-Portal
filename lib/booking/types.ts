@@ -20,6 +20,20 @@ export type BookingInstructor = {
   inviteStatus: string;
 };
 
+export type BookingConsultation = {
+  bookingReference: string;
+  customerEmail: string;
+  customerName: string;
+  customerPhone: string;
+  endsAt: string;
+  id: string;
+  instrumentOrService: string;
+  musicalGoals: string;
+  startsAt: string;
+  status: string;
+  studentName: string;
+};
+
 export type BookingStudent = {
   contractStatus: string;
   displayName: string;
@@ -80,6 +94,7 @@ export type BookingWorkspaceData = {
   approvals: BookingApproval[];
   assignments: BookingAssignment[];
   availability: BookingAvailability[];
+  consultations: BookingConsultation[];
   instructors: BookingInstructor[];
   lessons: BookingLesson[];
   rooms: BookingRoom[];

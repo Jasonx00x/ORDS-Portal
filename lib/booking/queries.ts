@@ -4,6 +4,7 @@ import type {
   BookingApproval,
   BookingAssignment,
   BookingAvailability,
+  BookingConsultation,
   BookingInstructor,
   BookingLesson,
   BookingRoom,
@@ -44,6 +45,7 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
     unavailabilityResult,
     lessonsResult,
     approvalsResult,
+    consultationsResult,
   ] = await Promise.all([
     supabase.from("rooms").select("id,name,best_for,is_active,requires_owner_approval").order("name"),
     supabase.from("school_hours").select("id,day_of_week,opens_at,closes_at,is_enabled").order("day_of_week"),
@@ -54,6 +56,14 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
     supabase.from("instructor_unavailability").select("id,instructor_profile_id,starts_at,ends_at,reason").gte("ends_at", new Date().toISOString()).order("starts_at"),
     supabase.from("lesson_schedules").select("id,student_id,instructor_profile_id,room_id,program,starts_at,ends_at,status,notes,recurrence_group_id").gte("ends_at", cutoff.toISOString()).order("starts_at").limit(250),
     supabase.from("room_approval_requests").select("id,lesson_schedule_id,status,decision_note,created_at").order("created_at", { ascending: false }).limit(250),
+    user.role === "admin"
+      ? supabase
+        .from("consultation_bookings")
+        .select("id,booking_reference,customer_name,customer_email,customer_phone,student_name,instrument_or_service,musical_goals,start_time,end_time,status")
+        .gte("end_time", cutoff.toISOString())
+        .order("start_time")
+        .limit(250)
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
   const roomRows = requireData(roomsResult as QueryResult<Record<string, unknown>>, "rooms");
@@ -65,6 +75,10 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
   const unavailabilityRows = requireData(unavailabilityResult as QueryResult<Record<string, unknown>>, "unavailability");
   const lessonRows = requireData(lessonsResult as QueryResult<Record<string, unknown>>, "lessons");
   const approvalRows = requireData(approvalsResult as QueryResult<Record<string, unknown>>, "approvals");
+  const consultationRows = requireData(
+    consultationsResult as QueryResult<Record<string, unknown>>,
+    "website consultations",
+  );
 
   const rooms: BookingRoom[] = roomRows.map((row) => ({
     bestFor: text(row.best_for),
@@ -143,11 +157,25 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
     lessonScheduleId: text(row.lesson_schedule_id),
     status: text(row.status),
   }));
+  const consultations: BookingConsultation[] = consultationRows.map((row) => ({
+    bookingReference: text(row.booking_reference),
+    customerEmail: text(row.customer_email),
+    customerName: text(row.customer_name),
+    customerPhone: text(row.customer_phone),
+    endsAt: text(row.end_time),
+    id: text(row.id),
+    instrumentOrService: text(row.instrument_or_service),
+    musicalGoals: text(row.musical_goals),
+    startsAt: text(row.start_time),
+    status: text(row.status),
+    studentName: text(row.student_name),
+  }));
 
   return {
     approvals,
     assignments,
     availability,
+    consultations,
     instructors,
     lessons,
     rooms,

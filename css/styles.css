@@ -693,6 +693,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .booking-calendar-legend .legend-scheduled:before{background:#07112e}
 .booking-calendar-legend .legend-pending:before{background:#cca34c}
 .booking-calendar-legend .legend-blocked:before{background:#b42318}
+.booking-calendar-legend .legend-consultation:before{background:#087f8c}
 .booking-calendar-frame{
   border:1px solid rgba(17,25,54,.09);
   border-radius:8px;
@@ -757,6 +758,10 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .booking-calendar-frame .fc .calendar-blocked{
   border-left-color:#b42318;
   background:#fde9e7;
+}
+.booking-calendar-frame .fc .calendar-consultation{
+  border-left-color:#087f8c;
+  background:#e7f7f8;
 }
 .booking-calendar-frame .fc .calendar-instrument-drums{border-left-color:#e3342f}
 .booking-calendar-frame .fc .calendar-instrument-guitar{border-left-color:#d4a915}
@@ -884,6 +889,34 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 }
 .danger-btn{background:#a12828}
 .danger-btn:hover{background:#801d1d}
+.optional-label{
+  color:#7a8497;
+  font-size:11px;
+  font-weight:800;
+}
+.website-booking-summary{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:18px 0;
+}
+.website-booking-summary>div{
+  display:grid;
+  gap:3px;
+  border:1px solid rgba(17,25,54,.09);
+  border-radius:8px;
+  background:#f8fafc;
+  padding:14px;
+}
+.website-booking-summary strong{
+  color:#07112e;
+  font-size:24px;
+}
+.website-booking-summary span{
+  color:#667086;
+  font-size:12px;
+  font-weight:850;
+}
 .portal-toast{
   position:fixed;
   right:22px;
@@ -1042,7 +1075,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .consultation-hero-copy h1{
   font-size:clamp(46px,7vw,92px);
   line-height:.92;
-  letter-spacing:-.065em;
+  letter-spacing:0;
   margin:20px 0 16px;
 }
 .consultation-hero-copy p{max-width:720px;color:#dfe6f6;font-size:clamp(18px,2vw,23px);line-height:1.55;margin:0}
@@ -1063,7 +1096,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   padding:24px;
   backdrop-filter:blur(14px);
 }
-.consultation-panel h2{font-size:32px;line-height:1;margin:0 0 12px;color:#111827;letter-spacing:-.045em}
+.consultation-panel h2{font-size:32px;line-height:1;margin:0 0 12px;color:#111827;letter-spacing:0}
 .consultation-panel p{color:#596174;line-height:1.65;margin:0}
 .consultation-proof-grid{display:grid;gap:10px;margin-top:22px}
 .consultation-proof-grid span{
@@ -1075,6 +1108,141 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   font-weight:900;
 }
 .consultation-form{display:grid;gap:16px}
+.consultation-step-head{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-top:4px;
+}
+.consultation-step-head>span{
+  display:grid;
+  place-items:center;
+  flex:0 0 30px;
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:#0a112b;
+  color:#fff;
+  font-size:13px;
+  font-weight:950;
+}
+.consultation-step-head>div{display:grid;gap:2px}
+.consultation-step-head strong{color:#0a112b;font-size:16px}
+.consultation-step-head small{color:#667086;font-size:12px;font-weight:750}
+.consultation-calendar-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(190px,.75fr);
+  gap:14px;
+  align-items:start;
+}
+.consultation-date-calendar{
+  min-width:0;
+  border:1px solid rgba(17,25,54,.1);
+  border-radius:8px;
+  background:#fff;
+  padding:10px;
+}
+.consultation-date-calendar .fc{
+  --fc-border-color:rgba(17,25,54,.08);
+  --fc-button-bg-color:#fff;
+  --fc-button-border-color:rgba(17,25,54,.12);
+  --fc-button-hover-bg-color:#eef2f8;
+  --fc-button-hover-border-color:rgba(17,25,54,.18);
+  --fc-button-active-bg-color:#0a112b;
+  --fc-button-active-border-color:#0a112b;
+  --fc-page-bg-color:#fff;
+  --fc-today-bg-color:rgba(204,163,76,.08);
+  color:#334155;
+  font-family:inherit;
+}
+.consultation-date-calendar .fc .fc-toolbar{margin-bottom:10px}
+.consultation-date-calendar .fc .fc-toolbar-title{
+  color:#0a112b;
+  font-size:17px;
+  font-weight:950;
+}
+.consultation-date-calendar .fc .fc-button{
+  border-radius:6px;
+  box-shadow:none;
+  color:#0a112b;
+  font-size:12px;
+}
+.consultation-date-calendar .fc .fc-col-header-cell-cushion{
+  color:#7a8497;
+  font-size:10px;
+  font-weight:900;
+  text-transform:uppercase;
+}
+.consultation-date-calendar .fc .fc-daygrid-day{
+  height:52px;
+  cursor:pointer;
+}
+.consultation-date-calendar .fc .fc-daygrid-day-number{
+  color:#7a8497;
+  font-size:12px;
+  font-weight:850;
+}
+.consultation-date-calendar .fc .consultation-day-unavailable{
+  background:#f8fafc;
+  cursor:not-allowed;
+}
+.consultation-date-calendar .fc .consultation-day-unavailable .fc-daygrid-day-number{opacity:.45}
+.consultation-date-calendar .fc .consultation-day-available{
+  position:relative;
+  background:#eef9f3;
+}
+.consultation-date-calendar .fc .consultation-day-available:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:8px;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#1f9b55;
+  transform:translateX(-50%);
+}
+.consultation-date-calendar .fc .consultation-day-selected{
+  background:#0a112b;
+  box-shadow:inset 0 0 0 2px #cca34c;
+}
+.consultation-date-calendar .fc .consultation-day-selected .fc-daygrid-day-number{color:#fff;opacity:1}
+.consultation-time-panel{
+  min-height:100%;
+  border:1px solid rgba(17,25,54,.1);
+  border-radius:8px;
+  background:#f8fafc;
+  padding:14px;
+}
+.consultation-time-panel h3{
+  margin:0 0 12px;
+  color:#0a112b;
+  font-size:16px;
+  line-height:1.35;
+}
+.consultation-time-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.consultation-time-grid button{
+  min-height:42px;
+  border:1px solid rgba(17,25,54,.14);
+  border-radius:6px;
+  background:#fff;
+  color:#0a112b;
+  font:inherit;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.consultation-time-grid button:hover{border-color:#0a112b}
+.consultation-time-grid button.selected{
+  border-color:#0a112b;
+  background:#0a112b;
+  color:#fff;
+  box-shadow:inset 0 0 0 2px #cca34c;
+}
 .consultation-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .consultation-form label{display:grid;gap:8px;color:#334155;font-weight:900}
 .consultation-form label span{color:#667086;font-size:12px}
@@ -1116,15 +1284,36 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 }
 .consultation-submit:disabled{opacity:.58;cursor:not-allowed;box-shadow:none}
 .hp-field{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;opacity:0!important}
+.consultation-embedded{
+  min-height:0;
+  background:#fff;
+}
+.consultation-embedded .consultation-booking-shell{
+  display:block;
+  width:100%;
+  max-width:860px;
+  margin:0 auto;
+  padding:0;
+}
+.consultation-embedded .consultation-panel{
+  border-radius:8px;
+  box-shadow:none;
+}
 @media(max-width:900px){
   .consultation-booking-shell{grid-template-columns:1fr;margin-top:-24px}
   .consultation-field-grid{grid-template-columns:1fr}
+  .consultation-calendar-layout{grid-template-columns:1fr}
 }
 @media(max-width:560px){
   .consultation-public-hero{padding:24px 20px 42px}
   .consultation-hero-copy h1{font-size:44px}
   .consultation-booking-shell{width:min(100% - 28px,1180px)}
   .consultation-panel{padding:18px;border-radius:20px}
+  .consultation-date-calendar{padding:6px}
+  .consultation-date-calendar .fc .fc-toolbar-title{font-size:15px}
+  .consultation-date-calendar .fc .fc-daygrid-day{height:46px}
+  .consultation-time-grid{grid-template-columns:1fr 1fr}
+  .consultation-embedded .consultation-panel{border:0;padding:12px}
 }
 
 .consultation-admin-shell{
