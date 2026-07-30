@@ -1,4 +1,7 @@
-import { localDateTimeToIso } from "../lib/booking/time.ts";
+import {
+  isoToEasternCalendarValue,
+  localDateTimeToIso,
+} from "../lib/booking/time.ts";
 
 const cases = [
   ["2026-07-30T16:00", "2026-07-30T20:00:00.000Z"],
@@ -9,6 +12,18 @@ for (const [input, expected] of cases) {
   const actual = localDateTimeToIso(input, "time");
   if (actual !== expected) {
     throw new Error(`Expected ${input} to resolve to ${expected}, received ${actual}.`);
+  }
+}
+
+const calendarCases = [
+  ["2026-07-30T20:00:00.000Z", "2026-07-30T16:00:00"],
+  ["2027-01-15T21:00:00.000Z", "2027-01-15T16:00:00"],
+];
+
+for (const [input, expected] of calendarCases) {
+  const actual = isoToEasternCalendarValue(input);
+  if (actual !== expected) {
+    throw new Error(`Expected ${input} to display as ${expected}, received ${actual}.`);
   }
 }
 

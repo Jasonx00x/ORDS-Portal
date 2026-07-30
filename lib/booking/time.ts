@@ -12,6 +12,16 @@ function timeZoneParts(date: Date, timeZone: string) {
   return Object.fromEntries(parts.map((part) => [part.type, part.value]));
 }
 
+export function isoToEasternCalendarValue(value: Date | string) {
+  const date = typeof value === "string" ? new Date(value) : value;
+  if (!Number.isFinite(date.getTime())) {
+    throw new Error("Select a valid calendar time.");
+  }
+
+  const parts = timeZoneParts(date, "America/New_York");
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`;
+}
+
 export function localDateTimeToIso(value: unknown, label: string) {
   if (typeof value !== "string") throw new Error(`Select a valid ${label}.`);
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);

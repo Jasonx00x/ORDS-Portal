@@ -6,9 +6,7 @@ import {
   addAvailabilityAction,
   addRoomAction,
   addStudentAction,
-  addUnavailabilityAction,
   assignStudentAction,
-  createLessonAction,
   decideApprovalAction,
   deleteAvailabilityAction,
   deleteUnavailabilityAction,
@@ -16,6 +14,7 @@ import {
   setRoomStatusAction,
   type BookingActionResult,
 } from "@/app/booking/actions";
+import { BookingCalendar } from "@/components/booking/BookingCalendar";
 import type { BookingAssignment, BookingLesson, BookingWorkspaceData } from "@/lib/booking/types";
 import type { Role } from "@/lib/roles";
 
@@ -84,7 +83,6 @@ function EmptyState({ children }: { children: React.ReactNode }) {
 export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspaceProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [selectedAssignmentKey, setSelectedAssignmentKey] = useState(data.assignments[0] ? assignmentKey(data.assignments[0]) : "");
   const [decisionNotes, setDecisionNotes] = useState<Record<string, string>>({});
   const isAdmin = role === "admin";
   const isInstructor = role === "instructor";
@@ -100,13 +98,9 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
   const visibleUnavailability = isInstructor
     ? data.unavailability.filter((item) => item.instructorProfileId === userId)
     : data.unavailability;
-  const visibleAssignments = isInstructor
-    ? data.assignments.filter((item) => item.instructorProfileId === userId)
-    : data.assignments;
   const activeRooms = data.rooms.filter((room) => room.isActive);
   const pendingApprovals = data.approvals.filter((approval) => approval.status === "pending");
   const upcomingLessons = data.lessons.filter((lesson) => new Date(lesson.endsAt) >= new Date() && lesson.status !== "cancelled");
-  const selectedAssignment = visibleAssignments.find((assignment) => assignmentKey(assignment) === selectedAssignmentKey) ?? visibleAssignments[0];
 
   const setupItems = [
     { complete: activeRooms.length > 0, label: "Active rooms" },
@@ -117,11 +111,6 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
     { complete: data.availability.length > 0, label: "Teaching availability" },
   ];
   const completedSetup = setupItems.filter((item) => item.complete).length;
-  const canCreateLesson =
-    visibleAssignments.length > 0 &&
-    activeRooms.length > 0 &&
-    data.schoolHours.some((item) => item.isEnabled) &&
-    visibleAvailability.length > 0;
 
   function run(action: () => Promise<BookingActionResult>, reset?: () => void) {
     startTransition(async () => {
@@ -186,37 +175,6 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
     }));
   }
 
-  function submitUnavailability(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const values = new FormData(form);
-    run(() => addUnavailabilityAction({
-      endsAt: String(values.get("endsAt") ?? ""),
-      instructorProfileId: isInstructor ? userId : String(values.get("instructorProfileId") ?? ""),
-      reason: String(values.get("reason") ?? ""),
-      startsAt: String(values.get("startsAt") ?? ""),
-    }), () => form.reset());
-  }
-
-  function submitLesson(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!selectedAssignment) {
-      notify("Assign a student to an instructor before creating a lesson.");
-      return;
-    }
-    const values = new FormData(event.currentTarget);
-    run(() => createLessonAction({
-      durationMinutes: Number(values.get("durationMinutes")),
-      instructorProfileId: selectedAssignment.instructorProfileId,
-      notes: String(values.get("notes") ?? ""),
-      program: selectedAssignment.program,
-      repeatWeeks: Number(values.get("repeatWeeks")),
-      roomId: String(values.get("roomId") ?? ""),
-      startsAt: String(values.get("startsAt") ?? ""),
-      studentId: selectedAssignment.studentId,
-    }));
-  }
-
   if (!isStaff) {
     return (
       <>
@@ -276,6 +234,8 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
           </div>
         </BookingCard>
       </div>
+
+      <BookingCalendar data={data} notify={notify} role={role} userId={userId} />
 
       {isAdmin && (
         <div className="portal-grid booking-admin-grid">
@@ -393,16 +353,7 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
           )}
         </BookingCard>
 
-        <BookingCard kicker="Time Off" title={isAdmin ? "Instructor unavailable periods" : "Block unavailable time"} body="Blackout periods override normal weekly availability and prevent new lessons.">
-          <form className="booking-form" onSubmit={submitUnavailability}>
-            {isAdmin && <label className="portal-field">Instructor<select name="instructorProfileId" required defaultValue=""><option value="" disabled>Select instructor</option>{data.instructors.map((instructor) => <option key={instructor.id} value={instructor.id}>{instructor.displayName}</option>)}</select></label>}
-            <div className="setup-form-grid">
-              <label className="portal-field">From (Eastern Time)<input name="startsAt" type="datetime-local" required /></label>
-              <label className="portal-field">Until (Eastern Time)<input name="endsAt" type="datetime-local" required /></label>
-            </div>
-            <label className="portal-field">Reason<input name="reason" placeholder="Optional internal note" /></label>
-            <button className="inline-btn" disabled={isPending || (isAdmin && data.instructors.length === 0)} type="submit">Block Time</button>
-          </form>
+        <BookingCard kicker="Time Off" title={isAdmin ? "Instructor unavailable periods" : "Your blocked time"} body="Blackout periods override normal weekly availability and prevent new lessons.">
           {visibleUnavailability.length === 0 ? <EmptyState>No upcoming unavailable periods.</EmptyState> : (
             <div className="booking-record-list">
               {visibleUnavailability.map((period) => (
@@ -416,32 +367,7 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
         </BookingCard>
       </div>
 
-      <div className="portal-grid booking-admin-grid">
-        <BookingCard kicker="Lesson Builder" title="Create a conflict-checked lesson" body="The default is one hour. Weekly series are saved as one transaction and each occurrence holds its room while approval is pending.">
-          {!canCreateLesson && <EmptyState>Finish school hours, instructor availability, a student assignment, and an active room before scheduling.</EmptyState>}
-          <form className="booking-form" onSubmit={submitLesson}>
-            <label className="portal-field">Student and instructor
-              <select value={selectedAssignment ? assignmentKey(selectedAssignment) : ""} onChange={(event) => setSelectedAssignmentKey(event.target.value)} required>
-                {visibleAssignments.length === 0 && <option value="">No assigned students</option>}
-                {visibleAssignments.map((assignment) => (
-                  <option key={assignmentKey(assignment)} value={assignmentKey(assignment)}>
-                    {studentById.get(assignment.studentId)?.displayName ?? "Student"} | {assignment.program} | {instructorById.get(assignment.instructorProfileId)?.displayName ?? "Instructor"}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="setup-form-grid">
-              <label className="portal-field">First lesson (Eastern Time)<input name="startsAt" type="datetime-local" required /></label>
-              <label className="portal-field">Room<select name="roomId" required defaultValue=""><option value="" disabled>Select room</option>{activeRooms.map((room) => <option key={room.id} value={room.id}>{room.name}</option>)}</select></label>
-              <label className="portal-field">Duration<select name="durationMinutes" defaultValue="60"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option><option value="90">90 minutes</option><option value="120">2 hours</option></select></label>
-              <label className="portal-field">Repeat<select name="repeatWeeks" defaultValue="1"><option value="1">One lesson</option><option value="4">Weekly for 4 weeks</option><option value="8">Weekly for 8 weeks</option><option value="12">Weekly for 12 weeks</option><option value="16">Weekly for 16 weeks</option><option value="24">Weekly for 24 weeks</option></select></label>
-            </div>
-            <label className="portal-field">Internal note<textarea name="notes" placeholder="Optional scheduling note" /></label>
-            <button className="inline-btn" disabled={isPending || !canCreateLesson} type="submit">Submit for Room Approval</button>
-          </form>
-          <p className="booking-policy-note">Every lesson requires a room. Room approval is completed by the owner or admin.</p>
-        </BookingCard>
-
+      <div className="portal-grid">
         <BookingCard kicker="Approval Queue" title={isAdmin ? "Room requests awaiting a decision" : "Your room request status"}>
           {pendingApprovals.length === 0 ? <EmptyState>No room requests are waiting for approval.</EmptyState> : (
             <div className="booking-approval-list">

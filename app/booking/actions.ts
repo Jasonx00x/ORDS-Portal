@@ -71,6 +71,10 @@ function bookingError(error: unknown) {
     "The instructor is unavailable during this lesson.",
     "This request is no longer pending.",
     "The lesson is no longer pending approval.",
+    "The lesson could not be found.",
+    "The room approval request could not be closed.",
+    "Only upcoming pending or scheduled lessons can be cancelled.",
+    "You can only cancel your own lessons.",
     "Owner or admin access is required.",
     "Instructor access is required.",
     "Availability must fit inside active school hours.",
@@ -400,6 +404,25 @@ export async function decideApprovalAction(input: {
     if (error) throw new Error(error.message);
     revalidateBooking();
     return success(input.decision === "approved" ? "Room approved and lesson scheduled." : "Request denied and the room released.");
+  } catch (error) {
+    return failure(bookingError(error));
+  }
+}
+
+export async function cancelLessonAction(lessonId: string): Promise<BookingActionResult> {
+  try {
+    const user = await requirePortalUser("booking");
+    if (user.role !== "admin" && user.role !== "instructor") {
+      throw new Error("Instructor access is required.");
+    }
+
+    const supabase = await createClient();
+    const { error } = await supabase.rpc("cancel_lesson_occurrence", {
+      p_lesson_id: requireUuid(lessonId, "lesson"),
+    });
+    if (error) throw new Error(error.message);
+    revalidateBooking();
+    return success("Lesson cancelled. The instructor, student, and room are available again.");
   } catch (error) {
     return failure(bookingError(error));
   }
