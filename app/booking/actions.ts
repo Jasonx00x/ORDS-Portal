@@ -62,6 +62,7 @@ function bookingError(error: unknown) {
     "The selected room is not active.",
     "The selected instructor is not active.",
     "The selected student is not approved for scheduling.",
+    "Program is required and must be",
     "The student is not assigned to this instructor and program.",
     "Instructors can only schedule their own assigned students.",
     "Lessons must start and finish on the same local day.",
@@ -78,6 +79,9 @@ function bookingError(error: unknown) {
     "Select a valid",
     "Room name is required.",
     "Room use is required.",
+    "The selected room could not be found.",
+    "The selected availability could not be found.",
+    "The selected unavailable period could not be found.",
     "Student name is required.",
     "Program is required.",
     "does not exist in Eastern Time",
@@ -135,11 +139,14 @@ export async function setRoomStatusAction(input: {
   try {
     await requireAdmin();
     const supabase = await createClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("rooms")
       .update({ is_active: Boolean(input.isActive) })
-      .eq("id", requireUuid(input.id, "room"));
+      .eq("id", requireUuid(input.id, "room"))
+      .select("id")
+      .maybeSingle();
     if (error) throw new Error(error.message);
+    if (!data) throw new Error("The selected room could not be found.");
     revalidateBooking();
     return success(input.isActive ? "Room activated." : "Room paused for new bookings.");
   } catch (error) {
@@ -207,18 +214,13 @@ export async function assignStudentAction(input: {
 }): Promise<BookingActionResult> {
   try {
     await requireAdmin();
-    const studentId = requireUuid(input.studentId, "student");
     const supabase = await createClient();
-    const { error } = await supabase.from("instructor_student_assignments").upsert({
-      instructor_profile_id: requireUuid(input.instructorProfileId, "instructor"),
-      is_primary: true,
-      program: cleanText(input.program, "Program", 80),
-      student_id: studentId,
-    }, { onConflict: "instructor_profile_id,student_id,program" });
+    const { error } = await supabase.rpc("assign_student_to_instructor", {
+      p_instructor_profile_id: requireUuid(input.instructorProfileId, "instructor"),
+      p_program: cleanText(input.program, "Program", 80),
+      p_student_id: requireUuid(input.studentId, "student"),
+    });
     if (error) throw new Error(error.message);
-
-    const { error: statusError } = await supabase.from("students").update({ status: "active" }).eq("id", studentId);
-    if (statusError) throw new Error(statusError.message);
     revalidateBooking();
     return success("Instructor assigned. The student is ready for scheduling.");
   } catch (error) {
@@ -279,8 +281,14 @@ export async function deleteAvailabilityAction(id: string): Promise<BookingActio
     const user = await requirePortalUser("booking");
     if (user.role !== "admin" && user.role !== "instructor") throw new Error("Instructor access is required.");
     const supabase = await createClient();
-    const { error } = await supabase.from("instructor_availability").delete().eq("id", requireUuid(id, "availability"));
+    const { data, error } = await supabase
+      .from("instructor_availability")
+      .delete()
+      .eq("id", requireUuid(id, "availability"))
+      .select("id")
+      .maybeSingle();
     if (error) throw new Error(error.message);
+    if (!data) throw new Error("The selected availability could not be found.");
     revalidateBooking();
     return success("Availability removed.");
   } catch (error) {
@@ -326,8 +334,14 @@ export async function deleteUnavailabilityAction(id: string): Promise<BookingAct
     const user = await requirePortalUser("booking");
     if (user.role !== "admin" && user.role !== "instructor") throw new Error("Instructor access is required.");
     const supabase = await createClient();
-    const { error } = await supabase.from("instructor_unavailability").delete().eq("id", requireUuid(id, "unavailable period"));
+    const { data, error } = await supabase
+      .from("instructor_unavailability")
+      .delete()
+      .eq("id", requireUuid(id, "unavailable period"))
+      .select("id")
+      .maybeSingle();
     if (error) throw new Error(error.message);
+    if (!data) throw new Error("The selected unavailable period could not be found.");
     revalidateBooking();
     return success("Unavailable time removed.");
   } catch (error) {

@@ -349,6 +349,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   overflow-x:auto;
   padding-bottom:4px;
 }
+.live-week-schedule{grid-template-columns:repeat(7,minmax(160px,1fr))}
 .day-column{
   min-width:150px;
   border:1px solid rgba(17,25,54,.08);
@@ -357,6 +358,13 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   padding:12px;
 }
 .day-column>strong{display:block;color:#07112e;margin-bottom:12px;font-size:18px}
+.schedule-day-empty{
+  display:block;
+  min-height:64px;
+  padding-top:8px;
+  color:#8a93a5;
+  font-weight:750;
+}
 .instrument-legend{
   display:flex;
   gap:9px;
@@ -662,6 +670,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .student-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ops-hero-grid,.schedule-control-grid,.clock-grid,.reports-grid,.login-grid,.booking-hero-grid,.booking-admin-grid,.booking-request-grid{grid-template-columns:1fr}
   .week-schedule{grid-template-columns:repeat(3,minmax(190px,1fr))}
+  .live-week-schedule{grid-template-columns:repeat(7,minmax(180px,1fr))}
 }
 @media(max-width:1100px){
   .ops-portal .portal-shell{grid-template-columns:1fr}
@@ -679,6 +688,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .booking-form-button{margin-bottom:0}
   .live-room-grid{grid-template-columns:1fr}
   .week-schedule{grid-template-columns:1fr;overflow:visible}
+  .live-week-schedule{grid-template-columns:1fr}
   .student-ops-table>div,.compact-ops-table>div,.reschedule-table>div,.login-table>div{
     grid-template-columns:1fr;
   }

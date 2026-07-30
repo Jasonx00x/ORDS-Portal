@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import type { PortalUser } from "@/lib/auth";
 import { BookingWorkspace } from "@/components/booking/BookingWorkspace";
 import type { BookingWorkspaceData } from "@/lib/booking/types";
-import { assignedInstructorByRole, homeworkByRole, lessonBlocks } from "@/lib/demo-data";
+import { assignedInstructorByRole, homeworkByRole } from "@/lib/demo-data";
 import { navItems, roleLabels, roleProfiles, type PortalSection, type Role } from "@/lib/roles";
 
 type PortalShellProps = {
@@ -99,7 +99,7 @@ export function PortalShell({ bookingData, section, user }: PortalShellProps) {
                 <Link className="portal-action-btn" href="/lesson-reports">Submit Report</Link>
               </>
             )}
-            {(role === "student" || role === "parent" || role === "client") && <Link className="portal-action-btn dark-action" href="/booking">Request Lesson</Link>}
+            {(role === "student" || role === "parent" || role === "client") && <Link className="portal-action-btn dark-action" href="/booking">View Lessons</Link>}
           </div>
         </header>
 
@@ -135,7 +135,7 @@ function SectionContent(props: ContentProps) {
     case "students":
       return <Students notify={props.notify} />;
     case "teacher-schedule":
-      return <TeacherSchedule />;
+      return props.bookingData ? <TeacherSchedule data={props.bookingData} /> : null;
     case "clock-in":
       return <ClockIn {...props} />;
     case "lesson-reports":
@@ -163,8 +163,8 @@ function Dashboard({ bookingData, role, time, clockStatus, onClock }: ContentPro
       <>
         <div className="portal-grid ops-hero-grid">
           <Hero kicker="Student Portal" title="Ready after admin setup." body="Students can use the portal after ORDS creates the account, assigns an instructor, and approves the first lesson schedule." metrics={[["Invite", "Account access"], ["1 hr", "Lesson length"], ["Assigned", "Teacher required"]]} />
-          <Card kicker="Booking" title="Requests use approved teacher openings." body="Students can only choose times from their assigned instructor’s available schedule and approved room options.">
-            <Link className="inline-btn" href="/booking">Request Lesson</Link>
+          <Card kicker="Lesson Schedule" title="Approved lessons and room status." body="Students can view lessons created by their assigned instructor. Schedule changes are submitted through Reschedule Requests and require approval.">
+            <Link className="inline-btn" href="/booking">View Lessons</Link>
           </Card>
         </div>
         <div className="portal-grid student-dashboard-grid">
@@ -173,7 +173,7 @@ function Dashboard({ bookingData, role, time, clockStatus, onClock }: ContentPro
           <Card kicker="Announcements" title="No student announcements yet" body="Student announcements appear here once ORDS sends external updates.">
             <Link className="inline-btn ghost-btn" href="/announcements">View Announcement</Link>
           </Card>
-          <Card kicker="Booking Request" title="No active request" body="Available openings appear after the assigned instructor adds availability." />
+          <Card kicker="Schedule Status" title="No approved lesson yet" body="Approved lesson details appear after the assigned instructor schedules a room and ORDS confirms it." />
         </div>
       </>
     );
@@ -240,28 +240,110 @@ function Students({ notify }: { notify: (message: string) => void }) {
   );
 }
 
-function TeacherSchedule() {
+const easternDateFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "2-digit",
+  month: "2-digit",
+  timeZone: "America/New_York",
+  year: "numeric",
+});
+
+function easternDateKey(value: Date | string) {
+  const date = typeof value === "string" ? new Date(value) : value;
+  const parts = easternDateFormatter.formatToParts(date);
+  const part = (type: string) => parts.find((item) => item.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
+function scheduleWeek() {
+  const [year, month, day] = easternDateKey(new Date()).split("-").map(Number);
+  const today = new Date(Date.UTC(year, month - 1, day));
+  const mondayOffset = (today.getUTCDay() + 6) % 7;
+  const monday = new Date(today);
+  monday.setUTCDate(today.getUTCDate() - mondayOffset);
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setUTCDate(monday.getUTCDate() + index);
+    return {
+      key: date.toISOString().slice(0, 10),
+      label: date.toLocaleDateString([], {
+        day: "numeric",
+        month: "short",
+        timeZone: "UTC",
+        weekday: "short",
+      }),
+    };
+  });
+}
+
+function instrumentClass(program: string) {
+  const normalized = program.toLowerCase();
+  if (normalized.includes("drum")) return "drums";
+  if (normalized.includes("guitar")) return "guitar";
+  if (normalized.includes("piano") || normalized.includes("key")) return "piano";
+  if (normalized.includes("vocal") || normalized.includes("voice")) return "vocals";
+  return "audio";
+}
+
+function lessonTime(value: string) {
+  return new Date(value).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/New_York",
+  });
+}
+
+function lessonStatus(value: string) {
+  return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function TeacherSchedule({ data }: { data: BookingWorkspaceData }) {
+  const [instructorId, setInstructorId] = useState("all");
+  const week = scheduleWeek();
+  const visibleLessons = data.lessons.filter((lesson) =>
+    lesson.status !== "cancelled" &&
+    (instructorId === "all" || lesson.instructorProfileId === instructorId) &&
+    week.some((day) => day.key === easternDateKey(lesson.startsAt))
+  );
+
   return (
     <>
       <div className="portal-grid schedule-control-grid">
-        <Hero kicker="Teacher Schedule" title="Weekly lesson view with status clarity." body="Leadership can quickly understand who is teaching, which students are expected, and what needs attention." />
-        <Card kicker="Instructor Filter" title="All instructors">
-          <div className="instrument-legend"><span className="inst-drums">Drums</span><span className="inst-guitar">Guitar</span><span className="inst-piano">Piano</span><span className="inst-vocals">Vocals</span><span className="inst-audio">Audio</span></div>
+        <Hero kicker="Teacher Schedule" title="Live weekly lesson operations." body="This calendar reflects approved and pending lesson records from the Booking Center, including the assigned room and instructor." />
+        <Card kicker="Instructor Filter" title={instructorId === "all" ? "All instructors" : data.instructors.find((item) => item.id === instructorId)?.displayName ?? "Instructor"}>
+          <label className="portal-field">
+            Schedule view
+            <select value={instructorId} onChange={(event) => setInstructorId(event.target.value)}>
+              <option value="all">All instructors</option>
+              {data.instructors.map((instructor) => <option key={instructor.id} value={instructor.id}>{instructor.displayName}</option>)}
+            </select>
+          </label>
+          <div className="instrument-legend"><span className="inst-drums">Drums</span><span className="inst-guitar">Guitar</span><span className="inst-piano">Piano</span><span className="inst-vocals">Vocals</span><span className="inst-audio">Other</span></div>
         </Card>
       </div>
-      <Card kicker="Setup Week" title="Weekly schedule">
-        <div className="week-schedule">
-          {lessonBlocks.map((day) => (
-            <div className="day-column" key={day.day}>
-              <strong>{day.day}</strong>
-              {day.lessons.map(([time, student, instrument, instructor, status, type]) => (
-                <article className={`lesson-block instrument-${type}`} key={`${day.day}-${time}`}>
-                  <b>{time}</b><span>{student}</span><small>{instrument} · {instructor} · {status}</small>
-                </article>
-              ))}
-            </div>
-          ))}
-        </div>
+      <Card kicker="Current Week" title="Weekly schedule">
+        {visibleLessons.length === 0 ? (
+          <div className="booking-empty">No lessons are scheduled for this instructor during the current week.</div>
+        ) : (
+          <div className="week-schedule live-week-schedule">
+            {week.map((day) => {
+              const lessons = visibleLessons.filter((lesson) => easternDateKey(lesson.startsAt) === day.key);
+              return (
+                <div className="day-column" key={day.key}>
+                  <strong>{day.label}</strong>
+                  {lessons.length === 0 ? <small className="schedule-day-empty">No lessons</small> : lessons.map((lesson) => (
+                    <article className={`lesson-block instrument-${instrumentClass(lesson.program)}`} key={lesson.id}>
+                      <b>{lessonTime(lesson.startsAt)}</b>
+                      <span>{lesson.studentName}</span>
+                      <small>{lesson.program} · {lesson.instructorName}</small>
+                      <small>{lesson.roomName} · {lessonStatus(lesson.status)}</small>
+                    </article>
+                  ))}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </Card>
     </>
   );
