@@ -38,6 +38,7 @@ export type BookingStudent = {
   contractStatus: string;
   displayName: string;
   id: string;
+  profileId: string | null;
   primaryProgram: string;
   status: string;
 };

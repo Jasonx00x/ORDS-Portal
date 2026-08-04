@@ -5,7 +5,7 @@ import type { PortalSection } from "@/lib/roles";
 
 export async function PortalPage({ section }: { section: PortalSection }) {
   const user = await requirePortalUser(section);
-  const bookingData = section === "booking" || section === "dashboard" || section === "teacher-schedule"
+  const bookingData = section === "booking" || section === "dashboard" || section === "students" || section === "teacher-schedule"
     ? await loadBookingWorkspace(user)
     : undefined;
 

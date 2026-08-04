@@ -108,12 +108,48 @@ function revalidateBooking() {
   revalidatePath("/booking");
   revalidatePath("/dashboard");
   revalidatePath("/schedule");
+  revalidatePath("/students");
 }
 
 async function requireAdmin() {
   const user = await requirePortalUser("booking");
   if (user.role !== "admin") throw new Error("Owner or admin access is required.");
   return user;
+}
+
+type PortalInviteInput = {
+  displayName: string;
+  email: string;
+  phone?: string;
+  role: "instructor" | "student";
+  studentId?: string;
+};
+
+async function sendPortalInvitation(input: PortalInviteInput) {
+  const supabase = await createClient();
+  const { data: sessionData } = await supabase.auth.getSession();
+  const accessToken = sessionData.session?.access_token;
+  if (!accessToken) return failure("Authentication is required.");
+
+  const { publishableKey, url } = getSupabaseConfig();
+  const portalUrl = process.env.NEXT_PUBLIC_ORDS_PORTAL_URL || "https://ords-portal.netlify.app";
+  const redirectTo = new URL("/login", portalUrl).toString();
+  const response = await fetch(`${url}/functions/v1/invite-portal-user`, {
+    method: "POST",
+    headers: {
+      apikey: publishableKey,
+      authorization: `Bearer ${accessToken}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ ...input, redirectTo }),
+    cache: "no-store",
+  });
+  const result = await response.json() as { message?: string };
+  if (!response.ok) {
+    return failure(result.message || "The account invitation could not be sent.");
+  }
+
+  return success(result.message || `Invitation sent to ${input.email}.`);
 }
 
 export async function addRoomAction(input: {
@@ -150,36 +186,14 @@ export async function inviteInstructorAction(input: {
       return failure("Enter a valid instructor email address.");
     }
 
-    const supabase = await createClient();
-    const { data: sessionData } = await supabase.auth.getSession();
-    const accessToken = sessionData.session?.access_token;
-    if (!accessToken) return failure("Authentication is required.");
-
-    const { publishableKey, url } = getSupabaseConfig();
-    const portalUrl = process.env.NEXT_PUBLIC_ORDS_PORTAL_URL || "https://ords-portal.netlify.app";
-    const redirectTo = new URL("/login", portalUrl).toString();
-    const response = await fetch(`${url}/functions/v1/invite-portal-user`, {
-      method: "POST",
-      headers: {
-        apikey: publishableKey,
-        authorization: `Bearer ${accessToken}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        displayName,
-        email,
-        phone: optionalText(input.phone, 40),
-        redirectTo,
-      }),
-      cache: "no-store",
+    const result = await sendPortalInvitation({
+      displayName,
+      email,
+      phone: optionalText(input.phone, 40),
+      role: "instructor",
     });
-    const result = await response.json() as { message?: string };
-    if (!response.ok) {
-      return failure(result.message || "The instructor invitation could not be sent.");
-    }
-
-    revalidateBooking();
-    return success(result.message || `Invitation sent to ${email}.`);
+    if (result.ok) revalidateBooking();
+    return result;
   } catch (error) {
     return failure(bookingError(error));
   }
@@ -240,21 +254,82 @@ export async function saveSchoolHoursAction(input: {
 
 export async function addStudentAction(input: {
   displayName: string;
+  email?: string;
   primaryProgram: string;
 }): Promise<BookingActionResult> {
   try {
     const user = await requireAdmin();
     const supabase = await createClient();
-    const { error } = await supabase.from("students").insert({
-      contract_status: "approved",
-      created_by: user.id,
-      display_name: cleanText(input.displayName, "Student name", 100),
-      primary_program: cleanText(input.primaryProgram, "Program", 80),
-      status: "setup",
-    });
+    const displayName = cleanText(input.displayName, "Student name", 100);
+    const email = optionalText(input.email, 254).toLowerCase();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return failure("Enter a valid student email address or leave it blank.");
+    }
+
+    const { data: student, error } = await supabase
+      .from("students")
+      .insert({
+        contract_status: "approved",
+        created_by: user.id,
+        display_name: displayName,
+        primary_program: cleanText(input.primaryProgram, "Program", 80),
+        status: "setup",
+      })
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
+
+    if (email) {
+      const invite = await sendPortalInvitation({
+        displayName,
+        email,
+        role: "student",
+        studentId: requireUuid(student?.id, "student"),
+      });
+      revalidateBooking();
+      if (!invite.ok) {
+        return success(`Student added to the roster. Portal invitation was not sent: ${invite.message}`);
+      }
+      return success("Student added and portal invitation sent.");
+    }
+
     revalidateBooking();
-    return success("Student added. Assign an instructor before scheduling.");
+    return success("Student added to the roster. Assign an instructor before scheduling.");
+  } catch (error) {
+    return failure(bookingError(error));
+  }
+}
+
+export async function inviteStudentAction(input: {
+  email: string;
+  studentId: string;
+}): Promise<BookingActionResult> {
+  try {
+    await requireAdmin();
+    const studentId = requireUuid(input.studentId, "student");
+    const email = cleanText(input.email, "Student email", 254).toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return failure("Enter a valid student email address.");
+    }
+
+    const supabase = await createClient();
+    const { data: student, error } = await supabase
+      .from("students")
+      .select("display_name,profile_id")
+      .eq("id", studentId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!student) return failure("The student record could not be found.");
+    if (student.profile_id) return failure("That student already has portal access.");
+
+    const result = await sendPortalInvitation({
+      displayName: cleanText(student.display_name, "Student name", 100),
+      email,
+      role: "student",
+      studentId,
+    });
+    if (result.ok) revalidateBooking();
+    return result;
   } catch (error) {
     return failure(bookingError(error));
   }

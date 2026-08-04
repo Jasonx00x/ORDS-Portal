@@ -60,19 +60,27 @@ Deno.serve(async (request) => {
   try {
     payload = await request.json();
   } catch {
-    return json({ message: "Check the instructor details and try again." }, 400);
+    return json({ message: "Check the account details and try again." }, 400);
   }
 
   const displayName = typeof payload.displayName === "string" ? payload.displayName.trim() : "";
   const email = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
   const phone = typeof payload.phone === "string" ? payload.phone.trim() : "";
   const redirectTo = typeof payload.redirectTo === "string" ? payload.redirectTo : "";
+  const role = payload.role === "student" ? "student" : payload.role === "instructor" ? "instructor" : "";
+  const studentId = typeof payload.studentId === "string" ? payload.studentId : "";
 
   if (displayName.length < 2 || displayName.length > 100) {
-    return json({ message: "Enter the instructor's full name." }, 400);
+    return json({ message: "Enter the account holder's full name." }, 400);
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
-    return json({ message: "Enter a valid instructor email address." }, 400);
+    return json({ message: "Enter a valid email address." }, 400);
+  }
+  if (!role) {
+    return json({ message: "Select a valid portal account type." }, 400);
+  }
+  if (role === "student" && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(studentId)) {
+    return json({ message: "Select a valid student record." }, 400);
   }
 
   let redirectUrl: URL;
@@ -88,6 +96,21 @@ Deno.serve(async (request) => {
   const admin = createClient(url, secretKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+
+  if (role === "student") {
+    const { data: student, error: studentError } = await admin
+      .from("students")
+      .select("id,profile_id")
+      .eq("id", studentId)
+      .maybeSingle();
+    if (studentError || !student) {
+      return json({ message: "The student record could not be found." }, 404);
+    }
+    if (student.profile_id) {
+      return json({ message: "That student already has portal access." }, 409);
+    }
+  }
+
   const { data: invitation, error: invitationError } = await admin.auth.admin.inviteUserByEmail(
     email,
     {
@@ -109,12 +132,26 @@ Deno.serve(async (request) => {
   }
 
   const { error: roleError } = await admin.auth.admin.updateUserById(invitation.user.id, {
-    app_metadata: { role: "instructor" },
+    app_metadata: { role },
     user_metadata: { display_name: displayName },
   });
   if (roleError) {
     await admin.auth.admin.deleteUser(invitation.user.id);
-    return json({ message: "The instructor role could not be assigned." }, 500);
+    return json({ message: "The portal role could not be assigned." }, 500);
+  }
+
+  if (role === "student") {
+    const { data: linkedStudent, error: linkError } = await admin
+      .from("students")
+      .update({ profile_id: invitation.user.id })
+      .eq("id", studentId)
+      .is("profile_id", null)
+      .select("id")
+      .maybeSingle();
+    if (linkError || !linkedStudent) {
+      await admin.auth.admin.deleteUser(invitation.user.id);
+      return json({ message: "The student portal account could not be linked." }, 500);
+    }
   }
 
   if (phone) {
@@ -122,7 +159,8 @@ Deno.serve(async (request) => {
   }
 
   return json({
-    instructorId: invitation.user.id,
+    accountId: invitation.user.id,
     message: `Invitation sent to ${email}.`,
+    role,
   });
 });

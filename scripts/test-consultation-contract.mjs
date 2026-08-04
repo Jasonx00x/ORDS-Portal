@@ -7,6 +7,7 @@ const datesRoute = readFileSync("app/api/consultations/dates/route.ts", "utf8");
 const inviteFunction = readFileSync("supabase/functions/invite-portal-user/index.ts", "utf8");
 const statusRoute = readFileSync("app/api/supabase/status/route.ts", "utf8");
 const publicPage = readFileSync("components/consultations/ConsultationBookingPage.tsx", "utf8");
+const peopleWorkspace = readFileSync("components/people/PeopleWorkspace.tsx", "utf8");
 const validation = readFileSync("lib/consultations/validation.ts", "utf8");
 
 const checks = [
@@ -26,7 +27,10 @@ const checks = [
   ["Available-date RPC uses invoker security", /get_consultation_available_dates/.test(calendarMigration) && /security invoker/i.test(calendarMigration)],
   ["Available-date RPC range is bounded", /p_end_date <= p_start_date \+ 45/i.test(calendarMigration) && /rangeDays > 45/.test(datesRoute)],
   ["Instructor invitation verifies owner access", /auth\.getUser/.test(inviteFunction) && /\[\"owner\", \"admin\"\]/.test(inviteFunction)],
-  ["Instructor role uses app metadata", /app_metadata: \{ role: \"instructor\" \}/.test(inviteFunction)],
+  ["Portal invitations use app metadata", /app_metadata: \{ role \}/.test(inviteFunction)],
+  ["Portal invitation roles are allowlisted", /payload\.role === \"student\"[\s\S]*payload\.role === \"instructor\"/.test(inviteFunction)],
+  ["Student invitations link the roster profile", /from\(\"students\"\)[\s\S]*profile_id: invitation\.user\.id/.test(inviteFunction)],
+  ["Owner people workspace has real account forms", /data-testid=\"instructor-invite-form\"/.test(peopleWorkspace) && /data-testid=\"student-create-form\"/.test(peopleWorkspace) && /data-testid=\"student-access-form\"/.test(peopleWorkspace)],
   ["Status endpoint does not return keys", !/publishableKey|apikey|authorization|url,/.test(statusRoute.match(/return Response\.json\(\{[\s\S]*?\}\);/)?.[0] ?? "")],
 ];
 

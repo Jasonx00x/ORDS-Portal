@@ -81,6 +81,7 @@ const requiredRoutes = [
 
 const visibleUiFiles = [
   "components/PortalShell.tsx",
+  "components/people/PeopleWorkspace.tsx",
   "app/login/page.tsx",
   "components/consultations/ConsultationBookingPage.tsx",
   "components/consultations/ConsultationAdminPage.tsx",

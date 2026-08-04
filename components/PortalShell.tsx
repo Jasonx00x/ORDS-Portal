@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import type { PortalUser } from "@/lib/auth";
 import { BookingWorkspace } from "@/components/booking/BookingWorkspace";
+import { PeopleWorkspace } from "@/components/people/PeopleWorkspace";
 import type { BookingWorkspaceData } from "@/lib/booking/types";
 import { assignedInstructorByRole, homeworkByRole } from "@/lib/demo-data";
 import { navItems, roleLabels, roleProfiles, type PortalSection, type Role } from "@/lib/roles";
@@ -94,8 +95,9 @@ export function PortalShell({ bookingData, section, user }: PortalShellProps) {
           <div className="portal-actions">
             {(role === "instructor" || role === "admin") && (
               <>
+                {role === "admin" && <Link className="portal-action-btn dark-action" href="/students">Manage People</Link>}
                 <Link className="portal-action-btn" href="/booking">Manage Booking</Link>
-                <Link className="portal-action-btn dark-action" href="/reschedule-requests">Review Requests</Link>
+                <Link className="portal-action-btn" href="/reschedule-requests">Review Requests</Link>
                 <Link className="portal-action-btn" href="/lesson-reports">Submit Report</Link>
               </>
             )}
@@ -133,7 +135,9 @@ function SectionContent(props: ContentProps) {
         ? <BookingWorkspace data={props.bookingData} notify={props.notify} role={props.role} userId={props.userId} />
         : null;
     case "students":
-      return <Students notify={props.notify} />;
+      return props.bookingData
+        ? <PeopleWorkspace data={props.bookingData} notify={props.notify} role={props.role} />
+        : null;
     case "teacher-schedule":
       return props.bookingData ? <TeacherSchedule data={props.bookingData} /> : null;
     case "clock-in":
@@ -223,20 +227,6 @@ function Dashboard({ bookingData, role, time, clockStatus, onClock }: ContentPro
         </Card>
       </div>
     </>
-  );
-}
-
-function Students({ notify }: { notify: (message: string) => void }) {
-  return (
-    <Card kicker="Students" title="Contract-approved roster setup">
-      <button className="inline-btn" type="button" onClick={() => notify("Student intake starts after the contract is approved.")}>Add Student</button>
-      <Table rows={[
-        ["Step 1", "Create parent account", "After contract approval", "Invite email"],
-        ["Step 2", "Create student profile", "Link parent and assign instructor", "Required"],
-        ["Step 3", "Build 1-hour lesson", "Choose instructor opening and room", "Owner/admin approves"],
-        ["Step 4", "Open portal access", "Student homework and parent progress", "Billing connection later"],
-      ]} />
-    </Card>
   );
 }
 

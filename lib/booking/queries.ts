@@ -50,7 +50,7 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
     supabase.from("rooms").select("id,name,best_for,is_active,requires_owner_approval").order("name"),
     supabase.from("school_hours").select("id,day_of_week,opens_at,closes_at,is_enabled").order("day_of_week"),
     supabase.from("app_profiles").select("id,display_name,invite_status").eq("role", "instructor").order("display_name"),
-    supabase.from("students").select("id,display_name,primary_program,status,contract_status").order("display_name"),
+    supabase.from("students").select("id,profile_id,display_name,primary_program,status,contract_status").order("display_name"),
     supabase.from("instructor_student_assignments").select("instructor_profile_id,student_id,program,is_primary"),
     supabase.from("instructor_availability").select("id,instructor_profile_id,day_of_week,starts_at,ends_at,is_enabled").order("day_of_week").order("starts_at"),
     supabase.from("instructor_unavailability").select("id,instructor_profile_id,starts_at,ends_at,reason").gte("ends_at", new Date().toISOString()).order("starts_at"),
@@ -103,6 +103,7 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
     contractStatus: text(row.contract_status),
     displayName: text(row.display_name),
     id: text(row.id),
+    profileId: text(row.profile_id) || null,
     primaryProgram: text(row.primary_program),
     status: text(row.status),
   }));

@@ -917,6 +917,51 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   font-size:12px;
   font-weight:850;
 }
+.people-hero{margin-bottom:18px}
+.people-hero .metric-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+.people-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.people-card{align-self:start}
+.people-card>p{
+  max-width:760px;
+  color:#667086;
+  line-height:1.6;
+}
+.people-form{margin-top:18px}
+.people-form-wide{grid-column:1/-1}
+.people-form-button{align-self:end;min-height:48px;margin-bottom:14px}
+.people-record-list{margin-top:18px}
+.people-summary{
+  margin:14px 0 0!important;
+  color:#667086;
+  font-size:12px;
+  font-weight:850;
+}
+.people-access-block{
+  display:grid;
+  gap:5px;
+  margin-top:18px;
+  border-top:1px solid rgba(17,25,54,.09);
+  padding-top:18px;
+}
+.people-access-block>strong{color:#111827}
+.people-access-block>span{color:#667086;font-size:13px;font-weight:750;line-height:1.5}
+.people-access-form{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr)) auto;
+  gap:12px;
+  align-items:end;
+}
+.people-access-form .portal-field{margin-bottom:0}
+.people-access-form .people-form-button{margin:0}
+.people-assignment-form{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr)) auto;
+  gap:14px;
+  align-items:end;
+  margin-top:18px;
+}
+.people-assignment-form .portal-field{margin:0}
+.people-assignment-form .people-form-button{margin:0}
 .portal-toast{
   position:fixed;
   right:22px;
@@ -945,7 +990,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 @media(max-width:1240px){
   .ops-stats{grid-template-columns:repeat(2,1fr)}
   .student-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .ops-hero-grid,.schedule-control-grid,.clock-grid,.reports-grid,.login-grid,.booking-hero-grid,.booking-admin-grid,.booking-request-grid{grid-template-columns:1fr}
+  .ops-hero-grid,.schedule-control-grid,.clock-grid,.reports-grid,.login-grid,.booking-hero-grid,.booking-admin-grid,.booking-request-grid,.people-grid{grid-template-columns:1fr}
   .week-schedule{grid-template-columns:repeat(3,minmax(190px,1fr))}
   .live-week-schedule{grid-template-columns:repeat(7,minmax(180px,1fr))}
 }
@@ -962,6 +1007,8 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .booking-slot-grid{grid-template-columns:1fr}
   .setup-form-grid{grid-template-columns:1fr}
   .booking-inline-form,.booking-schedule-list{grid-template-columns:1fr}
+  .people-assignment-form{grid-template-columns:1fr}
+  .people-access-form{grid-template-columns:1fr}
   .booking-form-button{margin-bottom:0}
   .live-room-grid{grid-template-columns:1fr}
   .booking-calendar-head{display:grid;align-items:start}
@@ -986,11 +1033,32 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .action-pair button{flex:1}
 }
 @media(max-width:560px){
-  .ops-portal .portal-nav{grid-template-columns:1fr}
+  .ops-portal .portal-sidebar{gap:14px;min-width:0;overflow:hidden}
+  .ops-portal .portal-nav{
+    display:flex;
+    gap:8px;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    margin-inline:-2px;
+    padding:0 2px 8px;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    scrollbar-width:thin;
+  }
+  .ops-portal .portal-nav-item{
+    flex:0 0 auto;
+    width:auto;
+    min-height:44px;
+    padding:10px 13px;
+    white-space:nowrap;
+  }
+  .ops-portal .portal-drive-status{display:none}
   .ops-topbar h1{font-size:34px}
   .portal-actions{width:100%}
   .portal-action-btn,.inline-btn{width:100%;justify-content:center}
   .metric-row{grid-template-columns:1fr}
+  .people-hero .metric-row{grid-template-columns:1fr 1fr}
   .booking-hours-grid{grid-template-columns:1fr 1fr}
   .booking-record{grid-template-columns:minmax(0,1fr) auto}
   .booking-record>span{grid-column:1/-1}
