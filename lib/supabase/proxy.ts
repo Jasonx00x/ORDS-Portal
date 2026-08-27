@@ -6,6 +6,7 @@ const publicPaths = [
   "/access-pending",
   "/auth",
   "/book-consultation",
+  "/booking-embed.js",
   "/forgot-password",
   "/login",
 ];

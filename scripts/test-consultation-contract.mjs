@@ -12,6 +12,7 @@ const embedBuilder = readFileSync("components/booking/BookingEmbedBuilder.tsx", 
 const embedConfig = readFileSync("lib/consultations/embed.ts", "utf8");
 const embedScript = readFileSync("public/booking-embed.js", "utf8");
 const supabaseRest = readFileSync("lib/consultations/supabase-rest.ts", "utf8");
+const authProxy = readFileSync("lib/supabase/proxy.ts", "utf8");
 const peopleWorkspace = readFileSync("components/people/PeopleWorkspace.tsx", "utf8");
 const validation = readFileSync("lib/consultations/validation.ts", "utf8");
 
@@ -32,6 +33,7 @@ const checks = [
   ["Embed customization values are allowlisted", /hexColorPattern/.test(embedConfig) && /theme.*=== "dark"/.test(embedConfig) && /layout.*=== "compact"/.test(embedConfig)],
   ["Owner embed builder includes a live preview", /Consultation calendar embed/.test(embedBuilder) && /Live preview/.test(embedBuilder) && /Copy Embed Code/.test(embedBuilder)],
   ["Embed script validates message origin", /new URL\(candidate\.src\)\.origin === event\.origin/.test(embedScript)],
+  ["Embed script is publicly accessible", /"\/booking-embed\.js"/.test(authProxy)],
   ["Public widget sends responsive height updates", /ords-booking-resize/.test(publicPage) && /ResizeObserver/.test(publicPage)],
   ["Supabase REST failures cannot crash JSON parsing", /AbortSignal\.timeout/.test(supabaseRest) && /try \{[\s\S]*JSON\.parse/.test(supabaseRest)],
   ["Public consultation RPC execution is revoked", /from public, anon, authenticated/i.test(hardenedRpcMigration) && /to service_role/i.test(hardenedRpcMigration)],
