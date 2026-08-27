@@ -31,17 +31,21 @@ export async function POST(request: Request) {
 
   const input = validation.data;
 
-  const { data, error } = await callSupabaseRpc<BookingRpcRow[]>("create_consultation_booking", {
-    p_customer_email: input.customerEmail,
-    p_customer_name: input.customerName,
-    p_customer_phone: input.customerPhone,
-    p_idempotency_key: input.idempotencyKey,
-    p_instrument_or_service: input.instrumentOrService,
-    p_musical_goals: input.musicalGoals,
-    p_start_time: input.startTime,
-    p_student_age: input.studentAgeNumber,
-    p_student_name: input.studentName,
-  });
+  const { data, error } = await callSupabaseRpc<BookingRpcRow[]>(
+    "create_consultation_booking",
+    {
+      p_customer_email: input.customerEmail,
+      p_customer_name: input.customerName,
+      p_customer_phone: input.customerPhone,
+      p_idempotency_key: input.idempotencyKey,
+      p_instrument_or_service: input.instrumentOrService,
+      p_musical_goals: input.musicalGoals,
+      p_start_time: input.startTime,
+      p_student_age: input.studentAgeNumber,
+      p_student_name: input.studentName,
+    },
+    { useServiceRole: true },
+  );
 
   if (error) {
     return Response.json(

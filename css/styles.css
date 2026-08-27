@@ -917,6 +917,50 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   font-size:12px;
   font-weight:850;
 }
+.booking-embed-builder{display:grid;gap:18px}
+.booking-embed-head{display:flex;align-items:start;justify-content:space-between;gap:20px}
+.booking-embed-head h3{margin:4px 0 8px}
+.booking-embed-head p{max-width:620px;margin:0;color:#667086;line-height:1.55}
+.booking-embed-count{
+  display:grid;
+  flex:0 0 150px;
+  gap:2px;
+  border:1px solid rgba(17,25,54,.09);
+  border-radius:8px;
+  background:#f8fafc;
+  padding:13px;
+}
+.booking-embed-count strong{color:#07112e;font-size:24px}
+.booking-embed-count span{color:#667086;font-size:11px;font-weight:850}
+.booking-embed-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.booking-embed-controls fieldset{min-width:0;margin:0;border:0;padding:0}
+.booking-embed-controls legend,.booking-embed-code{
+  display:grid;
+  gap:8px;
+  color:#334155;
+  font-size:12px;
+  font-weight:900;
+}
+.booking-segmented{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;border:1px solid rgba(17,25,54,.1);border-radius:8px;background:#eef2f7;padding:4px}
+.booking-segmented button{min-height:38px;border:0;border-radius:6px;background:transparent;color:#667086;font:inherit;font-size:12px;font-weight:900;cursor:pointer}
+.booking-segmented button.active{background:#07112e;color:#fff;box-shadow:0 4px 12px rgba(7,17,46,.15)}
+.booking-color-row{display:flex;align-items:center;gap:8px;min-height:48px}
+.booking-color-row>button{width:30px;height:30px;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 1px rgba(17,25,54,.18);cursor:pointer}
+.booking-color-row>button.active{box-shadow:0 0 0 3px #07112e}
+.booking-custom-color{display:flex!important;align-items:center!important;grid-template-columns:auto auto!important;gap:7px!important;margin-left:auto;color:#667086!important;font-size:11px!important}
+.booking-custom-color input{width:32px!important;height:32px!important;border:0!important;border-radius:50%!important;background:none!important;padding:0!important;cursor:pointer}
+.booking-embed-toggle{display:flex!important;align-items:center!important;gap:10px!important;min-height:48px;margin:0!important;border:1px solid rgba(17,25,54,.1);border-radius:8px;background:#f8fafc;padding:8px 12px!important}
+.booking-embed-toggle input{width:18px!important;height:18px!important;margin:0;accent-color:#07112e}
+.booking-embed-toggle span{display:grid;gap:2px}
+.booking-embed-toggle strong{color:#111827;font-size:12px}
+.booking-embed-toggle small{color:#667086;font-size:10px;font-weight:750}
+.booking-embed-preview-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:4px}
+.booking-embed-preview-head strong{color:#111827;font-size:13px}
+.booking-embed-preview-head a{color:#1d4ed8;font-size:12px;font-weight:850}
+.booking-embed-preview{height:640px;overflow:hidden;border:1px solid rgba(17,25,54,.12);border-radius:8px;background:#fff}
+.booking-embed-preview.preview-dark{background:#090d18}
+.booking-embed-preview iframe{width:100%;height:100%;border:0;background:transparent}
+.booking-embed-code textarea{min-height:112px;border:1px solid rgba(17,25,54,.12);border-radius:8px;background:#07112e;color:#e7edf8;padding:12px;font:600 11px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical}
 .people-hero{margin-bottom:18px}
 .people-hero .metric-row{grid-template-columns:repeat(4,minmax(0,1fr))}
 .people-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1009,6 +1053,9 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .booking-inline-form,.booking-schedule-list{grid-template-columns:1fr}
   .people-assignment-form{grid-template-columns:1fr}
   .people-access-form{grid-template-columns:1fr}
+  .booking-embed-controls{grid-template-columns:1fr}
+  .booking-embed-head{display:grid}
+  .booking-embed-count{width:100%;display:flex;align-items:baseline;gap:8px}
   .booking-form-button{margin-bottom:0}
   .live-room-grid{grid-template-columns:1fr}
   .booking-calendar-head{display:grid;align-items:start}
@@ -1120,6 +1167,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 
 /* Public consultation booking */
 .consultation-public-page{
+  --consultation-accent:#c9a85c;
   min-height:100vh;
   color:#111827;
   background:
@@ -1356,6 +1404,24 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   min-height:0;
   background:#fff;
 }
+.consultation-embed-intro{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  width:100%;
+  max-width:860px;
+  margin:0 auto;
+  border-bottom:1px solid rgba(17,25,54,.1);
+  padding:18px 24px;
+}
+.consultation-embed-brand{display:flex;align-items:center;gap:11px}
+.consultation-embed-brand img{width:38px;height:38px;border-radius:6px;background:#07112e;object-fit:contain;padding:4px}
+.consultation-embed-brand div{display:grid;gap:2px}
+.consultation-embed-brand strong{color:#0a112b;font-size:16px}
+.consultation-embed-brand span{color:#667086;font-size:11px;font-weight:850}
+.consultation-embed-facts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px}
+.consultation-embed-facts span{border:1px solid rgba(17,25,54,.1);border-radius:6px;background:#f8fafc;color:#334155;padding:7px 9px;font-size:10px;font-weight:900}
 .consultation-embedded .consultation-booking-shell{
   display:block;
   width:100%;
@@ -1367,6 +1433,48 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   border-radius:8px;
   box-shadow:none;
 }
+.consultation-embedded .consultation-step-head>span,
+.consultation-embedded .consultation-time-grid button.selected,
+.consultation-embedded .consultation-submit{background:var(--consultation-accent)}
+.consultation-embedded .consultation-day-selected{background:var(--consultation-accent)!important;box-shadow:none!important}
+.consultation-embedded .consultation-time-grid button.selected{border-color:var(--consultation-accent);box-shadow:none}
+.consultation-embedded .consultation-form input:focus,
+.consultation-embedded .consultation-form select:focus,
+.consultation-embedded .consultation-form textarea:focus{border-color:var(--consultation-accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--consultation-accent) 16%,transparent)}
+.consultation-layout-compact .consultation-panel{padding:16px}
+.consultation-layout-compact .consultation-form{gap:12px}
+.consultation-layout-compact .consultation-date-calendar .fc .fc-daygrid-day{height:44px}
+.consultation-layout-compact .consultation-form textarea{min-height:88px}
+.consultation-theme-dark{color:#eef2f8;background:#090d18}
+.consultation-theme-dark .consultation-embed-intro{border-color:rgba(255,255,255,.12)}
+.consultation-theme-dark .consultation-embed-brand strong,
+.consultation-theme-dark .consultation-step-head strong,
+.consultation-theme-dark .consultation-time-panel h3,
+.consultation-theme-dark .consultation-form label{color:#f8fafc}
+.consultation-theme-dark .consultation-embed-brand span,
+.consultation-theme-dark .consultation-step-head small{color:#a8b2c5}
+.consultation-theme-dark .consultation-embed-facts span{border-color:rgba(255,255,255,.12);background:#121827;color:#d8dfeb}
+.consultation-theme-dark .consultation-panel{border-color:rgba(255,255,255,.12);background:#090d18}
+.consultation-theme-dark .consultation-date-calendar,
+.consultation-theme-dark .consultation-time-grid button{border-color:rgba(255,255,255,.12);background:#111827;color:#eef2f8}
+.consultation-theme-dark .consultation-date-calendar .fc{
+  --fc-border-color:rgba(255,255,255,.08);
+  --fc-button-bg-color:#111827;
+  --fc-button-border-color:rgba(255,255,255,.12);
+  --fc-button-hover-bg-color:#1f2937;
+  --fc-button-hover-border-color:rgba(255,255,255,.2);
+  --fc-page-bg-color:#111827;
+  color:#dbe3ef;
+}
+.consultation-theme-dark .consultation-date-calendar .fc .fc-toolbar-title,
+.consultation-theme-dark .consultation-date-calendar .fc .fc-button{color:#f8fafc}
+.consultation-theme-dark .consultation-date-calendar .fc .consultation-day-unavailable{background:#0d1422}
+.consultation-theme-dark .consultation-date-calendar .fc .consultation-day-available{background:color-mix(in srgb,var(--consultation-accent) 20%,#111827)}
+.consultation-theme-dark .consultation-time-panel{border-color:rgba(255,255,255,.12);background:#0d1422}
+.consultation-theme-dark .consultation-form input,
+.consultation-theme-dark .consultation-form select,
+.consultation-theme-dark .consultation-form textarea{border-color:rgba(255,255,255,.14);background:#111827;color:#f8fafc;color-scheme:dark}
+.consultation-theme-dark .consultation-message{background:#151d2d;color:#dbe3ef}
 @media(max-width:900px){
   .consultation-booking-shell{grid-template-columns:1fr;margin-top:-24px}
   .consultation-field-grid{grid-template-columns:1fr}
@@ -1382,6 +1490,8 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .consultation-date-calendar .fc .fc-daygrid-day{height:46px}
   .consultation-time-grid{grid-template-columns:1fr 1fr}
   .consultation-embedded .consultation-panel{border:0;padding:12px}
+  .consultation-embed-intro{display:grid;padding:14px 12px}
+  .consultation-embed-facts{justify-content:flex-start}
 }
 
 .consultation-admin-shell{

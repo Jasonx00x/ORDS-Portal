@@ -6,8 +6,12 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin, {
   type DateClickArg,
 } from "@fullcalendar/interaction";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { instrumentOptions } from "@/lib/consultations/constants";
+import {
+  defaultConsultationEmbedConfig,
+  type ConsultationEmbedConfig,
+} from "@/lib/consultations/embed";
 
 type Slot = {
   endTime: string;
@@ -65,7 +69,13 @@ function createIdempotencyKey() {
   return `booking-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function ConsultationBookingPage({ embedded = false }: { embedded?: boolean }) {
+export function ConsultationBookingPage({
+  embedConfig = defaultConsultationEmbedConfig,
+  embedded = false,
+}: {
+  embedConfig?: ConsultationEmbedConfig;
+  embedded?: boolean;
+}) {
   const calendarRef = useRef<FullCalendar | null>(null);
   const loadedRangeRef = useRef("");
   const initialDate = useMemo(() => easternDateValue(1), []);
@@ -83,6 +93,26 @@ export function ConsultationBookingPage({ embedded = false }: { embedded?: boole
     () => new Set(availableDates.map((item) => item.date)),
     [availableDates],
   );
+
+  useEffect(() => {
+    if (!embedded || window.parent === window) return;
+
+    const sendHeight = () => {
+      window.parent.postMessage({
+        height: document.documentElement.scrollHeight,
+        type: "ords-booking-resize",
+      }, "*");
+    };
+    const observer = new ResizeObserver(sendHeight);
+    observer.observe(document.documentElement);
+    sendHeight();
+    window.addEventListener("load", sendHeight);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("load", sendHeight);
+    };
+  }, [embedded]);
 
   useEffect(() => {
     let cancelled = false;
@@ -206,7 +236,10 @@ export function ConsultationBookingPage({ embedded = false }: { embedded?: boole
   }
 
   return (
-    <main className={`consultation-public-page${embedded ? " consultation-embedded" : ""}`}>
+    <main
+      className={`consultation-public-page${embedded ? ` consultation-embedded consultation-theme-${embedConfig.theme} consultation-layout-${embedConfig.layout}` : ""}`}
+      style={{ "--consultation-accent": embedConfig.accent } as CSSProperties}
+    >
       {!embedded && (
         <section className="consultation-public-hero">
           <div className="consultation-brand-row">
@@ -219,6 +252,23 @@ export function ConsultationBookingPage({ embedded = false }: { embedded?: boole
             <p>Choose a time to speak with ORDS about the student’s goals and the right instruction path.</p>
           </div>
         </section>
+      )}
+
+      {embedded && embedConfig.showIntro && (
+        <header className="consultation-embed-intro">
+          <div className="consultation-embed-brand">
+            <img src="https://static.wixstatic.com/media/a51682_27dfdd46028443e7a016d349782ffa8f~mv2.png" alt="ORDS Music School" />
+            <div>
+              <strong>Book a Free Consultation</strong>
+              <span>ORDS Music School</span>
+            </div>
+          </div>
+          <div className="consultation-embed-facts">
+            <span>30 minutes</span>
+            <span>Eastern Time</span>
+            <span>No payment required</span>
+          </div>
+        </header>
       )}
 
       <section className="consultation-booking-shell" aria-label="Consultation booking form">
@@ -263,7 +313,7 @@ export function ConsultationBookingPage({ embedded = false }: { embedded?: boole
                 plugins={[dayGridPlugin, interactionPlugin]}
                 ref={calendarRef}
                 showNonCurrentDates={false}
-                validRange={{ start: easternDateValue(1) }}
+                validRange={{ start: `${easternDateValue().slice(0, 7)}-01` }}
               />
             </div>
             <div className="consultation-time-panel">

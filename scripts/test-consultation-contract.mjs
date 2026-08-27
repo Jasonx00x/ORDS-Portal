@@ -2,11 +2,16 @@ import { readFileSync } from "node:fs";
 
 const migration = readFileSync("supabase/migrations/202607140001_create_consultation_booking_system.sql", "utf8");
 const calendarMigration = readFileSync("supabase/migrations/20260730131428_add_consultation_calendar_dates.sql", "utf8");
+const hardenedRpcMigration = readFileSync("supabase/migrations/20260827193000_harden_consultation_rpc_access.sql", "utf8");
 const bookingRoute = readFileSync("app/api/consultations/book/route.ts", "utf8");
 const datesRoute = readFileSync("app/api/consultations/dates/route.ts", "utf8");
 const inviteFunction = readFileSync("supabase/functions/invite-portal-user/index.ts", "utf8");
 const statusRoute = readFileSync("app/api/supabase/status/route.ts", "utf8");
 const publicPage = readFileSync("components/consultations/ConsultationBookingPage.tsx", "utf8");
+const embedBuilder = readFileSync("components/booking/BookingEmbedBuilder.tsx", "utf8");
+const embedConfig = readFileSync("lib/consultations/embed.ts", "utf8");
+const embedScript = readFileSync("public/booking-embed.js", "utf8");
+const supabaseRest = readFileSync("lib/consultations/supabase-rest.ts", "utf8");
 const peopleWorkspace = readFileSync("components/people/PeopleWorkspace.tsx", "utf8");
 const validation = readFileSync("lib/consultations/validation.ts", "utf8");
 
@@ -24,6 +29,13 @@ const checks = [
   ["Email log RPC is server-only", /revoke all on function public\.log_consultation_email_attempt[\s\S]*from public/i.test(migration) && /grant execute on function public\.log_consultation_email_attempt[\s\S]*to service_role/i.test(migration)],
   ["Honeypot is present", /companyWebsite/i.test(publicPage) && /honeypot/i.test(validation)],
   ["Embed-ready calendar is present", /FullCalendar/.test(publicPage) && /consultation-embedded/.test(publicPage)],
+  ["Embed customization values are allowlisted", /hexColorPattern/.test(embedConfig) && /theme.*=== "dark"/.test(embedConfig) && /layout.*=== "compact"/.test(embedConfig)],
+  ["Owner embed builder includes a live preview", /Consultation calendar embed/.test(embedBuilder) && /Live preview/.test(embedBuilder) && /Copy Embed Code/.test(embedBuilder)],
+  ["Embed script validates message origin", /new URL\(candidate\.src\)\.origin === event\.origin/.test(embedScript)],
+  ["Public widget sends responsive height updates", /ords-booking-resize/.test(publicPage) && /ResizeObserver/.test(publicPage)],
+  ["Supabase REST failures cannot crash JSON parsing", /AbortSignal\.timeout/.test(supabaseRest) && /try \{[\s\S]*JSON\.parse/.test(supabaseRest)],
+  ["Public consultation RPC execution is revoked", /from public, anon, authenticated/i.test(hardenedRpcMigration) && /to service_role/i.test(hardenedRpcMigration)],
+  ["Public booking APIs use server credentials", (datesRoute.match(/useServiceRole: true/g) ?? []).length === 1 && /useServiceRole: true/.test(bookingRoute)],
   ["Available-date RPC uses invoker security", /get_consultation_available_dates/.test(calendarMigration) && /security invoker/i.test(calendarMigration)],
   ["Available-date RPC range is bounded", /p_end_date <= p_start_date \+ 45/i.test(calendarMigration) && /rangeDays > 45/.test(datesRoute)],
   ["Instructor invitation verifies owner access", /auth\.getUser/.test(inviteFunction) && /\[\"owner\", \"admin\"\]/.test(inviteFunction)],

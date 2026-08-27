@@ -26,6 +26,7 @@ export async function GET(request: Request) {
   const { data, error } = await callSupabaseRpc<AvailableDateRow[]>(
     "get_consultation_available_dates",
     { p_end_date: end, p_start_date: start },
+    { useServiceRole: true },
   );
 
   if (error) {

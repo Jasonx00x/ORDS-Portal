@@ -15,7 +15,11 @@ export async function GET(request: Request) {
     return Response.json({ message: "Select a valid date.", slots: [] }, { status: 400 });
   }
 
-  const { data, error } = await callSupabaseRpc<SlotRow[]>("get_consultation_available_slots", { p_date: date });
+  const { data, error } = await callSupabaseRpc<SlotRow[]>(
+    "get_consultation_available_slots",
+    { p_date: date },
+    { useServiceRole: true },
+  );
 
   if (error) {
     return Response.json(

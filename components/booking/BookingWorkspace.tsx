@@ -16,6 +16,7 @@ import {
   type BookingActionResult,
 } from "@/app/booking/actions";
 import { BookingCalendar } from "@/components/booking/BookingCalendar";
+import { BookingEmbedBuilder } from "@/components/booking/BookingEmbedBuilder";
 import type { BookingAssignment, BookingLesson, BookingWorkspaceData } from "@/lib/booking/types";
 import type { Role } from "@/lib/roles";
 
@@ -169,17 +170,6 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
     }), () => form.reset());
   }
 
-  async function copyEmbedCode() {
-    const bookingUrl = `${window.location.origin}/book-consultation?embed=1`;
-    const embedCode = `<iframe src="${bookingUrl}" title="Book an ORDS consultation" style="width:100%;min-height:900px;border:0" loading="lazy"></iframe>`;
-    try {
-      await navigator.clipboard.writeText(embedCode);
-      notify("Website embed code copied.");
-    } catch {
-      notify("Open the public calendar and use its URL for the website embed.");
-    }
-  }
-
   function submitAssignment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const values = new FormData(event.currentTarget);
@@ -289,16 +279,7 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
             )}
           </BookingCard>
 
-          <BookingCard kicker="Website Booking" title="Public consultation calendar" body="Families can book a consultation from the ORDS website. Lesson enrollment still requires ORDS approval and a contract.">
-            <div className="website-booking-summary">
-              <div><strong>{upcomingConsultations.length}</strong><span>Upcoming website bookings</span></div>
-              <div><strong>30 min</strong><span>Consultation length</span></div>
-            </div>
-            <div className="button-row">
-              <a className="inline-btn" href="/book-consultation" rel="noreferrer" target="_blank">Open Calendar</a>
-              <button className="inline-btn ghost-btn" onClick={copyEmbedCode} type="button">Copy Embed Code</button>
-            </div>
-          </BookingCard>
+          <BookingEmbedBuilder notify={notify} upcomingCount={upcomingConsultations.length} />
         </div>
       )}
 
