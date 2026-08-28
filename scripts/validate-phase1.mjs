@@ -4,23 +4,14 @@ import ts from "typescript";
 
 const root = process.cwd();
 const rolesSource = readFileSync(join(root, "lib/roles.ts"), "utf8");
-const bookingSource = readFileSync(join(root, "lib/booking-data.ts"), "utf8");
 const rolesModule = ts.transpileModule(rolesSource, {
   compilerOptions: {
     module: ts.ModuleKind.ES2022,
     target: ts.ScriptTarget.ES2022,
   },
 });
-const bookingModule = ts.transpileModule(bookingSource, {
-  compilerOptions: {
-    module: ts.ModuleKind.ES2022,
-    target: ts.ScriptTarget.ES2022,
-  },
-});
 const rolesDataUrl = `data:text/javascript;base64,${Buffer.from(rolesModule.outputText).toString("base64")}`;
-const bookingDataUrl = `data:text/javascript;base64,${Buffer.from(bookingModule.outputText).toString("base64")}`;
-const { navItems, roleLabels } = await import(rolesDataUrl);
-const { bookingRooms, bookingSlots, roomConflictRows } = await import(bookingDataUrl);
+const { navItems, roleActions, roleLabels } = await import(rolesDataUrl);
 
 const expectedNav = {
   admin: [
@@ -82,11 +73,29 @@ const requiredRoutes = [
 const visibleUiFiles = [
   "components/PortalShell.tsx",
   "components/people/PeopleWorkspace.tsx",
+  "components/booking/BookingEmbedBuilder.tsx",
+  "lib/roles.ts",
   "app/login/page.tsx",
   "components/consultations/ConsultationBookingPage.tsx",
   "components/consultations/ConsultationAdminPage.tsx",
 ];
-const blockedPreviewTerms = [/Karina/i, /Oscar/i, /\bCFO\b/i, /\bCEO\b/i, /\bMVP\b/i, /QuickBooks/i, /Supabase/i, /Mock Role/i, /Phase 1/i];
+const blockedPreviewTerms = [
+  /Karina/i,
+  /Oscar/i,
+  /\bCFO\b/i,
+  /\bCEO\b/i,
+  /\bMVP\b/i,
+  /QuickBooks/i,
+  /Supabase/i,
+  /Mock Role/i,
+  /Phase 1/i,
+  /\bChatGPT\b/i,
+  /\bCodex\b/i,
+  /\bOpenAI\b/i,
+  /AI-generated/i,
+  /built by AI/i,
+  /made by AI/i,
+];
 const failures = [];
 
 for (const role of Object.keys(roleLabels)) {
@@ -98,6 +107,13 @@ for (const role of Object.keys(roleLabels)) {
   }
   if (JSON.stringify(actual) !== JSON.stringify(expected)) {
     failures.push(`Navigation mismatch for ${role}: expected [${expected.join(", ")}], got [${actual.join(", ")}]`);
+  }
+
+  const allowedHrefs = new Set(navItems.filter((item) => item.roles.includes(role)).map((item) => item.href));
+  for (const action of roleActions[role] ?? []) {
+    if (!allowedHrefs.has(action.href)) {
+      failures.push(`Unauthorized quick action for ${role}: ${action.href}`);
+    }
   }
 }
 
@@ -142,19 +158,16 @@ for (const file of visibleUiFiles) {
   }
 }
 
+const peopleWorkspace = readFileSync(join(root, "components/people/PeopleWorkspace.tsx"), "utf8");
+const nonAdminBranchStart = peopleWorkspace.indexOf("if (!isAdmin)");
+const adminBranchStart = peopleWorkspace.indexOf("\n  return (", nonAdminBranchStart);
+if (peopleWorkspace.slice(nonAdminBranchStart, adminBranchStart).includes('data-testid="student-access-form"')) {
+  failures.push("Instructor view exposes the admin-only student invitation form.");
+}
+
 const requiredRooms = ["Studio", "Drum Room", "Auditorium", "Youth Room", "Extra Room"];
-const configuredRooms = bookingRooms.map((room) => room.name);
 for (const room of requiredRooms) {
-  if (!configuredRooms.includes(room)) failures.push(`Missing required ORDS room: ${room}`);
-}
-
-for (const slot of bookingSlots) {
-  if (!configuredRooms.includes(slot.location)) failures.push(`Booking slot ${slot.id} uses unconfigured room: ${slot.location}`);
-}
-
-const roomConflicts = roomConflictRows();
-if (roomConflicts.some((row) => row.includes("Conflict"))) {
-  failures.push("Room conflict check found a double-booked room.");
+  if (!schedulingMigration.includes(`('${room}'`)) failures.push(`Missing required ORDS room: ${room}`);
 }
 
 if (failures.length) {

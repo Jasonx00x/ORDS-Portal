@@ -1,35 +1,35 @@
-# ORDS Portal Preview
+# ORDS Operations Portal
 
-Static preview for the ORDS Music Academy portal.
+The private ORDS Music School web application for account access, lesson scheduling, room approvals, consultation booking, and role-based academy operations.
 
-## Open Locally
+## Account Roles
 
-Install Node.js if needed, then run:
+- Admin: academy-wide people, scheduling, approvals, reporting, and activity access
+- Instructor: assigned students, teaching calendar, availability, clock-in, reports, homework, and staff announcements
+- Parent: linked student schedules, reschedule requests, progress, billing status, and account settings
+- Student: approved lessons, reschedule requests, homework, announcements, and settings
+- Client: coaching sessions, assigned work, announcements, reschedule requests, and settings
 
-```bash
-node preview-server.mjs
-```
+Public signup is disabled. ORDS administrators invite approved account holders.
 
-Open:
-
-```text
-http://127.0.0.1:4173/portal.html
-```
-
-## Windows
-
-Double-click:
-
-```text
-start-portal-preview.cmd
-```
-
-## Mac
-
-Run:
+## Local Development
 
 ```bash
-chmod +x start-portal-preview.sh
-./start-portal-preview.sh
+npm install
+npm run dev
 ```
 
+Open `http://127.0.0.1:3000`.
+
+Create `.env.local` from `.env.example` and provide the project environment values. Never commit `.env.local` or server credentials.
+
+## Verification
+
+```bash
+npm run validate:portal
+npm run test:booking-time
+npm run test:consultations
+npm run build
+```
+
+The production application is deployed from the `main` branch through Netlify.

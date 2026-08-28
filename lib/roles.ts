@@ -22,6 +22,12 @@ export type NavItem = {
   roles: Role[];
 };
 
+export type RoleAction = {
+  href: string;
+  label: string;
+  primary?: boolean;
+};
+
 export const roleLabels: Record<Role, string> = {
   admin: "Admin",
   instructor: "Instructor",
@@ -32,30 +38,59 @@ export const roleLabels: Record<Role, string> = {
 
 export const roleProfiles: Record<Role, { name: string; subtitle: string }> = {
   admin: {
-    name: "ORDS operations setup.",
+    name: "ORDS operations overview.",
     subtitle:
-      "Create the first real accounts, rooms, schedules, approvals, and operating rules before families and instructors start using the portal.",
+      "Manage people, schedules, rooms, approvals, and academy activity from one secure workspace.",
   },
   instructor: {
-    name: "Instructor operations dashboard.",
+    name: "Your teaching workspace.",
     subtitle:
-      "Manage assigned students, clock-ins, lesson reports, homework, and reschedule approvals.",
+      "Review your students and schedule, manage availability, and keep lesson follow-up organized.",
   },
   parent: {
-    name: "Parent account setup.",
+    name: "Your family account.",
     subtitle:
-      "After contract approval, a parent account can manage one or more linked students without seeing internal staff tools.",
+      "Follow linked students, approved lessons, progress updates, reschedule requests, and billing status.",
   },
   student: {
-    name: "Student account setup.",
+    name: "Your student portal.",
     subtitle:
-      "Students see homework, announcements, progress, and approved schedule requests after an admin creates the account.",
+      "Keep up with approved lessons, homework, announcements, and schedule requests in one place.",
   },
   client: {
-    name: "Client account setup.",
+    name: "Your coaching portal.",
     subtitle:
-      "Clients see assigned coaching homework, announcements, and request options after ORDS creates the account.",
+      "Review coaching sessions, assigned work, announcements, and schedule requests.",
   },
+};
+
+export const roleActions: Record<Role, RoleAction[]> = {
+  admin: [
+    { href: "/students", label: "Manage People", primary: true },
+    { href: "/booking", label: "Manage Booking" },
+    { href: "/reschedule-requests", label: "Review Requests" },
+    { href: "/lesson-reports", label: "Lesson Reports" },
+  ],
+  instructor: [
+    { href: "/booking", label: "Open Schedule", primary: true },
+    { href: "/clock-in", label: "Clock In" },
+    { href: "/lesson-reports", label: "Lesson Reports" },
+  ],
+  parent: [
+    { href: "/booking", label: "View Lessons", primary: true },
+    { href: "/reschedule-requests", label: "Request Reschedule" },
+    { href: "/progress", label: "View Progress" },
+  ],
+  student: [
+    { href: "/booking", label: "View Lessons", primary: true },
+    { href: "/homework", label: "Homework" },
+    { href: "/reschedule-requests", label: "Request Reschedule" },
+  ],
+  client: [
+    { href: "/booking", label: "View Sessions", primary: true },
+    { href: "/homework", label: "Assigned Work" },
+    { href: "/reschedule-requests", label: "Request Reschedule" },
+  ],
 };
 
 export const navItems: NavItem[] = [

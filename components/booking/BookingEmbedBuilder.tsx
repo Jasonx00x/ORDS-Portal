@@ -53,7 +53,7 @@ export function BookingEmbedBuilder({ notify, upcomingCount }: BookingEmbedBuild
         <div>
           <div className="panel-kicker">Website Booking</div>
           <h3>Consultation calendar embed</h3>
-          <p>Customize the public calendar, preview it, and publish the generated embed on the ORDS website.</p>
+          <p>Customize the public calendar, review it here, and publish the embed code on the ORDS website.</p>
         </div>
         <div className="booking-embed-count"><strong>{upcomingCount}</strong><span>Upcoming bookings</span></div>
       </div>
@@ -106,11 +106,11 @@ export function BookingEmbedBuilder({ notify, upcomingCount }: BookingEmbedBuild
       </div>
 
       <div className="booking-embed-preview-head">
-        <strong>Live preview</strong>
-        <a href={widgetUrl || "/book-consultation"} rel="noreferrer" target="_blank">Open full preview</a>
+        <strong>Live calendar</strong>
+        <a href={widgetUrl || "/book-consultation"} rel="noreferrer" target="_blank">Open calendar</a>
       </div>
       <div className={`booking-embed-preview preview-${config.theme}`}>
-        {widgetUrl && <iframe key={widgetUrl} src={widgetUrl} title="ORDS consultation calendar preview" />}
+        {widgetUrl && <iframe key={widgetUrl} src={widgetUrl} title="ORDS consultation booking calendar" />}
       </div>
 
       <label className="booking-embed-code">

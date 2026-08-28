@@ -31,7 +31,7 @@ const checks = [
   ["Honeypot is present", /companyWebsite/i.test(publicPage) && /honeypot/i.test(validation)],
   ["Embed-ready calendar is present", /FullCalendar/.test(publicPage) && /consultation-embedded/.test(publicPage)],
   ["Embed customization values are allowlisted", /hexColorPattern/.test(embedConfig) && /theme.*=== "dark"/.test(embedConfig) && /layout.*=== "compact"/.test(embedConfig)],
-  ["Owner embed builder includes a live preview", /Consultation calendar embed/.test(embedBuilder) && /Live preview/.test(embedBuilder) && /Copy Embed Code/.test(embedBuilder)],
+  ["Owner embed builder includes a live calendar", /Consultation calendar embed/.test(embedBuilder) && /Live calendar/.test(embedBuilder) && /Copy Embed Code/.test(embedBuilder)],
   ["Embed script validates message origin", /new URL\(candidate\.src\)\.origin === event\.origin/.test(embedScript)],
   ["Embed script is publicly accessible", /"\/booking-embed\.js"/.test(authProxy)],
   ["Public widget sends responsive height updates", /ords-booking-resize/.test(publicPage) && /ResizeObserver/.test(publicPage)],

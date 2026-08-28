@@ -9,9 +9,7 @@
     "start": "next start -H 127.0.0.1 -p 3000",
     "test:booking-time": "node --experimental-strip-types scripts/test-booking-time.mjs",
     "test:consultations": "node scripts/test-consultation-contract.mjs",
-    "validate:portal": "node scripts/validate-phase1.mjs",
-    "validate:phase1": "node scripts/validate-phase1.mjs",
-    "preview:static": "node preview-server.mjs"
+    "validate:portal": "node scripts/validate-phase1.mjs"
   },
   "dependencies": {
     "@fullcalendar/core": "6.1.21",

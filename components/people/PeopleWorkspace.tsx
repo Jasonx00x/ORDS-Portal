@@ -142,19 +142,6 @@ export function PeopleWorkspace({ data, notify, role }: PeopleWorkspaceProps) {
               ))}
             </div>
           )}
-          {data.students.some((student) => !student.profileId) && (
-            <div className="people-access-block">
-              <strong>Invite portal access</strong>
-              <span>Use this for a roster student who needs their own login now or whose earlier invitation was not delivered.</span>
-              <form className="people-access-form" data-testid="student-access-form" onSubmit={submitStudentAccess}>
-                <label className="portal-field">Student<select defaultValue="" name="studentId" required><option disabled value="">Select student</option>{data.students.filter((student) => !student.profileId).map((student) => <option key={student.id} value={student.id}>{student.displayName}</option>)}</select></label>
-                <label className="portal-field">Student email<input autoComplete="email" name="email" required type="email" /></label>
-                <button className="inline-btn people-form-button" disabled={isPending} type="submit">
-                  {workingForm === "student-access" ? "Sending Invitation..." : "Send Student Invite"}
-                </button>
-              </form>
-            </div>
-          )}
         </PeopleCard>
       </>
     );
@@ -221,6 +208,19 @@ export function PeopleWorkspace({ data, notify, role }: PeopleWorkspaceProps) {
                   <b className={`booking-status status-${student.status}`}>{statusLabel(student.status)}</b>
                 </div>
               ))}
+            </div>
+          )}
+          {data.students.some((student) => !student.profileId) && (
+            <div className="people-access-block">
+              <strong>Invite student portal access</strong>
+              <span>Send a private login invitation to a roster student who needs their own account.</span>
+              <form className="people-access-form" data-testid="student-access-form" onSubmit={submitStudentAccess}>
+                <label className="portal-field">Student<select defaultValue="" name="studentId" required><option disabled value="">Select student</option>{data.students.filter((student) => !student.profileId).map((student) => <option key={student.id} value={student.id}>{student.displayName}</option>)}</select></label>
+                <label className="portal-field">Student email<input autoComplete="email" name="email" required type="email" /></label>
+                <button className="inline-btn people-form-button" disabled={isPending} type="submit">
+                  {workingForm === "student-access" ? "Sending Invitation..." : "Send Student Invite"}
+                </button>
+              </form>
             </div>
           )}
         </PeopleCard>
