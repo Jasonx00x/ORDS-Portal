@@ -133,6 +133,7 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [dialog, setDialog] = useState<CalendarDialog>(null);
+  const [calendarView, setCalendarView] = useState("timeGridWeek");
   const [instructorFilter, setInstructorFilter] = useState(role === "instructor" ? userId : "all");
   const [roomFilter, setRoomFilter] = useState("all");
   const [selectedAssignmentKey, setSelectedAssignmentKey] = useState("");
@@ -178,8 +179,15 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
   }, [blockInstructorId, data.instructors, instructorFilter, role]);
 
   useEffect(() => {
-    if (!window.matchMedia("(max-width: 760px)").matches) return;
-    calendarRef.current?.getApi().changeView("timeGridDay");
+    const useMobileView = () => {
+      const calendar = calendarRef.current?.getApi();
+      if (window.innerWidth <= 820 && calendar?.view.type === "timeGridWeek") {
+        calendar.changeView("timeGridDay");
+      }
+    };
+    useMobileView();
+    window.addEventListener("resize", useMobileView);
+    return () => window.removeEventListener("resize", useMobileView);
   }, []);
 
   const businessHours = useMemo<BusinessHoursInput>(() =>
@@ -462,6 +470,7 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
           businessHours={businessHours}
           buttonText={{ day: "Day", month: "Month", today: "Today", week: "Week" }}
           dateClick={handleDateClick}
+          datesSet={(info) => setCalendarView(info.view.type)}
           dayHeaderFormat={{ weekday: "short", month: "numeric", day: "numeric" }}
           dayMaxEvents={3}
           editable={false}
@@ -470,13 +479,13 @@ export function BookingCalendar({ data, notify, role, userId }: BookingCalendarP
           eventDisplay="block"
           eventTimeFormat={{ hour: "numeric", minute: "2-digit", meridiem: "short" }}
           events={events}
-          expandRows
+          expandRows={calendarView !== "dayGridMonth"}
           headerToolbar={{
             center: "title",
             end: "dayGridMonth,timeGridWeek,timeGridDay",
             start: "prev,next today",
           }}
-          height={680}
+          height={calendarView === "dayGridMonth" ? "auto" : 680}
           initialView="timeGridWeek"
           longPressDelay={350}
           nowIndicator

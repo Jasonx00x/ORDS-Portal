@@ -257,30 +257,33 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
       <BookingCalendar data={data} notify={notify} role={role} userId={userId} />
 
       {isAdmin && (
-        <div className="portal-grid booking-admin-grid">
-          <BookingCard kicker="Instructor Accounts" title="Invite and manage instructors" body="Each instructor receives a private account invitation and creates their own password.">
-            <form className="setup-form-grid booking-form" onSubmit={submitInstructor}>
-              <label className="portal-field">Full name<input autoComplete="name" name="displayName" required /></label>
-              <label className="portal-field">Email<input autoComplete="email" name="email" required type="email" /></label>
-              <label className="portal-field">Phone <span className="optional-label">optional</span><input autoComplete="tel" name="phone" type="tel" /></label>
-              <button className="inline-btn booking-form-button" disabled={isPending} type="submit">
-                {isPending ? "Working..." : "Send Invitation"}
-              </button>
-            </form>
-            {data.instructors.length === 0 ? <EmptyState>No instructors have been invited yet.</EmptyState> : (
-              <div className="booking-record-list">
-                {data.instructors.map((instructor) => (
-                  <div className="booking-record" key={instructor.id}>
-                    <div><strong>{instructor.displayName}</strong><span>Instructor account</span></div>
-                    <b className={`booking-status status-${instructor.inviteStatus}`}>{statusLabel(instructor.inviteStatus)}</b>
-                  </div>
-                ))}
-              </div>
-            )}
-          </BookingCard>
-
-          <BookingEmbedBuilder notify={notify} upcomingCount={upcomingConsultations.length} />
-        </div>
+        <>
+          <div className="portal-grid booking-instructor-section">
+            <BookingCard kicker="Instructor Accounts" title="Invite and manage instructors" body="Each instructor receives a private account invitation and creates their own password.">
+              <form className="setup-form-grid booking-form booking-instructor-form" onSubmit={submitInstructor}>
+                <label className="portal-field">Full name<input autoComplete="name" name="displayName" required /></label>
+                <label className="portal-field">Email<input autoComplete="email" name="email" required type="email" /></label>
+                <label className="portal-field">Phone <span className="optional-label">optional</span><input autoComplete="tel" name="phone" type="tel" /></label>
+                <button className="inline-btn booking-form-button" disabled={isPending} type="submit">
+                  {isPending ? "Working..." : "Send Invitation"}
+                </button>
+              </form>
+              {data.instructors.length === 0 ? <EmptyState>No instructors have been invited yet.</EmptyState> : (
+                <div className="booking-record-list">
+                  {data.instructors.map((instructor) => (
+                    <div className="booking-record" key={instructor.id}>
+                      <div><strong>{instructor.displayName}</strong><span>Instructor account</span></div>
+                      <b className={`booking-status status-${instructor.inviteStatus}`}>{statusLabel(instructor.inviteStatus)}</b>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </BookingCard>
+          </div>
+          <div className="portal-grid booking-embed-section">
+            <BookingEmbedBuilder notify={notify} upcomingCount={upcomingConsultations.length} />
+          </div>
+        </>
       )}
 
       {isAdmin && (
