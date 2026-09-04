@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { requirePortalUser } from "@/lib/auth";
+import { loadConsultationData, type ConsultationRecord } from "@/lib/consultations/admin-data";
+import { ConsultationRecords } from "./ConsultationRecords";
 
 type AdminView = "availability" | "consultations" | "settings";
 
 export async function ConsultationAdminPage({ view }: { view: AdminView }) {
   await requirePortalUser("login-records");
+  const consultationData = view === "consultations" ? await loadConsultationData() : null;
 
   return (
     <main className="consultation-admin-shell">
@@ -21,31 +24,53 @@ export async function ConsultationAdminPage({ view }: { view: AdminView }) {
         </nav>
       </section>
 
-      {view === "consultations" && <ConsultationsView />}
+      {view === "consultations" && consultationData && <ConsultationsView {...consultationData} />}
       {view === "availability" && <AvailabilityView />}
       {view === "settings" && <SettingsView />}
     </main>
   );
 }
 
-function ConsultationsView() {
+function easternDateKey(value: Date | string) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "America/New_York",
+    year: "numeric",
+  }).formatToParts(new Date(value));
+  const part = (type: string) => parts.find((item) => item.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
+function ConsultationsView({
+  emailIssueCount,
+  loadError,
+  records,
+}: {
+  emailIssueCount: number;
+  loadError: string;
+  records: ConsultationRecord[];
+}) {
+  const now = new Date();
+  const today = easternDateKey(now);
+  const upcoming = records.filter((record) => record.status === "confirmed" && new Date(record.startTime) >= now);
+  const todayCount = records.filter((record) => record.status === "confirmed" && easternDateKey(record.startTime) === today).length;
+  const pastCount = records.filter((record) => new Date(record.startTime) < now || record.status !== "confirmed").length;
+
   return (
     <>
       <div className="portal-grid stat-grid ops-stats">
-        <article className="portal-panel stat-card"><span>Upcoming</span><strong>0</strong><small>No confirmed consultations</small></article>
-        <article className="portal-panel stat-card"><span>Today</span><strong>0</strong><small>No consultations today</small></article>
-        <article className="portal-panel stat-card"><span>Past</span><strong>0</strong><small>No consultation history</small></article>
-        <article className="portal-panel stat-card"><span>Email issues</span><strong>0</strong><small>No delivery issues</small></article>
+        <article className="portal-panel stat-card"><span>Upcoming</span><strong>{upcoming.length}</strong><small>Confirmed consultations</small></article>
+        <article className="portal-panel stat-card"><span>Today</span><strong>{todayCount}</strong><small>Eastern Time schedule</small></article>
+        <article className="portal-panel stat-card"><span>Past</span><strong>{pastCount}</strong><small>History and closed records</small></article>
+        <article className="portal-panel stat-card"><span>Email issues</span><strong>{emailIssueCount}</strong><small>Failed delivery attempts</small></article>
       </div>
       <section className="portal-panel">
         <div className="portal-panel-head">
           <div><div className="panel-kicker">Dashboard</div><h3>Consultation records</h3></div>
-          <input className="consultation-admin-search" placeholder="Search by name, email, phone, instrument, or reference" />
         </div>
-        <div className="booking-empty-state">
-          <strong>No consultation records yet</strong>
-          <span>Confirmed consultation requests will appear here with contact details, program interest, status, and email delivery history.</span>
-        </div>
+        {loadError && <p className="consultation-error">Consultation records could not be loaded. Please refresh or try again shortly.</p>}
+        {!loadError && <ConsultationRecords records={records} />}
       </section>
     </>
   );

@@ -51,7 +51,7 @@ Build ORDS booking as a real operating workflow: instructor availability, studen
 - Enable Row Level Security on every exposed table.
 - Use Netlify Functions for privileged booking actions.
 - Use Netlify Scheduled Functions for reminder processing.
-- Use Resend for email reminders.
+- Use Brevo transactional templates for email reminders.
 - Use Twilio for SMS reminders if ORDS wants texting.
 
 ## Permissions

@@ -22,6 +22,7 @@ export type BookingInstructor = {
 
 export type BookingConsultation = {
   bookingReference: string;
+  createdAt: string;
   customerEmail: string;
   customerName: string;
   customerPhone: string;
@@ -29,6 +30,7 @@ export type BookingConsultation = {
   id: string;
   instrumentOrService: string;
   musicalGoals: string;
+  source: string;
   startsAt: string;
   status: string;
   studentName: string;

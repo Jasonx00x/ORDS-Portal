@@ -227,6 +227,8 @@ export function ConsultationBookingPage({
       if (!response.ok) throw new Error(result.message ?? "Unable to complete this booking.");
 
       setSuccess({ bookingReference: result.bookingReference, startTime: result.startTime });
+      setSlots((currentSlots) => currentSlots.filter((slot) => slot.startTime !== result.startTime));
+      setSelectedStartTime("");
       setIdempotencyKey(createIdempotencyKey());
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to complete this booking.");
@@ -370,7 +372,7 @@ export function ConsultationBookingPage({
           {error && <p className="consultation-error" role="alert">{error}</p>}
           {success && (
             <div className="consultation-success" role="status">
-              <strong>Consultation booked.</strong>
+              <strong>Your consultation is confirmed.</strong>
               <span>Reference: {success.bookingReference}</span>
               <span>{formatEasternDateTime(success.startTime)} Eastern Time</span>
             </div>

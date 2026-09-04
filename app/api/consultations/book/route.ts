@@ -48,6 +48,7 @@ export async function POST(request: Request) {
   );
 
   if (error) {
+    console.error("[Booking] Booking storage failed", { status: error.status });
     return Response.json(
       { message: "Consultations are temporarily unavailable. Please contact ORDS Music School for assistance." },
       { status: 503 },
@@ -57,6 +58,9 @@ export async function POST(request: Request) {
   const booking = data?.[0];
 
   if (!booking?.success || !booking.booking_id || !booking.booking_reference || !booking.start_time || !booking.end_time || !booking.timezone) {
+    if (booking?.error_code === "slot_taken" || booking?.error_code === "slot_unavailable") {
+      console.warn("[Booking] Slot conflict", { requestedStartTime: input.startTime });
+    }
     return Response.json(
       {
         code: booking?.error_code ?? "booking_failed",
@@ -66,22 +70,32 @@ export async function POST(request: Request) {
     );
   }
 
-  await sendConsultationEmails({
-    booking: {
-      bookingId: booking.booking_id,
-      bookingReference: booking.booking_reference,
-      customerEmail: input.customerEmail,
-      customerName: input.customerName,
-      customerPhone: input.customerPhone,
-      instrumentOrService: input.instrumentOrService,
-      locationOrMeetingDetails: booking.location_or_meeting_details ?? "ORDS Music School will confirm details.",
-      musicalGoals: input.musicalGoals,
-      startTime: booking.start_time,
-      studentAge: input.studentAgeNumber,
-      studentName: input.studentName,
-      timezone: booking.timezone,
-    },
+  console.info("[Booking] Booking created", {
+    bookingId: booking.booking_id,
+    bookingReference: booking.booking_reference,
+    startTime: booking.start_time,
   });
+
+  try {
+    await sendConsultationEmails({
+      booking: {
+        bookingId: booking.booking_id,
+        bookingReference: booking.booking_reference,
+        customerEmail: input.customerEmail,
+        customerName: input.customerName,
+        customerPhone: input.customerPhone,
+        instrumentOrService: input.instrumentOrService,
+        locationOrMeetingDetails: booking.location_or_meeting_details ?? "ORDS Music School will confirm details.",
+        musicalGoals: input.musicalGoals,
+        startTime: booking.start_time,
+        studentAge: input.studentAgeNumber,
+        studentName: input.studentName,
+        timezone: booking.timezone,
+      },
+    });
+  } catch {
+    console.error("[Brevo] Booking email processing failed safely.", { bookingId: booking.booking_id });
+  }
 
   return Response.json({
     bookingReference: booking.booking_reference,

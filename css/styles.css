@@ -1531,6 +1531,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
 .consultation-admin-head nav a.active{background:#0a112b;color:#fff}
 .consultation-admin-search{
   width:min(420px,100%);
+  margin-top:16px;
   border:1px solid rgba(17,25,54,.12);
   border-radius:15px;
   background:#f8fafc;
@@ -1538,6 +1539,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   font:inherit;
 }
 .consultation-admin-table>div{grid-template-columns:1fr 1fr 1fr .8fr .7fr .8fr}
+.consultation-admin-table strong,.consultation-admin-table span{overflow-wrap:anywhere}
 .availability-admin-grid{display:grid;gap:12px;margin-top:18px}
 .availability-admin-grid label{
   display:flex;
@@ -1555,6 +1557,7 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   .consultation-admin-head{display:grid}
   .consultation-admin-head nav{justify-content:flex-start}
   .consultation-admin-table>div{grid-template-columns:1fr}
+  .consultation-admin-table .table-head{display:none}
 }
 @media(max-width:560px){.consultation-admin-shell{padding:18px}.consultation-admin-head{padding:18px;border-radius:20px}}
 

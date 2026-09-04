@@ -82,5 +82,5 @@ Security:
 - Real availability slot generation for regular 1-hour lessons.
 - Room approval actions.
 - Reschedule request generation from assigned instructor availability.
-- Reminder delivery after Resend is configured.
+- Reminder delivery after Brevo is configured.
 - External accounting status display later.

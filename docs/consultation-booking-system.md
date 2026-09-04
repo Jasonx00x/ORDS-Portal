@@ -8,16 +8,10 @@ Local:
 http://127.0.0.1:3001/book-consultation
 ```
 
-Production target:
+Production:
 
 ```text
-https://portal.ordsmusic.com/book-consultation
-```
-
-Future optional domain:
-
-```text
-https://book.ordsmusic.com
+https://ords-portal.netlify.app/book-consultation
 ```
 
 ## What Was Built
@@ -30,8 +24,8 @@ https://book.ordsmusic.com
 - PostgreSQL RPC for atomic booking creation.
 - Partial unique index preventing duplicate active bookings at the same start time.
 - RLS enabled on every consultation table.
-- Resend-compatible email service that safely skips email delivery when not configured.
-- Admin consultation dashboard preview routes.
+- Brevo template email delivery that never rolls back a valid booking.
+- Live admin consultation records protected by Supabase Auth and RLS.
 
 ## Routes
 
@@ -83,7 +77,7 @@ Admin policies require authenticated users with `app_metadata.role` of:
 - `staff`
 - `owner`
 
-Current portal auth is still demo/local-role based. Production admin security requires Supabase Auth before launch.
+The admin consultation routes require Supabase Auth and an admin role stored in `app_metadata`.
 
 ## Environment Variables
 
@@ -96,11 +90,12 @@ Public:
 
 Server-only:
 
-- `SUPABASE_SERVICE_ROLE_KEY` optional, used only for internal email delivery logs
-- `RESEND_API_KEY`
-- `ORDS_EMAIL_FROM`
-- `ORDS_EMAIL_REPLY_TO`
-- `ORDS_DEFAULT_NOTIFICATION_EMAIL`
+- `SUPABASE_SERVICE_ROLE_KEY`, used for the booking RPC and internal email delivery logs
+- `BREVO_API_KEY`
+- `BREVO_BOOKING_CONFIRMATION_TEMPLATE_ID`
+- `BREVO_ADMIN_BOOKING_TEMPLATE_ID`
+- `ORDS_ADMIN_EMAIL`
+- `ORDS_SECONDARY_ADMIN_EMAIL`
 
 Never put server-only values in `NEXT_PUBLIC_` variables.
 
@@ -150,28 +145,18 @@ The owner/admin can block one day by inserting a row in `consultation_blocked_da
 
 The owner/admin can block a vacation week by inserting a row where `start_date` is the first vacation date and `end_date` is the last vacation date.
 
-The owner/admin sets the notification email in `consultation_settings.notification_email`, or by setting `ORDS_DEFAULT_NOTIFICATION_EMAIL`.
+Admin notifications use the two server-only ORDS admin email variables. The database notification field is retained for future settings work but is not used by the Brevo booking notification.
 
-## Resend Setup
+## Brevo Setup
 
-1. Create a Resend account.
-2. Add a sending domain or subdomain.
-3. Recommended subdomain: `updates.ordsmusic.com`.
-4. Add SPF DNS records from Resend.
-5. Add DKIM DNS records from Resend.
-6. Verify the domain in Resend.
-7. Create a Resend API key.
-8. Add `RESEND_API_KEY` to `.env.local`.
-9. Add `RESEND_API_KEY` to Netlify as a server-only env var.
-10. Set `ORDS_EMAIL_FROM`, for example `ORDS Music School <bookings@updates.ordsmusic.com>`.
-11. Set `ORDS_EMAIL_REPLY_TO` to the correct ORDS inbox.
-12. Set `ORDS_DEFAULT_NOTIFICATION_EMAIL`.
-13. Redeploy.
-14. Make a test booking.
-15. Check Resend logs.
-16. Confirm both the customer and the ORDS notification inbox receive emails.
+1. Verify the sender configured on both Brevo templates.
+2. Activate both templates in Brevo.
+3. Confirm the customer template uses `first_name`, `booking_date`, and `booking_time` params.
+4. Confirm the admin template uses `first_name`, `last_name`, `email`, `phone`, `booking_date`, `booking_time`, and `source` params.
+5. Add all five Brevo/admin environment variables to Netlify with runtime scope.
+6. Redeploy, create a test booking, and review Brevo transactional logs.
 
-If Resend is missing, bookings still save. Email delivery logs are written only when `SUPABASE_SERVICE_ROLE_KEY` is configured server-side.
+If Brevo is unavailable or misconfigured, the booking remains confirmed. The server logs a sanitized failure and records a failed or skipped delivery attempt when Supabase logging is available.
 
 ## Netlify
 
@@ -180,7 +165,7 @@ Add environment variables in Netlify:
 1. Open the Netlify project.
 2. Go to Site configuration.
 3. Go to Environment variables.
-4. Add the public and server-only variables listed above.
+4. Add the public and server-only variables listed above. Keep every secret out of `NEXT_PUBLIC_` variables.
 5. Trigger a new deployment.
 6. Test `/book-consultation`.
 7. Test `/api/consultations/slots?date=YYYY-MM-DD`.
@@ -241,17 +226,17 @@ Likely locations:
 - Floating booking button
 - Calendly popup button
 
-Recommended direct link:
+Current direct link:
 
 ```html
-<a href="https://portal.ordsmusic.com/book-consultation">Book Your Free 30-Minute Consultation</a>
+<a href="https://ords-portal.netlify.app/book-consultation">Book Your Free 30-Minute Consultation</a>
 ```
 
 Optional iframe:
 
 ```html
 <iframe
-  src="https://portal.ordsmusic.com/book-consultation"
+  src="https://ords-portal.netlify.app/book-consultation"
   title="Book your free ORDS consultation"
   style="width:100%;height:980px;border:0;"
 ></iframe>
@@ -266,7 +251,7 @@ Remove unused Calendly scripts after replacement and search again for remaining 
 ```text
 Replace the ORDS website Calendly consultation booking links and embeds with the new ORDS Portal consultation booking URL:
 
-https://portal.ordsmusic.com/book-consultation
+https://ords-portal.netlify.app/book-consultation
 
 Search for calendly, Calendly, calendly.com, calendly-inline-widget, data-url, Book a Consultation, Free Consultation, Schedule Consultation, and 30 Minute Meeting.
 

@@ -58,7 +58,8 @@ const requiredRoutes = [
   "app/admin/consultations/availability/page.tsx",
   "app/admin/consultations/settings/page.tsx",
   "lib/supabase-config.ts",
-  "lib/consultations/constants.ts",
+    "lib/consultations/constants.ts",
+    "lib/consultations/brevo.ts",
   "lib/consultations/email-service.ts",
   "lib/consultations/email-templates.ts",
   "lib/consultations/supabase-rest.ts",
@@ -126,7 +127,15 @@ for (const route of requiredRoutes) {
 }
 
 const envExample = readFileSync(join(root, ".env.example"), "utf8");
-for (const key of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "RESEND_API_KEY", "ORDS_EMAIL_FROM", "ORDS_DEFAULT_NOTIFICATION_EMAIL"]) {
+for (const key of [
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+  "BREVO_API_KEY",
+  "BREVO_BOOKING_CONFIRMATION_TEMPLATE_ID",
+  "BREVO_ADMIN_BOOKING_TEMPLATE_ID",
+  "ORDS_ADMIN_EMAIL",
+  "ORDS_SECONDARY_ADMIN_EMAIL",
+]) {
   if (!envExample.includes(key)) failures.push(`Missing ${key} in .env.example`);
 }
 

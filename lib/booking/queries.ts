@@ -59,7 +59,7 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
     user.role === "admin"
       ? supabase
         .from("consultation_bookings")
-        .select("id,booking_reference,customer_name,customer_email,customer_phone,student_name,instrument_or_service,musical_goals,start_time,end_time,status")
+        .select("id,booking_reference,customer_name,customer_email,customer_phone,student_name,instrument_or_service,musical_goals,start_time,end_time,status,source,created_at")
         .gte("end_time", cutoff.toISOString())
         .order("start_time")
         .limit(250)
@@ -160,6 +160,7 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
   }));
   const consultations: BookingConsultation[] = consultationRows.map((row) => ({
     bookingReference: text(row.booking_reference),
+    createdAt: text(row.created_at),
     customerEmail: text(row.customer_email),
     customerName: text(row.customer_name),
     customerPhone: text(row.customer_phone),
@@ -167,6 +168,7 @@ export async function loadBookingWorkspace(user: PortalUser): Promise<BookingWor
     id: text(row.id),
     instrumentOrService: text(row.instrument_or_service),
     musicalGoals: text(row.musical_goals),
+    source: text(row.source) || "Website Booking",
     startsAt: text(row.start_time),
     status: text(row.status),
     studentName: text(row.student_name),

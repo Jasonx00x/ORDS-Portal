@@ -1,11 +1,16 @@
-import { adminNotificationEmail, customerConfirmationEmail, type ConsultationEmailBooking } from "./email-templates";
+import { sendBrevoTemplate, type BrevoSendResult } from "./brevo";
+import {
+  formatBookingDate,
+  formatBookingTime,
+  splitFullName,
+  type ConsultationEmailBooking,
+} from "./email-templates";
 import { callSupabaseRpc } from "./supabase-rest";
 
 type EmailType = "admin_notification" | "customer_confirmation";
 
 type SendEmailOptions = {
   booking: ConsultationEmailBooking & { bookingId: string };
-  notificationEmail?: string | null;
 };
 
 async function logEmailAttempt(
@@ -20,67 +25,97 @@ async function logEmailAttempt(
     return;
   }
 
-  await callSupabaseRpc("log_consultation_email_attempt", {
-    p_booking_id: bookingId,
-    p_email_type: emailType,
-    p_recipient: recipient,
-    p_provider: "resend",
-    p_provider_message_id: providerMessageId ?? null,
-    p_status: status,
-    p_error_message: errorMessage ?? null,
-  }, { useServiceRole: true });
-}
-
-async function sendResendEmail(emailType: EmailType, recipient: string, subject: string, text: string, bookingId: string) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.ORDS_EMAIL_FROM;
-  const replyTo = process.env.ORDS_EMAIL_REPLY_TO;
-
-  if (!apiKey || !from) {
-    await logEmailAttempt(bookingId, emailType, recipient, "skipped", undefined, "Email delivery is not configured.");
-    return;
-  }
-
   try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${apiKey}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        reply_to: replyTo || undefined,
-        subject,
-        text,
-        to: recipient,
-      }),
-    });
-    const payload = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      await logEmailAttempt(bookingId, emailType, recipient, "failed", undefined, "Email provider rejected the message.");
-      return;
-    }
-
-    await logEmailAttempt(bookingId, emailType, recipient, "sent", payload?.id);
+    await callSupabaseRpc("log_consultation_email_attempt", {
+      p_booking_id: bookingId,
+      p_email_type: emailType,
+      p_recipient: recipient,
+      p_provider: "brevo",
+      p_provider_message_id: providerMessageId ?? null,
+      p_status: status,
+      p_error_message: errorMessage ?? null,
+    }, { useServiceRole: true });
   } catch {
-    await logEmailAttempt(bookingId, emailType, recipient, "failed", undefined, "Email provider request failed.");
+    console.error("[Brevo] Email delivery log could not be written.", { bookingId, emailType });
   }
 }
 
-export async function sendConsultationEmails({ booking, notificationEmail }: SendEmailOptions) {
-  const portalUrl = process.env.NEXT_PUBLIC_ORDS_PORTAL_URL ?? "https://portal.ordsmusic.com";
-  const adminRecipient = notificationEmail || process.env.ORDS_DEFAULT_NOTIFICATION_EMAIL;
+async function recordResult(
+  bookingId: string,
+  emailType: EmailType,
+  recipients: string[],
+  result: BrevoSendResult,
+) {
+  const status = result.ok ? "sent" : result.reason === "invalid_configuration" ? "skipped" : "failed";
+  const errorMessage = result.ok ? undefined : `Brevo delivery failed: ${result.reason}.`;
 
-  const customer = customerConfirmationEmail(booking);
-  await sendResendEmail("customer_confirmation", booking.customerEmail, customer.subject, customer.text, booking.bookingId);
+  await Promise.all(recipients.map((recipient) => logEmailAttempt(
+    bookingId,
+    emailType,
+    recipient,
+    status,
+    result.ok ? result.messageId : undefined,
+    errorMessage,
+  )));
+}
 
-  if (!adminRecipient) {
-    await logEmailAttempt(booking.bookingId, "admin_notification", "not-configured", "skipped", undefined, "Notification email is not configured.");
-    return;
+async function sendCustomerConfirmation(booking: SendEmailOptions["booking"], bookingDate: string, bookingTime: string) {
+  const { firstName } = splitFullName(booking.customerName);
+  const result = await sendBrevoTemplate({
+    params: {
+      booking_date: bookingDate,
+      booking_time: bookingTime,
+      first_name: firstName,
+    },
+    recipients: [{ email: booking.customerEmail, name: booking.customerName }],
+    templateId: process.env.BREVO_BOOKING_CONFIRMATION_TEMPLATE_ID,
+  });
+
+  await recordResult(booking.bookingId, "customer_confirmation", [booking.customerEmail], result);
+  if (result.ok) {
+    console.info("[Brevo] Customer confirmation sent", { bookingId: booking.bookingId });
+  } else {
+    console.error("[Brevo] Customer confirmation failed", { bookingId: booking.bookingId, reason: result.reason });
   }
+}
 
-  const admin = adminNotificationEmail(booking, portalUrl);
-  await sendResendEmail("admin_notification", adminRecipient, admin.subject, admin.text, booking.bookingId);
+async function sendAdminNotification(booking: SendEmailOptions["booking"], bookingDate: string, bookingTime: string) {
+  const recipients = [process.env.ORDS_ADMIN_EMAIL, process.env.ORDS_SECONDARY_ADMIN_EMAIL]
+    .map((recipient) => recipient?.trim() ?? "")
+    .filter(Boolean);
+  const { firstName, lastName } = splitFullName(booking.customerName);
+  const result = await sendBrevoTemplate({
+    params: {
+      booking_date: bookingDate,
+      booking_time: bookingTime,
+      email: booking.customerEmail,
+      first_name: firstName,
+      last_name: lastName,
+      phone: booking.customerPhone,
+      source: "Website Booking",
+    },
+    recipients,
+    templateId: process.env.BREVO_ADMIN_BOOKING_TEMPLATE_ID,
+  });
+
+  await recordResult(booking.bookingId, "admin_notification", recipients.length ? recipients : ["not-configured"], result);
+  if (result.ok) {
+    console.info("[Brevo] Admin notification sent", { bookingId: booking.bookingId, recipientCount: recipients.length });
+  } else {
+    console.error("[Brevo] Admin notification failed", { bookingId: booking.bookingId, reason: result.reason });
+  }
+}
+
+export async function sendConsultationEmails({ booking }: SendEmailOptions) {
+  try {
+    const bookingDate = formatBookingDate(booking.startTime, booking.timezone);
+    const bookingTime = formatBookingTime(booking.startTime, booking.timezone);
+
+    await Promise.all([
+      sendCustomerConfirmation(booking, bookingDate, bookingTime),
+      sendAdminNotification(booking, bookingDate, bookingTime),
+    ]);
+  } catch {
+    console.error("[Brevo] Booking email processing failed safely.", { bookingId: booking.bookingId });
+  }
 }
