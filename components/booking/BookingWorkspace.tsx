@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useMemo, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   addAvailabilityAction,
@@ -226,6 +227,7 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
           <p>{isAdmin
             ? "Configure the academy once, then create conflict-checked lessons and approve every room assignment before it reaches the confirmed calendar."
             : "Publish your teaching windows, block unavailable dates, and schedule assigned students. Every room request stays pending until owner approval."}</p>
+          {isAdmin && <Link className="inline-btn booking-consultation-link" href="/admin/consultations">Manage Consultation Calendar</Link>}
           <div className="metric-row">
             <div><strong>{upcomingLessons.length}</strong><span>Upcoming lessons</span></div>
             <div><strong>{pendingApprovals.length}</strong><span>Pending approvals</span></div>

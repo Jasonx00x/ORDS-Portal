@@ -1,13 +1,22 @@
 import Link from "next/link";
 import { requirePortalUser } from "@/lib/auth";
-import { loadConsultationData, type ConsultationRecord } from "@/lib/consultations/admin-data";
+import {
+  loadConsultationAvailabilityData,
+  loadConsultationData,
+  loadConsultationSettings,
+  type ConsultationRecord,
+} from "@/lib/consultations/admin-data";
+import { ConsultationAvailabilityManager } from "./ConsultationAvailabilityManager";
 import { ConsultationRecords } from "./ConsultationRecords";
+import { ConsultationSettingsForm } from "./ConsultationSettingsForm";
 
 type AdminView = "availability" | "consultations" | "settings";
 
 export async function ConsultationAdminPage({ view }: { view: AdminView }) {
   await requirePortalUser("login-records");
   const consultationData = view === "consultations" ? await loadConsultationData() : null;
+  const availabilityData = view === "availability" ? await loadConsultationAvailabilityData() : null;
+  const settingsData = view === "settings" ? await loadConsultationSettings() : null;
 
   return (
     <main className="consultation-admin-shell">
@@ -18,6 +27,7 @@ export async function ConsultationAdminPage({ view }: { view: AdminView }) {
           <p>Manage consultation requests, availability, blocked dates, and booking settings from one workspace.</p>
         </div>
         <nav>
+          <Link href="/booking">Portal Calendar</Link>
           <Link className={view === "consultations" ? "active" : ""} href="/admin/consultations">Consultations</Link>
           <Link className={view === "availability" ? "active" : ""} href="/admin/consultations/availability">Availability</Link>
           <Link className={view === "settings" ? "active" : ""} href="/admin/consultations/settings">Settings</Link>
@@ -25,8 +35,18 @@ export async function ConsultationAdminPage({ view }: { view: AdminView }) {
       </section>
 
       {view === "consultations" && consultationData && <ConsultationsView {...consultationData} />}
-      {view === "availability" && <AvailabilityView />}
-      {view === "settings" && <SettingsView />}
+      {view === "availability" && availabilityData && (
+        <>
+          {availabilityData.loadError && <p className="consultation-error">Consultation availability could not be loaded. Please refresh and try again.</p>}
+          {!availabilityData.loadError && <ConsultationAvailabilityManager availability={availabilityData.availability} blockedPeriods={availabilityData.blockedPeriods} />}
+        </>
+      )}
+      {view === "settings" && settingsData && (
+        <>
+          {settingsData.loadError && <p className="consultation-error">Consultation settings could not be loaded. Please refresh and try again.</p>}
+          {!settingsData.loadError && <ConsultationSettingsForm settings={settingsData.settings} />}
+        </>
+      )}
     </main>
   );
 }
@@ -73,48 +93,5 @@ function ConsultationsView({
         {!loadError && <ConsultationRecords records={records} />}
       </section>
     </>
-  );
-}
-
-function AvailabilityView() {
-  return (
-    <div className="portal-grid two-grid">
-      <section className="portal-panel">
-        <div className="panel-kicker">Weekly Availability</div>
-        <h3>Consultation hours</h3>
-        <div className="availability-admin-grid">
-          {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((item) => <label key={item}><input type="checkbox" /> {item} available</label>)}
-        </div>
-      </section>
-      <section className="portal-panel">
-        <div className="panel-kicker">Blocked Dates</div>
-        <h3>Vacation and unavailable dates</h3>
-        <label className="portal-field">Start date<input type="date" /></label>
-        <label className="portal-field">End date<input type="date" /></label>
-        <label className="portal-field">Reason<textarea placeholder="Reason for blocking these dates" /></label>
-        <button className="inline-btn" type="button">Add Blocked Period</button>
-      </section>
-    </div>
-  );
-}
-
-function SettingsView() {
-  return (
-    <div className="portal-grid two-grid">
-      <section className="portal-panel">
-        <div className="panel-kicker">Booking Settings</div>
-        <h3>Consultation controls</h3>
-        <label className="portal-field">Bookings enabled<select defaultValue="true"><option value="true">Enabled</option><option value="false">Paused</option></select></label>
-        <label className="portal-field">Minimum notice hours<input defaultValue="24" type="number" /></label>
-        <label className="portal-field">Maximum advance days<input defaultValue="30" type="number" /></label>
-      </section>
-      <section className="portal-panel">
-        <div className="panel-kicker">Email Setup</div>
-        <h3>Notification settings</h3>
-        <label className="portal-field">Notification email<input placeholder="owner@example.com" /></label>
-        <label className="portal-field">Reply-to email<input placeholder="owner@example.com" /></label>
-        <label className="portal-field">Meeting details<textarea defaultValue="ORDS Music School will confirm whether the consultation is in person or by phone." /></label>
-      </section>
-    </div>
   );
 }

@@ -2,7 +2,9 @@ preview-server.*.log
 .DS_Store
 node_modules/
 .next/
+.netlify/
 out/
 .env.local
+supabase/.temp/
 npm-debug.log*
 *.tsbuildinfo

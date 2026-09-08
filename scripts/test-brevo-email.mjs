@@ -40,6 +40,24 @@ test("sends a Brevo template to normalized unique recipients", async () => {
   });
 });
 
+test("uses an explicitly supplied server API key", async () => {
+  let request;
+  globalThis.fetch = async (url, init) => {
+    request = { init, url };
+    return Response.json({ messageId: "scheduled-message-id" });
+  };
+
+  const result = await sendBrevoTemplate({
+    apiKey: "scheduled-function-key",
+    params: { booking_reference: "ORDS-TEST" },
+    recipients: ["person@example.com"],
+    templateId: 44,
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(request.init.headers["api-key"], "scheduled-function-key");
+});
+
 test("fails safely when Brevo configuration is incomplete", async () => {
   delete process.env.BREVO_API_KEY;
   let called = false;

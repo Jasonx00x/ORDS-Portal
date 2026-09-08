@@ -4,6 +4,8 @@ const migration = readFileSync("supabase/migrations/202607140001_create_consulta
 const calendarMigration = readFileSync("supabase/migrations/20260730131428_add_consultation_calendar_dates.sql", "utf8");
 const hardenedRpcMigration = readFileSync("supabase/migrations/20260827193000_harden_consultation_rpc_access.sql", "utf8");
 const brevoMigration = readFileSync("supabase/migrations/20260903204121_add_brevo_booking_metadata.sql", "utf8");
+const reminderMigration = readFileSync("supabase/migrations/20260908192306_add_consultation_reminders.sql", "utf8");
+const reminderFunction = readFileSync("netlify/functions/consultation-reminders.ts", "utf8");
 const bookingRoute = readFileSync("app/api/consultations/book/route.ts", "utf8");
 const datesRoute = readFileSync("app/api/consultations/dates/route.ts", "utf8");
 const inviteFunction = readFileSync("supabase/functions/invite-portal-user/index.ts", "utf8");
@@ -20,6 +22,7 @@ const brevo = readFileSync("lib/consultations/brevo.ts", "utf8");
 const emailService = readFileSync("lib/consultations/email-service.ts", "utf8");
 const adminPage = readFileSync("components/consultations/ConsultationAdminPage.tsx", "utf8");
 const adminData = readFileSync("lib/consultations/admin-data.ts", "utf8");
+const adminActions = readFileSync("app/admin/consultations/actions.ts", "utf8");
 
 const checks = [
   ["RLS enabled for bookings", /alter table public\.consultation_bookings enable row level security/i.test(migration)],
@@ -38,8 +41,15 @@ const checks = [
   ["Brevo helper supports template params and multiple recipients", /templateId/.test(brevo) && /params/.test(brevo) && /recipients/.test(brevo)],
   ["Customer and both admin template settings are used", /BREVO_BOOKING_CONFIRMATION_TEMPLATE_ID/.test(emailService) && /BREVO_ADMIN_BOOKING_TEMPLATE_ID/.test(emailService) && /ORDS_ADMIN_EMAIL/.test(emailService) && /ORDS_SECONDARY_ADMIN_EMAIL/.test(emailService)],
   ["Brevo delivery logs cover customer and admin outcomes", /\[Brevo\] Customer confirmation sent/.test(emailService) && /\[Brevo\] Customer confirmation failed/.test(emailService) && /\[Brevo\] Admin notification sent/.test(emailService) && /\[Brevo\] Admin notification failed/.test(emailService)],
+  ["Reminder deliveries are claimed atomically", /for update of d skip locked/i.test(reminderMigration) && /claim_token/i.test(reminderMigration)],
+  ["Reminder RPCs are restricted to the service role", /claim_due_consultation_reminders[\s\S]*from public, anon, authenticated/i.test(reminderMigration) && /complete_consultation_reminder_delivery[\s\S]*to service_role/i.test(reminderMigration)],
+  ["Two-hour reminder worker runs every five minutes", /schedule: "\*\/5 \* \* \* \*"/.test(reminderFunction) && /interval '2 hours'/i.test(reminderMigration)],
+  ["Reminder worker includes customer and both admin recipients", /ORDS_ADMIN_EMAIL/.test(reminderFunction) && /ORDS_SECONDARY_ADMIN_EMAIL/.test(reminderFunction) && /audience === "customer"/.test(reminderFunction)],
+  ["Reminder worker uses dedicated Brevo templates", /BREVO_CUSTOMER_REMINDER_TEMPLATE_ID/.test(reminderFunction) && /BREVO_ADMIN_REMINDER_TEMPLATE_ID/.test(reminderFunction)],
   ["Booking source migration is non-destructive", /add column if not exists source/i.test(brevoMigration) && /Website Booking/.test(brevoMigration) && /provider set default 'brevo'/i.test(brevoMigration)],
   ["Admin consultation view loads real booking records", /loadConsultationData/.test(adminPage) && /from\("consultation_bookings"\)/.test(adminData) && /source,created_at/.test(adminData)],
+  ["Admin consultation availability is database-backed", /consultation_availability/.test(adminActions) && /consultation_blocked_dates/.test(adminActions) && /loadConsultationAvailabilityData/.test(adminPage)],
+  ["Admin consultation settings are database-backed", /consultation_settings/.test(adminActions) && /loadConsultationSettings/.test(adminPage)],
   ["Email log RPC is server-only", /revoke all on function public\.log_consultation_email_attempt[\s\S]*from public/i.test(migration) && /grant execute on function public\.log_consultation_email_attempt[\s\S]*to service_role/i.test(migration)],
   ["Honeypot is present", /companyWebsite/i.test(publicPage) && /honeypot/i.test(validation)],
   ["Embed-ready calendar is present", /FullCalendar/.test(publicPage) && /consultation-embedded/.test(publicPage)],

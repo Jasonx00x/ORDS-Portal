@@ -26,6 +26,8 @@ https://ords-portal.netlify.app/book-consultation
 - RLS enabled on every consultation table.
 - Brevo template email delivery that never rolls back a valid booking.
 - Live admin consultation records protected by Supabase Auth and RLS.
+- Database-backed admin controls for weekly consultation hours, holiday blocks, and booking settings.
+- Idempotent two-hour Brevo reminders for the customer and both configured ORDS administrators.
 
 ## Routes
 
@@ -43,6 +45,7 @@ https://ords-portal.netlify.app/book-consultation
 - `consultation_blocked_dates`
 - `consultation_bookings`
 - `consultation_email_logs`
+- `consultation_reminder_deliveries`
 
 ## Indexes And Constraints
 
@@ -64,6 +67,8 @@ https://ords-portal.netlify.app/book-consultation
 - `log_consultation_email_attempt(...)`
 - `make_consultation_reference()`
 - `touch_updated_at()`
+- `claim_due_consultation_reminders(text[], integer)`
+- `complete_consultation_reminder_delivery(uuid, uuid, boolean, text, text)`
 
 ## RLS
 
@@ -94,6 +99,8 @@ Server-only:
 - `BREVO_API_KEY`
 - `BREVO_BOOKING_CONFIRMATION_TEMPLATE_ID`
 - `BREVO_ADMIN_BOOKING_TEMPLATE_ID`
+- `BREVO_CUSTOMER_REMINDER_TEMPLATE_ID`
+- `BREVO_ADMIN_REMINDER_TEMPLATE_ID`
 - `ORDS_ADMIN_EMAIL`
 - `ORDS_SECONDARY_ADMIN_EMAIL`
 
@@ -137,7 +144,7 @@ The ORDS owner/admin edits weekly availability from:
 /admin/consultations/availability
 ```
 
-Production note: the UI preview exists now, but write operations require Supabase Auth admin wiring before launch.
+Weekly hours, holiday blocks, vacation periods, and public booking settings are saved from these protected admin pages. Changes take effect on the public calendar immediately.
 
 The owner/admin can pause bookings by setting `bookings_enabled` to `false` in `consultation_settings`.
 
@@ -153,10 +160,12 @@ Admin notifications use the two server-only ORDS admin email variables. The data
 2. Activate both templates in Brevo.
 3. Confirm the customer template uses `first_name`, `booking_date`, and `booking_time` params.
 4. Confirm the admin template uses `first_name`, `last_name`, `email`, `phone`, `booking_date`, `booking_time`, and `source` params.
-5. Add all five Brevo/admin environment variables to Netlify with runtime scope.
+5. Add the Brevo template, API key, and admin-recipient environment variables to Netlify with runtime scope.
 6. Redeploy, create a test booking, and review Brevo transactional logs.
 
 If Brevo is unavailable or misconfigured, the booking remains confirmed. The server logs a sanitized failure and records a failed or skipped delivery attempt when Supabase logging is available.
+
+The scheduled Netlify reminder worker runs every five minutes. Once a confirmed consultation enters the two-hour reminder window, it sends a dedicated reminder separately to the customer and each configured ORDS administrator. Per-recipient claim records prevent duplicate sends and allow failed deliveries to retry.
 
 ## Netlify
 

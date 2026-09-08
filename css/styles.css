@@ -1553,13 +1553,44 @@ section{padding:105px 0}.light{background:var(--soft);color:var(--ink)}.white{ba
   color:#334155;
 }
 .availability-admin-grid input{accent-color:#0a112b}
+.consultation-control-grid{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:18px}
+.consultation-admin-message{max-width:900px;margin:18px 0 0;padding:12px 14px;border:1px solid rgba(17,25,54,.1);border-radius:8px;background:#fff;color:#263047;font-weight:850}
+.consultation-control-grid>.portal-panel{min-width:0}
+.consultation-control-copy{color:#667086;line-height:1.55;margin:8px 0 18px}
+.consultation-admin-form{display:grid;grid-template-columns:1.1fr 1fr 1fr auto;gap:12px;align-items:end}
+.consultation-admin-form .portal-field{margin:0}
+.consultation-admin-form .inline-btn{min-height:48px;margin:0}
+.consultation-rule-list{margin-top:18px}
+.consultation-form-wide{grid-column:span 2}
+.consultation-settings-form{display:grid;gap:18px;margin-top:18px}
+.consultation-settings-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.consultation-settings-grid .portal-field{margin:0}
+.consultation-settings-grid small{display:block;color:#778095;font-size:11px;line-height:1.35;margin-top:5px}
+.consultation-booking-toggle{margin:0;padding:14px;border:1px solid rgba(17,25,54,.1);border-radius:8px;background:#f7f9fc}
+.consultation-booking-toggle span{display:grid;gap:3px}
+.consultation-booking-toggle small{color:#667086;line-height:1.4}
+.consultation-reminder-status{align-self:start}
+.consultation-status-line{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid rgba(17,25,54,.08)}
+.consultation-status-line>span{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#e7f7ee;color:#14733b;font-size:10px;font-weight:950;flex:0 0 auto}
+.consultation-status-line div{display:grid;gap:3px}
+.consultation-status-line small{color:#667086;line-height:1.45}
+.consultation-reminder-status>p{color:#667086;line-height:1.55;margin:16px 0 0}
+.booking-consultation-link{display:inline-flex;margin:18px 0 0;width:max-content;max-width:100%}
 @media(max-width:900px){
   .consultation-admin-head{display:grid}
   .consultation-admin-head nav{justify-content:flex-start}
   .consultation-admin-table>div{grid-template-columns:1fr}
   .consultation-admin-table .table-head{display:none}
+  .consultation-control-grid{grid-template-columns:1fr}
+  .consultation-admin-form{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .consultation-settings-grid{grid-template-columns:1fr}
 }
-@media(max-width:560px){.consultation-admin-shell{padding:18px}.consultation-admin-head{padding:18px;border-radius:20px}}
+@media(max-width:560px){
+  .consultation-admin-shell{padding:18px}
+  .consultation-admin-head{padding:18px;border-radius:20px}
+  .consultation-admin-form{grid-template-columns:1fr}
+  .consultation-form-wide{grid-column:auto}
+}
 
 /* Final portal proportion and spacing pass */
 .ops-portal{background:#eef2f6}

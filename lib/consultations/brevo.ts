@@ -14,6 +14,7 @@ export type BrevoSendResult =
     };
 
 type SendBrevoTemplateOptions = {
+  apiKey?: string | null;
   params: Record<string, boolean | number | string | null>;
   recipients: Array<BrevoRecipient | string | null | undefined>;
   templateId: number | string | null | undefined;
@@ -42,11 +43,12 @@ function normalizedRecipients(recipients: SendBrevoTemplateOptions["recipients"]
 }
 
 export async function sendBrevoTemplate({
+  apiKey: suppliedApiKey,
   params,
   recipients,
   templateId,
 }: SendBrevoTemplateOptions): Promise<BrevoSendResult> {
-  const apiKey = process.env.BREVO_API_KEY?.trim();
+  const apiKey = suppliedApiKey?.trim() || process.env.BREVO_API_KEY?.trim();
   const validTemplateId = normalizedTemplateId(templateId);
   const validRecipients = normalizedRecipients(recipients);
 
