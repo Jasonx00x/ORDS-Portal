@@ -5,6 +5,7 @@ import { getSupabaseConfig } from "@/lib/supabase-config";
 const publicPaths = [
   "/access-pending",
   "/auth",
+  "/book",
   "/book-consultation",
   "/booking-embed.js",
   "/forgot-password",
@@ -15,6 +16,7 @@ function isPublicPath(pathname: string) {
   return (
     publicPaths.some((path) => pathname === path || pathname.startsWith(`${path}/`)) ||
     pathname.startsWith("/api/consultations/") ||
+    pathname.startsWith("/api/public-booking/") ||
     pathname === "/api/supabase/status"
   );
 }

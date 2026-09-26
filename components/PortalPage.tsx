@@ -2,8 +2,9 @@ import { PortalShell } from "./PortalShell";
 import { requirePortalUser } from "@/lib/auth";
 import { loadBookingWorkspace } from "@/lib/booking/queries";
 import type { PortalSection } from "@/lib/roles";
+import type { BookingView } from "@/components/booking/BookingSectionNav";
 
-export async function PortalPage({ section }: { section: PortalSection }) {
+export async function PortalPage({ bookingView = "overview", section }: { bookingView?: BookingView; section: PortalSection }) {
   const user = await requirePortalUser(section);
   const bookingSections: PortalSection[] = [
     "booking",
@@ -20,5 +21,5 @@ export async function PortalPage({ section }: { section: PortalSection }) {
     ? await loadBookingWorkspace(user)
     : undefined;
 
-  return <PortalShell bookingData={bookingData} section={section} user={user} />;
+  return <PortalShell bookingData={bookingData} bookingView={bookingView} section={section} user={user} />;
 }

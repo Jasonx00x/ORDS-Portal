@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start -H 127.0.0.1 -p 3000",
     "test:booking-time": "node --experimental-strip-types scripts/test-booking-time.mjs",
+    "test:calendars": "node scripts/test-custom-calendars.mjs",
     "test:consultations": "node scripts/test-consultation-contract.mjs && node --experimental-strip-types --test scripts/test-brevo-email.mjs",
     "validate:portal": "node scripts/validate-phase1.mjs"
   },
@@ -20,7 +21,8 @@
     "@netlify/functions": "6.0.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.4",
-    "next": "^16.2.9",
+    "lucide-react": "^1.48.0",
+    "next": "16.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

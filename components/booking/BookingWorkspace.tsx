@@ -4,6 +4,15 @@ import { type FormEvent, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ArrowRight,
+  CalendarDays,
+  CalendarRange,
+  CheckSquare2,
+  Clock3,
+  DoorOpen,
+  UsersRound,
+} from "lucide-react";
+import {
   addAvailabilityAction,
   addRoomAction,
   addStudentAction,
@@ -17,7 +26,7 @@ import {
   type BookingActionResult,
 } from "@/app/booking/actions";
 import { BookingCalendar } from "@/components/booking/BookingCalendar";
-import { BookingEmbedBuilder } from "@/components/booking/BookingEmbedBuilder";
+import { BookingPageLayout, type BookingView } from "@/components/booking/BookingSectionNav";
 import type { BookingAssignment, BookingLesson, BookingWorkspaceData } from "@/lib/booking/types";
 import type { Role } from "@/lib/roles";
 
@@ -29,6 +38,7 @@ type BookingWorkspaceProps = {
   notify: (message: string) => void;
   role: Role;
   userId: string;
+  view?: BookingView;
 };
 
 function formatTime(value: string) {
@@ -83,7 +93,37 @@ function EmptyState({ children }: { children: React.ReactNode }) {
   return <div className="booking-empty">{children}</div>;
 }
 
-export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspaceProps) {
+function ViewHeader({ body, kicker, title }: { body: string; kicker: string; title: string }) {
+  return (
+    <header className="booking-view-header">
+      <div><span className="panel-kicker">{kicker}</span><h2>{title}</h2><p>{body}</p></div>
+    </header>
+  );
+}
+
+function HubLink({
+  detail,
+  href,
+  icon: Icon,
+  label,
+  value,
+}: {
+  detail: string;
+  href: string;
+  icon: typeof CalendarDays;
+  label: string;
+  value: string;
+}) {
+  return (
+    <Link className="booking-hub-link" href={href}>
+      <span className="booking-hub-icon"><Icon aria-hidden="true" size={21} strokeWidth={1.8} /></span>
+      <span className="booking-hub-copy"><small>{label}</small><strong>{value}</strong><span>{detail}</span></span>
+      <ArrowRight aria-hidden="true" size={18} />
+    </Link>
+  );
+}
+
+export function BookingWorkspace({ data, notify, role, userId, view = "overview" }: BookingWorkspaceProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [decisionNotes, setDecisionNotes] = useState<Record<string, string>>({});
@@ -93,7 +133,6 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
 
   const instructorById = useMemo(() => new Map(data.instructors.map((item) => [item.id, item])), [data.instructors]);
   const studentById = useMemo(() => new Map(data.students.map((item) => [item.id, item])), [data.students]);
-  const roomById = useMemo(() => new Map(data.rooms.map((item) => [item.id, item])), [data.rooms]);
   const lessonById = useMemo(() => new Map(data.lessons.map((item) => [item.id, item])), [data.lessons]);
   const visibleAvailability = isInstructor
     ? data.availability.filter((item) => item.instructorProfileId === userId)
@@ -219,244 +258,177 @@ export function BookingWorkspace({ data, notify, role, userId }: BookingWorkspac
   }
 
   return (
-    <>
-      <div className="portal-grid booking-hero-grid">
-        <article className="portal-panel hero-panel ops-hero booking-live-hero">
-          <div className="panel-kicker">{isAdmin ? "Booking Operations" : "Instructor Scheduling"}</div>
-          <h2>{isAdmin ? "Build the live ORDS lesson calendar." : "Manage your real teaching schedule."}</h2>
-          <p>{isAdmin
-            ? "Configure the academy once, then create conflict-checked lessons and approve every room assignment before it reaches the confirmed calendar."
-            : "Publish your teaching windows, block unavailable dates, and schedule assigned students. Every room request stays pending until owner approval."}</p>
-          {isAdmin && <Link className="inline-btn booking-consultation-link" href="/admin/consultations">Manage Consultation Calendar</Link>}
-          <div className="metric-row">
-            <div><strong>{upcomingLessons.length}</strong><span>Upcoming lessons</span></div>
-            <div><strong>{pendingApprovals.length}</strong><span>Pending approvals</span></div>
-            <div>
-              <strong>{isAdmin ? upcomingConsultations.length : activeRooms.length}</strong>
-              <span>{isAdmin ? "Website consultations" : "Active rooms"}</span>
-            </div>
-          </div>
-        </article>
-        <BookingCard kicker="System Status" title={isAdmin ? `${completedSetup} of ${setupItems.length} setup steps complete` : "Scheduling safeguards active"}>
-          <div className="booking-setup-list">
-            {isAdmin ? setupItems.map((item) => (
-              <div className={item.complete ? "complete" : ""} key={item.label}>
-                <span aria-hidden="true">{item.complete ? "OK" : ""}</span>
-                <strong>{item.label}</strong>
-                <small>{item.complete ? "Ready" : "Needs setup"}</small>
-              </div>
-            )) : (
-              <>
-                <div className="complete"><span aria-hidden="true">OK</span><strong>Room collision checks</strong><small>Active</small></div>
-                <div className="complete"><span aria-hidden="true">OK</span><strong>Owner approval</strong><small>Required</small></div>
-                <div className="complete"><span aria-hidden="true">OK</span><strong>Assigned students only</strong><small>Enforced</small></div>
-              </>
-            )}
-          </div>
-        </BookingCard>
-      </div>
-
-      <BookingCalendar data={data} notify={notify} role={role} userId={userId} />
-
-      {isAdmin && (
+    <BookingPageLayout role={role}>
+      {view === "overview" && (
         <>
+          <div className="portal-grid booking-hero-grid booking-overview-hero">
+            <article className="portal-panel hero-panel ops-hero booking-live-hero">
+              <div className="panel-kicker">{isAdmin ? "Booking Operations" : "Instructor Scheduling"}</div>
+              <h2>{isAdmin ? "Every schedule, room, and booking in one place." : "Your teaching schedule, organized."}</h2>
+              <p>{isAdmin
+                ? "Use each workspace below for one clear job. Lesson operations stay separate from public meeting calendars, while shared conflict checks protect every host’s time."
+                : "Open the calendar to schedule assigned students, update your availability, and follow room approval status without digging through setup controls."}</p>
+              <div className="metric-row">
+                <div><strong>{upcomingLessons.length}</strong><span>Upcoming lessons</span></div>
+                <div><strong>{pendingApprovals.length}</strong><span>Pending approvals</span></div>
+                <div><strong>{isAdmin ? upcomingConsultations.length : activeRooms.length}</strong><span>{isAdmin ? "Consultations" : "Active rooms"}</span></div>
+              </div>
+            </article>
+            <BookingCard kicker="System Status" title={isAdmin ? `${completedSetup} of ${setupItems.length} setup areas ready` : "Scheduling safeguards active"}>
+              <div className="booking-setup-list">
+                {isAdmin ? setupItems.map((item) => (
+                  <div className={item.complete ? "complete" : ""} key={item.label}>
+                    <span aria-hidden="true">{item.complete ? "OK" : ""}</span><strong>{item.label}</strong><small>{item.complete ? "Ready" : "Needs setup"}</small>
+                  </div>
+                )) : (
+                  <>
+                    <div className="complete"><span aria-hidden="true">OK</span><strong>Conflict checks</strong><small>Active</small></div>
+                    <div className="complete"><span aria-hidden="true">OK</span><strong>Room approval</strong><small>Required</small></div>
+                    <div className="complete"><span aria-hidden="true">OK</span><strong>Assigned students</strong><small>Enforced</small></div>
+                  </>
+                )}
+              </div>
+            </BookingCard>
+          </div>
+          <section className="booking-hub-grid" aria-label="Booking workspaces">
+            <HubLink detail="Create and review lessons on the live schedule." href="/booking/calendar" icon={CalendarDays} label="Schedule" value={isAdmin ? "Master calendar" : "Teaching calendar"} />
+            {isAdmin && <HubLink detail="Invite instructors, add students, and connect assignments." href="/booking/people" icon={UsersRound} label="Roster" value={`${data.instructors.length} instructors · ${data.students.length} students`} />}
+            <HubLink detail="Set recurring teaching windows and block time off." href="/booking/availability" icon={Clock3} label="Availability" value={`${visibleAvailability.length} active windows`} />
+            <HubLink detail="Manage rooms and review requests that need a decision." href="/booking/rooms" icon={DoorOpen} label="Spaces" value={`${activeRooms.length} rooms · ${pendingApprovals.length} pending`} />
+            {isAdmin && <HubLink detail="Create dedicated public links for consultations, interviews, and meetings." href="/booking/calendars" icon={CalendarRange} label="Public Booking" value="Meeting calendars" />}
+            <HubLink detail="Scan upcoming and pending lesson records in a clean list." href="/booking/lessons" icon={CheckSquare2} label="Records" value={`${upcomingLessons.length} upcoming lessons`} />
+          </section>
+        </>
+      )}
+
+      {view === "calendar" && (
+        <>
+          <ViewHeader kicker="Live Schedule" title={isAdmin ? "Master lesson calendar" : "Teaching calendar"} body="Select an open time to create a lesson or block unavailable time. All room, instructor, and student conflicts are checked before the record is saved." />
+          <BookingCalendar data={data} notify={notify} role={role} userId={userId} />
+        </>
+      )}
+
+      {view === "people" && isAdmin && (
+        <>
+          <ViewHeader kicker="People & Assignments" title="Build the teaching roster" body="Instructor access, contracted students, and teaching assignments are grouped here so roster setup stays out of the calendar." />
           <div className="portal-grid booking-instructor-section">
-            <BookingCard kicker="Instructor Accounts" title="Invite and manage instructors" body="Each instructor receives a private account invitation and creates their own password.">
+            <BookingCard kicker="Instructor Accounts" title="Invite instructors" body="Each instructor receives a private account invitation and creates their own password.">
               <form className="setup-form-grid booking-form booking-instructor-form" onSubmit={submitInstructor}>
                 <label className="portal-field">Full name<input autoComplete="name" name="displayName" required /></label>
                 <label className="portal-field">Email<input autoComplete="email" name="email" required type="email" /></label>
                 <label className="portal-field">Phone <span className="optional-label">optional</span><input autoComplete="tel" name="phone" type="tel" /></label>
-                <button className="inline-btn booking-form-button" disabled={isPending} type="submit">
-                  {isPending ? "Working..." : "Send Invitation"}
-                </button>
+                <button className="inline-btn booking-form-button" disabled={isPending} type="submit">{isPending ? "Working..." : "Send Invitation"}</button>
               </form>
               {data.instructors.length === 0 ? <EmptyState>No instructors have been invited yet.</EmptyState> : (
-                <div className="booking-record-list">
-                  {data.instructors.map((instructor) => (
-                    <div className="booking-record" key={instructor.id}>
-                      <div><strong>{instructor.displayName}</strong><span>Instructor account</span></div>
-                      <b className={`booking-status status-${instructor.inviteStatus}`}>{statusLabel(instructor.inviteStatus)}</b>
-                    </div>
-                  ))}
-                </div>
+                <div className="booking-record-list">{data.instructors.map((instructor) => (
+                  <div className="booking-record" key={instructor.id}><div><strong>{instructor.displayName}</strong><span>Instructor account</span></div><b className={`booking-status status-${instructor.inviteStatus}`}>{statusLabel(instructor.inviteStatus)}</b></div>
+                ))}</div>
               )}
             </BookingCard>
           </div>
-          <div className="portal-grid booking-embed-section">
-            <BookingEmbedBuilder notify={notify} upcomingCount={upcomingConsultations.length} />
+          <div className="portal-grid booking-admin-grid">
+            <BookingCard kicker="Student Roster" title="Add contracted students" body="Add students only after ORDS approves the family contract. Portal login access can be invited separately.">
+              <form className="setup-form-grid booking-form" onSubmit={submitStudent}>
+                <label className="portal-field">Student name<input name="displayName" required /></label>
+                <label className="portal-field">Primary program<input name="primaryProgram" placeholder="Piano, Drums, Vocals..." required /></label>
+                <button className="inline-btn booking-form-button" disabled={isPending} type="submit">Add Student</button>
+              </form>
+              {data.students.length === 0 ? <EmptyState>No contracted students have been added.</EmptyState> : (
+                <div className="booking-record-list">{data.students.map((student) => (
+                  <div className="booking-record" key={student.id}><div><strong>{student.displayName}</strong><span>{student.primaryProgram}</span></div><b className={`booking-status status-${student.status}`}>{statusLabel(student.status)}</b></div>
+                ))}</div>
+              )}
+            </BookingCard>
+            <BookingCard kicker="Instructor Assignment" title="Connect students to teachers" body={data.instructors.length === 0 ? "Invite an instructor account first." : "A student must be assigned before that instructor can create a lesson."}>
+              <form className="setup-form-grid booking-form" onSubmit={submitAssignment}>
+                <label className="portal-field">Student<select name="studentId" required defaultValue=""><option value="" disabled>Select student</option>{data.students.map((student) => <option key={student.id} value={student.id}>{student.displayName}</option>)}</select></label>
+                <label className="portal-field">Instructor<select name="instructorProfileId" required defaultValue=""><option value="" disabled>Select instructor</option>{data.instructors.map((instructor) => <option key={instructor.id} value={instructor.id}>{instructor.displayName}</option>)}</select></label>
+                <label className="portal-field">Program<input name="program" placeholder="Match the student program" required /></label>
+                <button className="inline-btn booking-form-button" disabled={isPending || data.students.length === 0 || data.instructors.length === 0} type="submit">Assign Instructor</button>
+              </form>
+              {data.assignments.length === 0 ? <EmptyState>No instructor assignments yet.</EmptyState> : (
+                <div className="booking-record-list">{data.assignments.map((assignment) => (
+                  <div className="booking-record" key={assignmentKey(assignment)}><div><strong>{studentById.get(assignment.studentId)?.displayName ?? "Student"}</strong><span>{assignment.program}</span></div><span>{instructorById.get(assignment.instructorProfileId)?.displayName ?? "Instructor"}</span></div>
+                ))}</div>
+              )}
+            </BookingCard>
           </div>
         </>
       )}
 
-      {isAdmin && (
-        <div className="portal-grid booking-admin-grid">
-          <BookingCard kicker="Rooms" title="Academy rooms" body="Pause a room to remove it from new lesson requests. Existing records stay intact.">
-            <div className="room-card-grid live-room-grid">
-              {data.rooms.map((room) => (
-                <article className={`room-card ${room.isActive ? "room-open" : "room-blocked"}`} key={room.id}>
-                  <strong>{room.name}</strong>
-                  <span>{room.bestFor}</span>
-                  <small>{room.requiresOwnerApproval ? "Owner approval required" : "No approval required"}</small>
-                  <button
-                    className="booking-text-button"
-                    disabled={isPending}
-                    onClick={() => run(() => setRoomStatusAction({ id: room.id, isActive: !room.isActive }))}
-                    type="button"
-                  >
-                    {room.isActive ? "Pause room" : "Activate room"}
-                  </button>
-                </article>
-              ))}
-            </div>
-            <form className="booking-inline-form" onSubmit={submitRoom}>
-              <label className="portal-field">Room name<input name="name" placeholder="New room" required /></label>
-              <label className="portal-field">Best for<input name="bestFor" placeholder="Lessons or room use" required /></label>
-              <button className="inline-btn" disabled={isPending} type="submit">Add Room</button>
-            </form>
-          </BookingCard>
-
-          <BookingCard kicker="Operating Hours" title="School hours" body="Lesson requests must fit completely inside an enabled day.">
-            <form className="setup-form-grid booking-form" onSubmit={submitHours}>
-              <label className="portal-field">Day<select name="dayOfWeek" defaultValue="1">{dayNames.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label>
-              <label className="portal-field">Opens<input name="opensAt" type="time" defaultValue="15:00" required /></label>
-              <label className="portal-field">Closes<input name="closesAt" type="time" defaultValue="21:00" required /></label>
-              <button className="inline-btn booking-form-button" disabled={isPending} type="submit">Save Day</button>
-            </form>
-            {data.schoolHours.length === 0 ? (
-              <EmptyState>Add at least one school day before instructor availability can be saved.</EmptyState>
-            ) : (
-              <div className="booking-hours-grid">
-                {data.schoolHours.map((hour) => (
-                  <div key={hour.id}>
-                    <strong>{shortDayNames[hour.dayOfWeek]}</strong>
-                    <span>{hour.isEnabled ? `${formatTime(hour.opensAt)} - ${formatTime(hour.closesAt)}` : "Closed"}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </BookingCard>
-        </div>
+      {view === "availability" && (
+        <>
+          <ViewHeader kicker="Availability" title={isAdmin ? "School and instructor hours" : "Your teaching availability"} body="Keep recurring hours and exceptions together. Time off always overrides a weekly availability window." />
+          {isAdmin && (
+            <BookingCard kicker="Operating Hours" title="School hours" body="Lesson requests must fit completely inside an enabled school day.">
+              <form className="setup-form-grid booking-form booking-row-form" onSubmit={submitHours}>
+                <label className="portal-field">Day<select name="dayOfWeek" defaultValue="1">{dayNames.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label>
+                <label className="portal-field">Opens<input name="opensAt" type="time" defaultValue="15:00" required /></label>
+                <label className="portal-field">Closes<input name="closesAt" type="time" defaultValue="21:00" required /></label>
+                <button className="inline-btn booking-form-button" disabled={isPending} type="submit">Save Day</button>
+              </form>
+              <div className="booking-hours-grid">{data.schoolHours.map((hour) => <div key={hour.id}><strong>{shortDayNames[hour.dayOfWeek]}</strong><span>{hour.isEnabled ? `${formatTime(hour.opensAt)} - ${formatTime(hour.closesAt)}` : "Closed"}</span></div>)}</div>
+            </BookingCard>
+          )}
+          <div className="portal-grid booking-admin-grid">
+            <BookingCard kicker="Weekly Availability" title={isAdmin ? "Instructor teaching windows" : "Your teaching windows"} body="Add more than one window when a teacher has a break during the day.">
+              <form className="setup-form-grid booking-form" onSubmit={submitAvailability}>
+                {isAdmin && <label className="portal-field">Instructor<select name="instructorProfileId" required defaultValue=""><option value="" disabled>Select instructor</option>{data.instructors.map((instructor) => <option key={instructor.id} value={instructor.id}>{instructor.displayName}</option>)}</select></label>}
+                <label className="portal-field">Day<select name="dayOfWeek" defaultValue="1">{dayNames.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label>
+                <label className="portal-field">Starts<input name="startsAt" type="time" defaultValue="16:00" required /></label>
+                <label className="portal-field">Ends<input name="endsAt" type="time" defaultValue="20:00" required /></label>
+                <button className="inline-btn booking-form-button" disabled={isPending || data.schoolHours.length === 0 || (isAdmin && data.instructors.length === 0)} type="submit">Add Availability</button>
+              </form>
+              {visibleAvailability.length === 0 ? <EmptyState>No teaching availability has been added.</EmptyState> : (
+                <div className="booking-record-list">{visibleAvailability.map((window) => (
+                  <div className="booking-record" key={window.id}><div><strong>{dayNames[window.dayOfWeek]}</strong><span>{formatTime(window.startsAt)} - {formatTime(window.endsAt)}</span></div>{isAdmin && <span>{instructorById.get(window.instructorProfileId)?.displayName ?? "Instructor"}</span>}<button className="booking-icon-button" disabled={isPending} onClick={() => run(() => deleteAvailabilityAction(window.id))} title="Remove availability" type="button" aria-label="Remove availability">×</button></div>
+                ))}</div>
+              )}
+            </BookingCard>
+            <BookingCard kicker="Time Off" title={isAdmin ? "Instructor unavailable periods" : "Your blocked time"} body="Add time off directly from the calendar. Manage existing exceptions here.">
+              {visibleUnavailability.length === 0 ? <EmptyState>No upcoming unavailable periods.</EmptyState> : (
+                <div className="booking-record-list">{visibleUnavailability.map((period) => (
+                  <div className="booking-record" key={period.id}><div><strong>{formatDateTime(period.startsAt)}</strong><span>Until {formatDateTime(period.endsAt)}{period.reason ? ` · ${period.reason}` : ""}</span></div><button className="booking-icon-button" disabled={isPending} onClick={() => run(() => deleteUnavailabilityAction(period.id))} title="Remove unavailable period" type="button" aria-label="Remove unavailable period">×</button></div>
+                ))}</div>
+              )}
+              <Link className="inline-btn ghost-btn booking-secondary-link" href="/booking/calendar">Block Time on Calendar</Link>
+            </BookingCard>
+          </div>
+        </>
       )}
 
-      {isAdmin && (
-        <div className="portal-grid booking-admin-grid">
-          <BookingCard kicker="Student Roster" title="Add contracted students" body="Use this only after ORDS has approved the family contract. Portal login access can be invited separately.">
-            <form className="setup-form-grid booking-form" onSubmit={submitStudent}>
-              <label className="portal-field">Student name<input name="displayName" required /></label>
-              <label className="portal-field">Primary program<input name="primaryProgram" placeholder="Piano, Drums, Vocals..." required /></label>
-              <button className="inline-btn booking-form-button" disabled={isPending} type="submit">Add Student</button>
-            </form>
-            {data.students.length === 0 ? <EmptyState>No contracted students have been added.</EmptyState> : (
-              <div className="booking-record-list">
-                {data.students.map((student) => (
-                  <div className="booking-record" key={student.id}>
-                    <div><strong>{student.displayName}</strong><span>{student.primaryProgram}</span></div>
-                    <b className={`booking-status status-${student.status}`}>{statusLabel(student.status)}</b>
-                  </div>
-                ))}
-              </div>
-            )}
-          </BookingCard>
-
-          <BookingCard kicker="Instructor Assignment" title="Connect students to teachers" body={data.instructors.length === 0 ? "Invite an instructor account first. The instructor will appear here automatically." : "A student must be assigned before that instructor can create a lesson."}>
-            <form className="setup-form-grid booking-form" onSubmit={submitAssignment}>
-              <label className="portal-field">Student<select name="studentId" required defaultValue=""><option value="" disabled>Select student</option>{data.students.map((student) => <option key={student.id} value={student.id}>{student.displayName}</option>)}</select></label>
-              <label className="portal-field">Instructor<select name="instructorProfileId" required defaultValue=""><option value="" disabled>Select instructor</option>{data.instructors.map((instructor) => <option key={instructor.id} value={instructor.id}>{instructor.displayName}</option>)}</select></label>
-              <label className="portal-field">Program<input name="program" placeholder="Match the student program" required /></label>
-              <button className="inline-btn booking-form-button" disabled={isPending || data.students.length === 0 || data.instructors.length === 0} type="submit">Assign Instructor</button>
-            </form>
-            {data.assignments.length === 0 ? <EmptyState>No instructor assignments yet.</EmptyState> : (
-              <div className="booking-record-list">
-                {data.assignments.map((assignment) => (
-                  <div className="booking-record" key={assignmentKey(assignment)}>
-                    <div><strong>{studentById.get(assignment.studentId)?.displayName ?? "Student"}</strong><span>{assignment.program}</span></div>
-                    <span>{instructorById.get(assignment.instructorProfileId)?.displayName ?? "Instructor"}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </BookingCard>
-        </div>
-      )}
-
-      <div className="portal-grid booking-admin-grid">
-        <BookingCard kicker="Weekly Availability" title={isAdmin ? "Instructor teaching windows" : "Your teaching windows"} body="Availability must fit within the academy's school hours. Add more than one window when a teacher has a break.">
-          <form className="setup-form-grid booking-form" onSubmit={submitAvailability}>
-            {isAdmin && <label className="portal-field">Instructor<select name="instructorProfileId" required defaultValue=""><option value="" disabled>Select instructor</option>{data.instructors.map((instructor) => <option key={instructor.id} value={instructor.id}>{instructor.displayName}</option>)}</select></label>}
-            <label className="portal-field">Day<select name="dayOfWeek" defaultValue="1">{dayNames.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label>
-            <label className="portal-field">Starts<input name="startsAt" type="time" defaultValue="16:00" required /></label>
-            <label className="portal-field">Ends<input name="endsAt" type="time" defaultValue="20:00" required /></label>
-            <button className="inline-btn booking-form-button" disabled={isPending || data.schoolHours.length === 0 || (isAdmin && data.instructors.length === 0)} type="submit">Add Availability</button>
-          </form>
-          {visibleAvailability.length === 0 ? <EmptyState>No teaching availability has been added.</EmptyState> : (
-            <div className="booking-record-list">
-              {visibleAvailability.map((window) => (
-                <div className="booking-record" key={window.id}>
-                  <div>
-                    <strong>{dayNames[window.dayOfWeek]}</strong>
-                    <span>{formatTime(window.startsAt)} - {formatTime(window.endsAt)}</span>
-                  </div>
-                  {isAdmin && <span>{instructorById.get(window.instructorProfileId)?.displayName ?? "Instructor"}</span>}
-                  <button className="booking-icon-button" disabled={isPending} onClick={() => run(() => deleteAvailabilityAction(window.id))} title="Remove availability" type="button" aria-label="Remove availability">X</button>
-                </div>
-              ))}
-            </div>
+      {view === "rooms" && (
+        <>
+          <ViewHeader kicker="Rooms & Approvals" title={isAdmin ? "Manage spaces and room decisions" : "Room request status"} body="Room inventory and approval decisions live together so pending requests never get lost below unrelated setup forms." />
+          {isAdmin && (
+            <BookingCard kicker="Room Inventory" title="Academy rooms" body="Pause a room to remove it from new lesson requests. Existing lesson records stay intact.">
+              <div className="room-card-grid live-room-grid">{data.rooms.map((room) => (
+                <article className={`room-card ${room.isActive ? "room-open" : "room-blocked"}`} key={room.id}><strong>{room.name}</strong><span>{room.bestFor}</span><small>{room.requiresOwnerApproval ? "Owner approval required" : "No approval required"}</small><button className="booking-text-button" disabled={isPending} onClick={() => run(() => setRoomStatusAction({ id: room.id, isActive: !room.isActive }))} type="button">{room.isActive ? "Pause room" : "Activate room"}</button></article>
+              ))}</div>
+              <form className="booking-inline-form" onSubmit={submitRoom}><label className="portal-field">Room name<input name="name" placeholder="New room" required /></label><label className="portal-field">Best for<input name="bestFor" placeholder="Lessons or room use" required /></label><button className="inline-btn" disabled={isPending} type="submit">Add Room</button></form>
+            </BookingCard>
           )}
-        </BookingCard>
-
-        <BookingCard kicker="Time Off" title={isAdmin ? "Instructor unavailable periods" : "Your blocked time"} body="Blackout periods override normal weekly availability and prevent new lessons.">
-          {visibleUnavailability.length === 0 ? <EmptyState>No upcoming unavailable periods.</EmptyState> : (
-            <div className="booking-record-list">
-              {visibleUnavailability.map((period) => (
-                <div className="booking-record" key={period.id}>
-                  <div><strong>{formatDateTime(period.startsAt)}</strong><span>Until {formatDateTime(period.endsAt)}{period.reason ? ` | ${period.reason}` : ""}</span></div>
-                  <button className="booking-icon-button" disabled={isPending} onClick={() => run(() => deleteUnavailabilityAction(period.id))} title="Remove unavailable period" type="button" aria-label="Remove unavailable period">X</button>
-                </div>
-              ))}
-            </div>
-          )}
-        </BookingCard>
-      </div>
-
-      <div className="portal-grid">
-        <BookingCard kicker="Approval Queue" title={isAdmin ? "Room requests awaiting a decision" : "Your room request status"}>
-          {pendingApprovals.length === 0 ? <EmptyState>No room requests are waiting for approval.</EmptyState> : (
-            <div className="booking-approval-list">
-              {pendingApprovals.map((approval) => {
+          <BookingCard kicker="Approval Queue" title={isAdmin ? "Room requests awaiting a decision" : "Your room request status"}>
+            {pendingApprovals.length === 0 ? <EmptyState>No room requests are waiting for approval.</EmptyState> : (
+              <div className="booking-approval-list">{pendingApprovals.map((approval) => {
                 const lesson = lessonById.get(approval.lessonScheduleId);
                 if (!lesson) return null;
-                return (
-                  <article key={approval.id}>
-                    <div>
-                      <strong>{lesson.studentName}</strong>
-                      <span>{formatDateTime(lesson.startsAt)}</span>
-                      <small>{lesson.program} | {lesson.roomName} | {lesson.instructorName}</small>
-                    </div>
-                    {isAdmin ? (
-                      <>
-                        <label className="portal-field">Decision note<input value={decisionNotes[approval.id] ?? ""} onChange={(event) => setDecisionNotes((current) => ({ ...current, [approval.id]: event.target.value }))} placeholder="Optional" /></label>
-                        <div className="button-row">
-                          <button className="inline-btn" disabled={isPending} onClick={() => run(() => decideApprovalAction({ decision: "approved", decisionNote: decisionNotes[approval.id] ?? "", requestId: approval.id }))} type="button">Approve</button>
-                          <button className="inline-btn ghost-btn" disabled={isPending} onClick={() => run(() => decideApprovalAction({ decision: "denied", decisionNote: decisionNotes[approval.id] ?? "", requestId: approval.id }))} type="button">Deny</button>
-                        </div>
-                      </>
-                    ) : <b className="booking-status status-pending">Pending owner approval</b>}
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </BookingCard>
-      </div>
+                return <article key={approval.id}><div><strong>{lesson.studentName}</strong><span>{formatDateTime(lesson.startsAt)}</span><small>{lesson.program} · {lesson.roomName} · {lesson.instructorName}</small></div>{isAdmin ? <><label className="portal-field">Decision note<input value={decisionNotes[approval.id] ?? ""} onChange={(event) => setDecisionNotes((current) => ({ ...current, [approval.id]: event.target.value }))} placeholder="Optional" /></label><div className="button-row"><button className="inline-btn" disabled={isPending} onClick={() => run(() => decideApprovalAction({ decision: "approved", decisionNote: decisionNotes[approval.id] ?? "", requestId: approval.id }))} type="button">Approve</button><button className="inline-btn ghost-btn" disabled={isPending} onClick={() => run(() => decideApprovalAction({ decision: "denied", decisionNote: decisionNotes[approval.id] ?? "", requestId: approval.id }))} type="button">Deny</button></div></> : <b className="booking-status status-pending">Pending owner approval</b>}</article>;
+              })}</div>
+            )}
+          </BookingCard>
+        </>
+      )}
 
-      <BookingCard kicker="Live Schedule" title="Upcoming lesson records" body="Pending lessons hold their requested room to prevent double-booking. Denied requests release it automatically.">
-        {upcomingLessons.length === 0 ? <EmptyState>The schedule is ready for its first real lesson.</EmptyState> : (
-          <div className="booking-record-list booking-schedule-list">
-            {upcomingLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} />)}
-          </div>
-        )}
-      </BookingCard>
-    </>
+      {view === "lessons" && (
+        <>
+          <ViewHeader kicker="Lesson Records" title="Upcoming lesson schedule" body="Review confirmed and pending lesson records without the configuration controls from the rest of the booking center." />
+          <BookingCard kicker="Live Schedule" title={`${upcomingLessons.length} upcoming lessons`} body="Pending lessons hold their requested room to prevent double-booking. Denied requests release it automatically.">
+            {upcomingLessons.length === 0 ? <EmptyState>The schedule is ready for its first lesson.</EmptyState> : <div className="booking-record-list booking-schedule-list">{upcomingLessons.map((lesson) => <LessonRow key={lesson.id} lesson={lesson} />)}</div>}
+          </BookingCard>
+        </>
+      )}
+    </BookingPageLayout>
   );
 }
 

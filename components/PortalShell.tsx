@@ -6,17 +6,20 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import type { PortalUser } from "@/lib/auth";
 import { BookingWorkspace } from "@/components/booking/BookingWorkspace";
+import type { BookingView } from "@/components/booking/BookingSectionNav";
 import { PeopleWorkspace } from "@/components/people/PeopleWorkspace";
 import type { BookingWorkspaceData } from "@/lib/booking/types";
 import { navItems, roleActions, roleLabels, roleProfiles, type PortalSection, type Role } from "@/lib/roles";
 
 type PortalShellProps = {
   bookingData?: BookingWorkspaceData;
+  bookingView?: BookingView;
+  children?: ReactNode;
   section: PortalSection;
   user: PortalUser;
 };
 
-export function PortalShell({ bookingData, section, user }: PortalShellProps) {
+export function PortalShell({ bookingData, bookingView = "overview", children, section, user }: PortalShellProps) {
   const pathname = usePathname();
   const [clockStatus, setClockStatus] = useState("Not clocked in");
   const [toast, setToast] = useState("");
@@ -101,7 +104,7 @@ export function PortalShell({ bookingData, section, user }: PortalShellProps) {
           </div>
         </header>
 
-        <SectionContent bookingData={bookingData} section={section} role={role} userId={user.id} userName={user.displayName} time={time} clockStatus={clockStatus} onClock={handleClock} notify={notify} />
+        {children ?? <SectionContent bookingData={bookingData} bookingView={bookingView} section={section} role={role} userId={user.id} userName={user.displayName} time={time} clockStatus={clockStatus} onClock={handleClock} notify={notify} />}
       </main>
 
       <div className={toast ? "portal-toast show" : "portal-toast"} role="status" aria-live="polite">
@@ -113,6 +116,7 @@ export function PortalShell({ bookingData, section, user }: PortalShellProps) {
 
 type ContentProps = {
   bookingData?: BookingWorkspaceData;
+  bookingView?: BookingView;
   section: PortalSection;
   role: Role;
   userId: string;
@@ -129,7 +133,7 @@ function SectionContent(props: ContentProps) {
       return <Dashboard {...props} />;
     case "booking":
       return props.bookingData
-        ? <BookingWorkspace data={props.bookingData} notify={props.notify} role={props.role} userId={props.userId} />
+        ? <BookingWorkspace data={props.bookingData} notify={props.notify} role={props.role} userId={props.userId} view={props.bookingView} />
         : null;
     case "students":
       return props.bookingData
